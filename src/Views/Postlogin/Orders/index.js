@@ -1,12 +1,24 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchOrders } from "Redux-Store/Orders/OrdersThunk";
-import { Box, Button } from "@mui/material";
 import status from "Redux-Store/Constants";
 import { Loader } from "Utils/helperFunctions";
 import TablesHeaderFilters from "Views/Postlogin/Components/TablesHeaderFilters";
 import GridTableWithPagination from "../Components/GridTableWithPagination";
 import { Link } from "react-router-dom";
+import BreadcrumbGroup from "@cloudscape-design/components/breadcrumb-group";
+import Container from "@cloudscape-design/components/container";
+import Header from "@cloudscape-design/components/header";
+import SpaceBetween from "@cloudscape-design/components/space-between";
+
+import {
+  ColumnLayout,
+  ContentLayout,
+  Button,
+  Box
+} from '@cloudscape-design/components';
+
+
 const columns = [
   {
     field: "order_id",
@@ -175,25 +187,67 @@ class Orders extends Component {
     const startDataNo = page * pageSize + 1;
     const endDataNo = page * pageSize + pageSize;
     return (
-      <Box className="main-container">
+               <ContentLayout
+      
+      headerVariant="high-contrast"
+      breadcrumbs={
+        <BreadcrumbGroup
+          items={[
+            { text: "Dashboard", href: "#components" },
+            { text: "Orders", href: "#" },
+           
+          ]}
+          ariaLabel="Breadcrumbs"
+        />
+      }
+      header={<Header variant="h1" actions={
+        <SpaceBetween direction="horizontal" size="xs">
+        <Button>Export</Button>
+        <Button iconName="calendar">Today</Button>
+        <Button
+          iconName="add-plus"
+          variant="primary"
+        >
+          Create Order
+        </Button>
+        </SpaceBetween>
+
+      }>Orders</Header>}
+    >
+    <Container className="top-container" style={{ marginBottom: '1rem' }}>
+          <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
+            <div>
+            <Box variant="awsui-key-label"><p style={{ fontSize: 12, fontWeight: 'bold'}}>Total Orders</p></Box>
+              <span style={{ fontSize: 34, fontWeight: '900', lineHeight: 1.3, color:'#1D4ED8' }}>55</span>
+            </div>
+            <div>
+            <Box variant="awsui-key-label"><p style={{ fontSize: 12, fontWeight: 'bold'}}>Orders Completed</p></Box>
+            <span style={{ fontSize: 34, fontWeight: '900', lineHeight: 1.3, color:'#1D4ED8' }}>423</span>
+            </div>
+            <div>
+            <Box variant="awsui-key-label"><p style={{ fontSize: 12, fontWeight: 'bold'}}>Orders Confirmed</p></Box>
+            <span style={{ fontSize: 34, fontWeight: '900', lineHeight: 1.3, color:'#1D4ED8' }}>123</span>
+            </div>
+            <div>
+            <Box variant="awsui-key-label"><p style={{ fontSize: 12, fontWeight: 'bold'}}>Order Cancelled</p></Box>
+            <span style={{ fontSize: 34, fontWeight: '900', lineHeight: 1.3, color:'#1D4ED8' }}>128</span>
+            </div>
+            <div>
+              <Box variant="awsui-key-label"><p style={{ fontSize: 12, fontWeight: 'bold'}}>Orders Refunded</p></Box>
+              <span style={{ fontSize: 34, fontWeight: '900', lineHeight: 1.3, color:'#1D4ED8' }}>4</span>
+              </div>
+          </ColumnLayout>
+        </Container>
+   
         <Box className="qutations-container">
           <TablesHeaderFilters
             details={{
-              header: "Orders",
               filterLabel: "",
               btnLabel: "",
               dataLength: ordersData.length,
               searchData,
               isOnlySearchVisible: true,
-              dataRange: ordersData.length ? (
-                <>
-                  <strong>
-                    {startDataNo} -{endDataNo}
-                  </strong>
-                </>
-              ) : (
-                0
-              ),
+          
             }}
             handleSearch={(searchData) => {
               this.manipulationData(
@@ -220,7 +274,7 @@ class Orders extends Component {
             />
           )}
         </Box>
-      </Box>
+        </ContentLayout>
     );
   }
 }

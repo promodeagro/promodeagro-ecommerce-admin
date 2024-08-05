@@ -37,6 +37,11 @@ const Views = () => {
             path={`${PREFIX_APP_PATH}/dashboard`}
             element={<Dashboards />}
           />
+           <Route
+            exact
+            path={`${PREFIX_APP_PATH}/orders`}
+            element={<Orders />}
+          />
           <Route
             exact
             path={`${PREFIX_APP_PATH}/quotations`}
@@ -92,11 +97,7 @@ const Views = () => {
             path={`${PREFIX_APP_PATH}/batch-sheet`}
             element={<BatchSheet />}
           />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/orders`}
-            element={<Orders />}
-          />
+         
           <Route
             exact
             path={`${PREFIX_APP_PATH}/inventory/raw-materials`}
