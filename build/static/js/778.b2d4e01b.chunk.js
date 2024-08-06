@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkrasilabs=self.webpackChunkrasilabs||[]).push([[778],{5778:(s,e,a)=>{a.r(e),a.d(e,{default:()=>c});var n=a(5043),r=a(579);class t extends n.Component{render(){return(0,r.jsx)("div",{className:"main-container"})}}const c=t}}]);
-//# sourceMappingURL=778.b2d4e01b.chunk.js.map

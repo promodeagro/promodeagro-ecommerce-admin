@@ -11,94 +11,49 @@ const OrderSlice = createSlice({
   initialState: {
     ordersData: {
       status: null,
+      data: null,
     },
     order_details: {
       status: null,
+      data: null,
     },
     order_viewattachments: {
       status: null,
+      data: null,
     },
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchOrders.pending.toString(), (state, action) => {
-        return {
-          ...state,
-          ordersData: {
-            status: status.IN_PROGRESS,
-          },
-        };
+      .addCase(fetchOrders.pending, (state) => {
+        state.ordersData.status = status.IN_PROGRESS;
       })
-      .addCase(fetchOrders.fulfilled.toString(), (state, { payload }) => {
-        return {
-          ...state,
-          ordersData: {
-            status: status.SUCCESS,
-            data: payload,
-          },
-        };
+      .addCase(fetchOrders.fulfilled, (state, { payload }) => {
+        state.ordersData.status = status.SUCCESS;
+        state.ordersData.data = payload;
       })
-      .addCase(fetchOrders.rejected.toString(), (state, action) => {
-        return {
-          ...state,
-          ordersData: {
-            status: status.FAILURE,
-          },
-        };
+      .addCase(fetchOrders.rejected, (state) => {
+        state.ordersData.status = status.FAILURE;
       })
-      .addCase(ordersDetails.pending.toString(), (state, action) => {
-        return {
-          ...state,
-          order_details: {
-            status: status.IN_PROGRESS,
-          },
-        };
+      .addCase(ordersDetails.pending, (state) => {
+        state.order_details.status = status.IN_PROGRESS;
       })
-      .addCase(ordersDetails.fulfilled.toString(), (state, { payload }) => {
-        return {
-          ...state,
-          order_details: {
-            status: status.SUCCESS,
-            data: payload,
-          },
-        };
+      .addCase(ordersDetails.fulfilled, (state, { payload }) => {
+        state.order_details.status = status.SUCCESS;
+        state.order_details.data = payload;
       })
-      .addCase(ordersDetails.rejected.toString(), (state, action) => {
-        return {
-          ...state,
-          order_details: {
-            status: status.FAILURE,
-          },
-        };
+      .addCase(ordersDetails.rejected, (state) => {
+        state.order_details.status = status.FAILURE;
       })
-      .addCase(ordersViewAttachments.pending.toString(), (state, action) => {
-        return {
-          ...state,
-          order_viewattachments: {
-            status: status.IN_PROGRESS,
-          },
-        };
+      .addCase(ordersViewAttachments.pending, (state) => {
+        state.order_viewattachments.status = status.IN_PROGRESS;
       })
-      .addCase(
-        ordersViewAttachments.fulfilled.toString(),
-        (state, { payload }) => {
-          return {
-            ...state,
-            order_viewattachments: {
-              status: status.SUCCESS,
-              data: payload,
-            },
-          };
-        }
-      )
-      .addCase(ordersViewAttachments.rejected.toString(), (state, action) => {
-        return {
-          ...state,
-          order_viewattachments: {
-            status: status.FAILURE,
-          },
-        };
+      .addCase(ordersViewAttachments.fulfilled, (state, { payload }) => {
+        state.order_viewattachments.status = status.SUCCESS;
+        state.order_viewattachments.data = payload;
+      })
+      .addCase(ordersViewAttachments.rejected, (state) => {
+        state.order_viewattachments.status = status.FAILURE;
       });
   },
 });

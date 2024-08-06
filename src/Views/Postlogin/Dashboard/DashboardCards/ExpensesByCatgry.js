@@ -1,8 +1,7 @@
 import React from 'react';
-import LineChart from "@cloudscape-design/components/line-chart";
 import Box from "@cloudscape-design/components/box";
 import Button from "@cloudscape-design/components/button";
-import { BarChart, Container, Header, Link } from '@cloudscape-design/components';
+import { BarChart, Container, Header } from '@cloudscape-design/components';
 
 const ExpensesByCatgry = () => {
   return (
