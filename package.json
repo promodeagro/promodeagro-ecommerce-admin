@@ -58,7 +58,8 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "sass": "^1.77.4"
-  }
+  "devDependencies": {  
+      "sass-loader": "^14.2.1",
+    "@babel/plugin-proposal-private-property-in-object": "^7.18.6"
+}
 }

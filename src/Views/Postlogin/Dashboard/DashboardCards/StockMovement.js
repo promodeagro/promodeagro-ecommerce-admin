@@ -1,6 +1,6 @@
 import Box from "@cloudscape-design/components/box";
 import Button from "@cloudscape-design/components/button";
-import { Container, Header, LineChart, Link } from '@cloudscape-design/components';
+import { Container, Header, LineChart } from '@cloudscape-design/components';
 
 const  StockMovement = () => {
   return (
