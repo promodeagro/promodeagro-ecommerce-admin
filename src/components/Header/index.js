@@ -1,3 +1,4 @@
+
 import { TopNavigation, Input } from '@cloudscape-design/components';
 import React from 'react';
 import logo from '../../assets/img/logo_PTR 1.png';
@@ -89,3 +90,4 @@ const TopBar = () => {
 };
 
 export default TopBar;
+

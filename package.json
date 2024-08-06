@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@cloudscape-design/components": "^3.0.704",
+
+      "@cloudscape-design/components": "latest_version",
+    "@cloudscape-design/component-toolkit": "compatible_version",
     "@cloudscape-design/global-styles": "^1.0.31",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
