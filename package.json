@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-
-      "@cloudscape-design/components": "latest_version",
     "@cloudscape-design/component-toolkit": "compatible_version",
+    "@cloudscape-design/components": "latest_version",
     "@cloudscape-design/global-styles": "^1.0.31",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -14,7 +13,7 @@
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "@mui/styles": "^5.15.19",
     "@mui/x-data-grid": "^7.6.1",
-    "@reduxjs/toolkit": "^2.2.5",
+    "@reduxjs/toolkit": "^2.2.7",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

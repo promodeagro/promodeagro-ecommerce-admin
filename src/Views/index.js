@@ -6,6 +6,7 @@ import PurchasedOrder from "./Postlogin/FinishProductSpecification/PurchasedOrde
 import QuotationCreateFPS from "./Postlogin/Quatations/QuotationCreateFPS";
 import ProductDetails from "./Postlogin/FinishProductSpecification/ProductDetails";
 import QuatationsForm from "./Postlogin/Quatations/QutationForm";
+import GetProductByid from "./Postlogin/Products/Components/GetSpecifProduct";
 const Dashboards = lazy(() => import("./Postlogin/Dashboard"));
 const Quotations = lazy(() => import("./Postlogin/Quatations"));
 const FinishProductSpecification = lazy(() =>
@@ -92,6 +93,12 @@ const Views = () => {
             path={`${PREFIX_APP_PATH}/products`}
             element={<Products />}
           />
+          <Route
+            exact
+            path={`${PREFIX_APP_PATH}/products/:id`}
+            element={<GetProductByid/>}
+          />
+         
           <Route
             exact
             path={`${PREFIX_APP_PATH}/batch-sheet`}

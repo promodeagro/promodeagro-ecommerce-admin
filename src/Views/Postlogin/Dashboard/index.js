@@ -3,7 +3,6 @@ import {
   Box,
   ColumnLayout,
   Grid,
-  Link,
   Popover,
 } from '@cloudscape-design/components';
 import Container from '@cloudscape-design/components/container';
