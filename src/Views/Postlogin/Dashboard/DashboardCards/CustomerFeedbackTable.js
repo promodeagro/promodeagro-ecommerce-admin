@@ -10,8 +10,8 @@ import {
 } from '@cloudscape-design/components';
 
 const CustomerFeedbackTable = () => {
-    const [currentPageIndex, setCurrentPageIndex] = useState(1);
-    
+  const [currentPageIndex, setCurrentPageIndex] = useState(1);
+
   const customers = [
     { id: 13678, date: '2023-08-01', name: 'John Doe', contact: '1234567890', email: 'john@example.com', area: 'Area 1', feedback: 'Good service' },
     { id: 276456, date: '2023-08-02', name: 'Jane Smith', contact: '2345678901', email: 'jane@example.com', area: 'Area 2', feedback: 'Very satisfied' },
@@ -34,10 +34,8 @@ const CustomerFeedbackTable = () => {
   const pagesCount = Math.ceil(customers.length / itemsPerPage);
   const displayedCustomers = customers.slice((currentPageIndex - 1) * itemsPerPage, currentPageIndex * itemsPerPage);
 
-
   return (
-  
-            <Table
+    <Table
       renderAriaLive={({ firstIndex, lastIndex, totalItemsCount }) =>
         `Displaying items ${firstIndex} to ${lastIndex} of ${totalItemsCount}`
       }
@@ -45,8 +43,8 @@ const CustomerFeedbackTable = () => {
         {
           id: 'id',
           header: 'Customer ID',
-          cell: item =>(
-          <Link variant='secondary'>{item.id}</Link>
+          cell: item => (
+            <Link variant="secondary">{item.id}</Link>
           ),
           sortingField: 'id',
           isRowHeader: true,
@@ -99,25 +97,20 @@ const CustomerFeedbackTable = () => {
           </SpaceBetween>
         </Box>
       }
-     
       header={
-        <Header variant='h4'>Customer Feedback</Header>
+        <Header variant="h4">Customer Feedback</Header>
       }
       footer={
-        <Box float='right'>
-        <Pagination
-         
-          currentPageIndex={currentPageIndex}
-          pagesCount={pagesCount}
-          onChange={({ detail }) => setCurrentPageIndex(detail.currentPageIndex)}
-        />
+        <Box float="right">
+          <Pagination
+            currentPageIndex={currentPageIndex}
+            pagesCount={pagesCount}
+            onChange={({ detail }) => setCurrentPageIndex(detail.currentPageIndex)}
+          />
         </Box>
       }
-    
     />
+  );
+};
 
-
-  )
-}
-
-export default CustomerFeedbackTable
+export default CustomerFeedbackTable;

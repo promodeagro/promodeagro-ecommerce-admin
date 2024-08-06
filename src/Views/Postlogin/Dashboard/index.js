@@ -140,7 +140,7 @@ const Dashboard = () => {
       <ExpensesByCatgry/>
       <SupportTickets/>
      </Grid>
-     <CustomerFeedbackTable/>
+     {/* <CustomerFeedbackTable/> */}
     
     </SpaceBetween>
      </ContentLayout>
