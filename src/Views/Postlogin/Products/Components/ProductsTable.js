@@ -1,21 +1,9 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  ColumnLayout,
-
-} from '@cloudscape-design/components';
-import Container from '@cloudscape-design/components/container';
-import Header from '@cloudscape-design/components/header';
-import SpaceBetween from '@cloudscape-design/components/space-between';
-import Button from '@cloudscape-design/components/button';
-import ContentLayout from '@cloudscape-design/components/content-layout';
-
-import { Table } from '@cloudscape-design/components';
+import { Table, Header, Box } from '@cloudscape-design/components';
 import { Link } from 'react-router-dom';
-import product from "../../../assets/img/tomato.png"
+import product from "../../../../assets/img/tomato.png"
 
-
-const Products = () => {
+const ProductsTable = () => {
   const [activeButton, setActiveButton] = useState('All');
 
   const buttons = ['All', 'Draft', 'Stopped', 'Published'];
@@ -68,64 +56,8 @@ const Products = () => {
 
   const filteredProducts = activeButton === 'All' ? products : products.filter(product => product.status === activeButton);
 
-
   return (
-    <>
-      <ContentLayout
-        headerVariant="high-contrast"
-        header={
-          <Header
-            actions={
-              <SpaceBetween alignItems="center" direction="horizontal" size="xs">
-              
-                    <Button variant="normal">
-                     Export
-                    </Button>
-                    <Button variant="primary" iconName='add-plus'>
-                     Add Product
-                    </Button>
-                
-              </SpaceBetween>
-            }
-            variant="h1"
-          >
-            Products
-          </Header>
-        }
-      >
-
-
-      <SpaceBetween direction="vertical" size="s">
-      <Container className="top-container" style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {/* <h2 style={{ marginBottom: '1rem' }}>Products</h2> */}
-          </div>
-
-          <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
-            <div>
-            <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Total Published Products</p></Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3,color:"#0972D3" }}>₹436K</span>
-            </div>
-            <div>
-            <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Total Stock</p></Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3,color:"#0972D3" }}>430</span>
-            </div>
-            <div>
-            <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Total Orders</p></Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3,color:"#0972D3" }}>123</span>
-            </div>
-            <div>
-            <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Net Profit</p></Box>
-            <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3,color:"#0972D3" }}>128</span>
-            </div>
-            <div>
-            <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Stopped Product </p></Box>
-            <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3,color:"#0972D3" }}>128</span>
-            </div>
-            
-          </ColumnLayout>
-        </Container>
-        <div>
+    <div>
       <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
         {buttons.map((button) => (
           <button
@@ -204,16 +136,7 @@ const Products = () => {
         selectionType="multi"
       />
     </div>
+  );
+};
 
-    
-
-    
-    </SpaceBetween>
-     </ContentLayout>
-  
-  </>
-
-  )
-}
-
-export default Products
+export default ProductsTable;

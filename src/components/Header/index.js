@@ -43,7 +43,7 @@ const TopBar = () => {
           },
           {
             type: "menu-dropdown",
-            text: "Shaistha Samreen",
+            text: "xyz",
             description: "shaisthasamreen786@gmail.com",
             iconName: "user-profile",
             items: [
