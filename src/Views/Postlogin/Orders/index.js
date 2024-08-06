@@ -20,13 +20,13 @@ const columns = [
     field: "order_id",
     headerName: "Order Id",
     width: 150,
-    renderCell: (params) => <Link to={params.value}>{params.value}</Link>,
+    renderCell: (params) => <Link to={`/order/${params.value}`}>{params.value}</Link>,
   },
   {
     field: "customer_name",
     headerName: "Customer Name",
     width: 150,
-    renderCell: (params) => <Link to={params.value}>{params.value}</Link>,
+    renderCell: (params) => params.value,
   },
   {
     field: "product",
@@ -74,7 +74,7 @@ const columns = [
     field: "status",
     headerName: "Order Status",
     width: 240,
-    renderCell: (data) => data.value,
+    renderCell: (data) => data.status,
   },
 ];
 
@@ -88,26 +88,23 @@ const Orders = () => {
   const [searchData, setSearchData] = useState("");
   const [filteredOrdersData, setFilteredOrdersData] = useState([]);
 
-  useEffect(() => {
-    dispatch(fetchOrders());
-  }, [dispatch]);
-
+  // Define manipulateData function before using it
   const manipulateData = useCallback((data, searchData = "") => {
     let orders = JSON.parse(JSON.stringify(data));
     if (searchData) {
       orders = data.filter((tableData) => {
         const lowerSearchData = searchData.toLowerCase();
         return (
-          tableData?.customer_name?.toLowerCase().includes(lowerSearchData) ||
-          tableData?.status?.toLowerCase().includes(lowerSearchData) ||
-          tableData?.product_type?.toLowerCase().includes(lowerSearchData) ||
-          tableData?.product_code?.toLowerCase().includes(lowerSearchData) ||
-          tableData?.product?.toLowerCase().includes(lowerSearchData) ||
-          tableData?.package_type?.toLowerCase().includes(lowerSearchData) ||
-          tableData?.order_value?.toLowerCase().includes(lowerSearchData) ||
-          tableData?.order_id?.toLowerCase().includes(lowerSearchData) ||
-          tableData?.order_date?.toLowerCase().includes(lowerSearchData) ||
-          tableData?.due_date?.toLowerCase().includes(lowerSearchData)
+          (typeof tableData?.customer_name === 'string' && tableData?.customer_name.toLowerCase().includes(lowerSearchData)) ||
+          (typeof tableData?.status === 'string' && tableData?.status.toLowerCase().includes(lowerSearchData)) ||
+          (typeof tableData?.product_type === 'string' && tableData?.product_type.toLowerCase().includes(lowerSearchData)) ||
+          (typeof tableData?.product_code === 'string' && tableData?.product_code.toLowerCase().includes(lowerSearchData)) ||
+          (typeof tableData?.product === 'string' && tableData?.product.toLowerCase().includes(lowerSearchData)) ||
+          (typeof tableData?.package_type === 'string' && tableData?.package_type.toLowerCase().includes(lowerSearchData)) ||
+          (typeof tableData?.order_value === 'string' && tableData?.order_value.toLowerCase().includes(lowerSearchData)) ||
+          (typeof tableData?.order_id === 'string' && tableData?.order_id.toLowerCase().includes(lowerSearchData)) ||
+          (typeof tableData?.order_date === 'string' && tableData?.order_date.toLowerCase().includes(lowerSearchData)) ||
+          (typeof tableData?.due_date === 'string' && tableData?.due_date.toLowerCase().includes(lowerSearchData))
         );
       });
     }
@@ -120,23 +117,22 @@ const Orders = () => {
   }, []);
 
   useEffect(() => {
-    if (ordersData.status === status.SUCCESS && ordersData?.data) {
-      manipulateData(ordersData?.data.data.finish_products || [], searchData);
+    dispatch(fetchOrders());
+  }, [dispatch]);
+
+  useEffect(() => {
+    console.log('Orders Data:', ordersData); 
+    if (ordersData.status === status.SUCCESS && ordersData?.data?.data?.finish_products) {
+      manipulateData(ordersData.data.data.finish_products, searchData);
+    } else {
+      setFilteredOrdersData([]);
     }
   }, [ordersData, searchData, manipulateData]);
+  
 
-  const handleSearchChange = (e) => {
-    const searchText = e.detail.filteringText;
-    setSearchData(searchText);
-    manipulateData(ordersData?.data?.data?.finish_products || [], searchText);
-  };
-
-  const {
-    page,
-    pageSize,
-  } = paginationDetails;
-  const startDataNo = page * pageSize + 1;
-  const endDataNo = page * pageSize + pageSize;
+  const { page, pageSize } = paginationDetails;
+  const startDataNo = page * pageSize;
+  const endDataNo = startDataNo + pageSize;
 
   return (
     <ContentLayout
@@ -254,8 +250,9 @@ const Orders = () => {
 
       <Box className="qutations-container">
         <TextFilter
-          filteringPlaceholder="Search Orders"
-          onChange={handleSearchChange}
+          filteringPlaceholder="Search"
+          filteringText={searchData}
+          onChange={(e) => setSearchData(e.detail.filteringText)}
         />
 
         <Pagination
@@ -279,7 +276,7 @@ const Orders = () => {
               cell: (e) => col.renderCell({ value: e[col.field] }),
               width: col.width,
             }))}
-            items={filteredOrdersData.slice(startDataNo - 1, endDataNo)}
+            items={filteredOrdersData.slice(startDataNo, endDataNo)}
             resizableColumns
             variant="borderless"
           />
