@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Box,
+  ButtonDropdown,
   ColumnLayout,
 
 } from '@cloudscape-design/components';
@@ -196,6 +197,27 @@ const Products = () => {
             header: 'MSP',
             cell: item => item.msp,
             sortingField: "msp"
+          },
+          {
+            id: 'actions',
+            header: 'Actions',
+            cell: item => <ButtonDropdown
+            expandToViewport
+            items={[
+              { id: "start", text: "Start" },
+              { id: "stop", text: "Stop", disabled: true },
+              {
+                id: "hibernate",
+                text: "Hibernate",
+                disabled: true
+              },
+              { id: "reboot", text: "Reboot", disabled: true },
+              { id: "terminate", text: "Terminate" }
+            ]}
+            ariaLabel="Control instance"
+            variant="icon"
+          />,
+        
           },
         ]}
         items={filteredProducts}
