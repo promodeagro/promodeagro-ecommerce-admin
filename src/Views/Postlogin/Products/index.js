@@ -81,9 +81,7 @@ const Products = () => {
                     <Button variant="normal">
                      Export
                     </Button>
-                    <Button variant="primary" iconName='add-plus'>
-                     Add Product
-                    </Button>
+                  
                 
               </SpaceBetween>
             }
