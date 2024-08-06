@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
+  Button,
   ButtonDropdown,
   ColumnLayout,
   Container,
   Header,
   SpaceBetween,
-  Button,
   ContentLayout,
   Table
 } from '@cloudscape-design/components';
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from 'react-router-dom';
 import { fetchProducts } from 'Redux-Store/Products/ProductThunk';
+
+
+
 
 
 const Products = () => {
@@ -35,6 +38,7 @@ const Products = () => {
   const handleButtonClick = (button) => {
     setActiveButton(button);
   };
+
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -82,23 +86,35 @@ const Products = () => {
         <Container className="top-container" style={{ marginBottom: '1rem' }}>
           <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
             <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12 }}>Total Published Products</p></Box>
+
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Total Published Products</p>
+              </Box>
               <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>₹436K</span>
             </div>
             <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12 }}>Total Stock</p></Box>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Total Stock</p>
+              </Box>
               <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>430</span>
             </div>
             <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12 }}>Total Orders</p></Box>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Total Orders</p>
+              </Box>
               <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>123</span>
             </div>
             <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12 }}>Net Profit</p></Box>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Net Profit</p>
+              </Box>
               <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>128</span>
             </div>
             <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12 }}>Stopped Product</p></Box>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Stopped Products</p>
+              </Box>
+
               <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>128</span>
             </div>
           </ColumnLayout>

@@ -7,7 +7,7 @@ import productslsit from "Redux-Store/Products/dummy/productlist.json";
 export const fetchProducts = createAsyncThunk("products", async (params) => {
   try {
     let url = config.FETCH_PRODUCTS;
-    const response = await postLoginService.get(url);
+    const response = await postLoginService.get(url,params);
       // return response.data
     
     return productslsit;

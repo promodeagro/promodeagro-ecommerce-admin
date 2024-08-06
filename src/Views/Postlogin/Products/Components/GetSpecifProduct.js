@@ -34,6 +34,7 @@ const GetProductByid = () => {
   const [value, setValue] = React.useState("");
 
   return (
+    <SpaceBetween direction="vertical" size="l">
      <Grid
     gridDefinition={[
       { colspan: { default: 3, xxs: 9 } },
@@ -45,8 +46,8 @@ const GetProductByid = () => {
     <form onSubmit={(e) => e.preventDefault()}>
       <Form>
         <SpaceBetween direction="vertical" size="l">
-        <div style={{ width: "1000px" }}>
-          <FormField label="Item Name">
+        <div style={{ width: "650px" }}>
+          <FormField stretch label="Item Name">
             <Input placeholder="Input Item Name" />
           </FormField>
           </div>
@@ -204,6 +205,8 @@ const GetProductByid = () => {
     </Grid>
     </Container>
     </Grid>
+    </SpaceBetween>
+
   );
 };
 

@@ -1,4 +1,3 @@
-
 import React from "react";
 import SideNavigation from "@cloudscape-design/components/side-navigation";
 import Badge from "@cloudscape-design/components/badge";
@@ -9,13 +8,11 @@ import { Box } from "@cloudscape-design/components";
 const pages = [
   {
     path: "/app/dashboard",
-    label: "Dashboard",
-  
+    label: "Dashboard", 
   },
   {
     path: "/app/orders",
     label: "Orders",
-
   },
   {
     path: "/app/products",
@@ -23,26 +20,24 @@ const pages = [
   
   },
   {
-    path: "/app/customers",
+    path: "/app/inventory",
     label: "Inventory",
  
   },
   {
-    path: "/app/customers",
+    path: "/app/salesandreport",
     label: "Sales & Report",
   
   },
   {
-    path: "/app/customers",
+    path: "/app/contentmanagement",
     label: "Content Management",
    
   },
   {
-    path: "/app/inventory",
-    label: "CRM",
+    path: "/app/customers",
+    label: "CRM",  
  
-   
-  
   },
   
 ];

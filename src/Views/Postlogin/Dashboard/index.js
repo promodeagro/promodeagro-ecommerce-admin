@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [selectedMonth, setSelectedMonth] = React.useState(getCurrentMonthYear());
   const date = new Date();
   const month = date.toLocaleString('default', { month: 'long' });
+  
   function getCurrentMonthYear(date = new Date()) {
     const monthNames = [
       'January', 'February', 'March', 'April', 'May', 'June', 'July',
@@ -31,7 +32,7 @@ const Dashboard = () => {
     ];
     const month = monthNames[date.getMonth()];
     const year = date.getFullYear();
-    return `${month} ${year}`;
+    return `${month} ${year}`; // Corrected line
   }
 
   const handleButtonClick = () => {
@@ -58,14 +59,13 @@ const Dashboard = () => {
                     content={
                       <Calendar
                         onChange={handleCalendarChange}
-                        value={null}
-                         // Initially set to null
-                           granularity="month"
+                        value={null} // Initially set to null
+                        granularity="month"
                       />
                     }
                   >
                     <Button onClick={handleButtonClick} variant="primary" iconName='calendar'>
-                      {selectedMonth.startsWith(month) ? 'Calender' : selectedMonth}
+                      {selectedMonth.startsWith(month) ? 'Calendar' : selectedMonth}
                     </Button>
                   </Popover>
                 </div>
@@ -80,73 +80,70 @@ const Dashboard = () => {
           
         }
       >
-
-
-      <SpaceBetween direction="vertical" size="s">
-      <Container className="top-container" style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <h2 style={{ marginBottom: '1rem' }}>Adam's Dashboard</h2>
-          </div>
-
-          <ColumnLayout columns={4} variant="default" minColumnWidth={170}>
-            <div>
-            <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Total Revenue</p></Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>₹436K</span>
+        <SpaceBetween direction="vertical" size="s">
+          <Container className="top-container" style={{ marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <h2 style={{ marginBottom: '1rem' }}>Adam's Dashboard</h2>
             </div>
-            <div>
-            <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Total Sales</p></Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>430</span>
-            </div>
-            <div>
-            <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Total Orders</p></Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>123</span>
-            </div>
-            <div>
-            <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Overall Customers</p></Box>
-            <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>128</span>
-            </div>
-            
-          </ColumnLayout>
-        </Container>
+            <ColumnLayout columns={4} variant="default" minColumnWidth={170}>
+              <div>
+                <Box variant="awsui-key-label">
+                  <p style={{ fontSize: 12 }}>Total Revenue</p>
+                </Box>
+                <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>₹436K</span>
+              </div>
+              <div>
+                <Box variant="awsui-key-label">
+                  <p style={{ fontSize: 12 }}>Total Sales</p>
+                </Box>
+                <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>430</span>
+              </div>
+              <div>
+                <Box variant="awsui-key-label">
+                  <p style={{ fontSize: 12 }}>Total Orders</p>
+                </Box>
+                <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>123</span>
+              </div>
+              <div>
+                <Box variant="awsui-key-label">
+                  <p style={{ fontSize: 12 }}>Overall Customers</p>
+                </Box>
+                <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>128</span>
+              </div>
+            </ColumnLayout>
+          </Container>
+          <Grid
+            gridDefinition={[
+              { colspan: { default: 12, xxs: 6 } },
+              { colspan: { default: 12, xxs: 6 } },
+            ]}
+          >
+            <RecentOrders />
+            <ProfitPerformance />
+          </Grid>
+          <Grid
+            gridDefinition={[
+              { colspan: { default: 12, xxs: 6 } },
+              { colspan: { default: 12, xxs: 6 } },
+            ]}
+          >
+            <SalesRevenue />
+            <StockMovement />
+          </Grid>
+          <Grid
+            gridDefinition={[
+              { colspan: { default: 12, xxs: 6 } },
+              { colspan: { default: 12, xxs: 6 } },
+            ]}
+          >
+            <ExpensesByCatgry />
+            <SupportTickets />
+          </Grid>
+          <CustomerFeedbackTable />
+        </SpaceBetween>
+      </ContentLayout>
+    </>
+  );
+};
 
-        <Grid
-          gridDefinition={[
-            { colspan: { default: 12, xxs: 6 } },
-            { colspan: { default: 12, xxs: 6 } },
-          ]}
-        >
-
-      <RecentOrders/>
-      <ProfitPerformance/>
-     </Grid>
-     <Grid
-          gridDefinition={[
-            { colspan: { default: 12, xxs: 6 } },
-            { colspan: { default: 12, xxs: 6 } },
-          ]}
-        >
-
-      <SalesRevenue/>
-      <StockMovement/>
-     </Grid>
-     <Grid
-          gridDefinition={[
-            { colspan: { default: 12, xxs: 6 } },
-            { colspan: { default: 12, xxs: 6 } },
-          ]}
-        >
-
-      <ExpensesByCatgry/>
-      <SupportTickets/>
-     </Grid>
-     <CustomerFeedbackTable/>
-    
-    </SpaceBetween>
-     </ContentLayout>
-  
-  </>
-
-  )
-}
-
-export default Dashboard
+export default Dashboard;
