@@ -1,213 +1,207 @@
 import * as React from "react";
 import {
-  ContentLayout,
   Textarea,
   Icon,
   Container,
   Toggle,
   Select,
-  Header,
-  Button,
-  ColumnLayout,
   Input,
   Form,
   SpaceBetween,
   Checkbox,
   FormField,
   Grid,
+  ColumnLayout,
 } from "@cloudscape-design/components";
-import UploadImage from "../../../../assets/img/upload-img.png"
+import UploadImage from "../../../../assets/img/tomato.png";
 import upload2 from "../../../../assets/img/upload-img.png";
+import { useParams } from "react-router-dom";
 
-import { useParams } from 'react-router-dom';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { fetchProductById } from 'Redux-Store/Products/ProductThunk';
-const GetProductByid = () => {
-    const { id } = useParams();
-    console.log(id);
-  const [selectedOption, setSelectedOption] = React.useState({
+const GetProductById = () => {
+  const { id } = useParams();
+  console.log(id);
+
+  const [selectedCategory, setSelectedCategory] = React.useState({
+    label: "Option 1",
+    value: "1",
+  });
+  const [selectedUnit, setSelectedUnit] = React.useState({
+    label: "Option 1",
+    value: "1",
+  });
+  const [selectedStatus, setSelectedStatus] = React.useState({
     label: "Option 1",
     value: "1",
   });
   const [checked, setChecked] = React.useState(false);
   const [checked1, setChecked1] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [description, setDescription] = React.useState("");
 
   return (
     <SpaceBetween direction="vertical" size="l">
-     <Grid
-    gridDefinition={[
-      { colspan: { default: 3, xxs: 9 } },
-      { colspan: { default: 9, xxs: 3 } }
-    ]}
-  > 
-  <Container>
- 
-    <form onSubmit={(e) => e.preventDefault()}>
-      <Form>
+      <Grid
+        gridDefinition={[
+          { colspan: { default: 3, xxs: 9 } },
+          { colspan: { default: 9, xxs: 3 } },
+        ]}
+      >
         <SpaceBetween direction="vertical" size="l">
-        <div style={{ width: "650px" }}>
-          <FormField stretch label="Item Name">
-            <Input placeholder="Input Item Name" />
-          </FormField>
-          </div>
-          <ColumnLayout minColumnWidth={45} columns={3} gutter={20}>
-          
-            <div style={{ width: "220px" }}>
-              <FormField label="Category">
-                <Select
-                  selectedOption={selectedOption}
-                  onChange={({ detail }) =>
-                    setSelectedOption(detail.selectedOption)
-                  }
-                  options={[
-                    { label: "Option 1", value: "1" },
-                    { label: "Option 2", value: "2" },
-                    { label: "Option 3", value: "3" },
-                    { label: "Option 4", value: "4" },
-                    { label: "Option 5", value: "5" },
-                  ]}
-                  placeholder="Select Category"
-                />
-              </FormField>
-            </div>
-            <div style={{ width: "220px" }}>
-              <FormField label="Units">
-                <Select
-                  selectedOption={selectedOption}
-                  onChange={({ detail }) =>
-                    setSelectedOption(detail.selectedOption)
-                  }
-                  options={[
-                    { label: "Option 1", value: "1" },
-                    { label: "Option 2", value: "2" },
-                    { label: "Option 3", value: "3" },
-                    { label: "Option 4", value: "4" },
-                    { label: "Option 5", value: "5" },
-                  ]}
-                />
-              </FormField>
-            </div>
-            <div style={{ width: "220px" }}>
-              <FormField label="Status">
-                <Select
-                  selectedOption={selectedOption}
-                  onChange={({ detail }) =>
-                    setSelectedOption(detail.selectedOption)
-                  }
-                  options={[
-                    { label: "Option 1", value: "1" },
-                    { label: "Option 2", value: "2" },
-                    { label: "Option 3", value: "3" },
-                    { label: "Option 4", value: "4" },
-                    { label: "Option 5", value: "5" },
-                  ]}
-                />
-              </FormField>
-            </div>
-          </ColumnLayout>
-          <div style={{ width: "1000px" }}>
-          <FormField label="Product Description">
-        <Textarea
-          rows={5}
-          onChange={({ detail }) => setValue(detail.value)}
-          value={value}
-        />
-      </FormField>
-      </div>
-          <div style={{ display: "flex", gap: "15px" }}>
-            <FormField label="Purchasing Price">
-              <Input
-                size="3xs"
-                placeholder="Input Purchasing Price"
-              />
-            </FormField>
-            <FormField label="Min Selling Price">
-              <Input size="3xs" placeholder="Min Selling Price" />
-            </FormField>
-          </div>
-          <FormField label="Quantity In Stock">
-            <Input
-              size="xs"
-              placeholder="Quantity available in stock"
-            />
-          </FormField>
-          <Toggle
-            onChange={({ detail }) => setChecked(detail.checked)}
-            checked={checked}
-          >
-            Quantity on hand
-          </Toggle>
-          {checked && (
-            <div style={{ display: "flex", gap: "15px" }}>
-              <div style={{ width: "200px" }}>
-                <FormField label="Quantity In Stock">
-                  <Select
-                    selectedOption={selectedOption}
-                    onChange={({ detail }) =>
-                      setSelectedOption(detail.selectedOption)
-                    }
-                    options={[
-                      { label: "Option 1", value: "1" },
-                      { label: "Option 2", value: "2" },
-                      { label: "Option 3", value: "3" },
-                      { label: "Option 4", value: "4" },
-                      { label: "Option 5", value: "5" },
-                    ]}
-                  />
-                </FormField>
-              </div>
-              <div style={{ display: "flex", gap: "8px" }}>
-                <FormField label="Quantity">
-                  <Input size="3xs" placeholder="Enter Quantity" />
-                </FormField>
-                <div style={{ paddingTop: "30px" }}>
-                  <Icon name="remove" />
+          <Container>
+            <form onSubmit={(e) => e.preventDefault()}>
+              <Form>
+                <SpaceBetween direction="vertical" size="l">
+                  <div style={{ width: "52vw" }}>
+                    <FormField stretch label="Item Name">
+                      <Input placeholder="Input Item Name" />
+                    </FormField>
+                  </div>
+                  <div style={{ display: "flex", gap: "15px" }}>
+                   
+                  <div style={{ width: "210px" }}>
+                      <FormField label="Category">
+                        <Select
+                          selectedOption={selectedCategory}
+                          onChange={({ detail }) =>
+                            setSelectedCategory(detail.selectedOption)
+                          }
+                          options={[
+                            { label: "Option 1", value: "1" },
+                            { label: "Option 2", value: "2" },
+                            { label: "Option 3", value: "3" },
+                            { label: "Option 4", value: "4" },
+                            { label: "Option 5", value: "5" },
+                          ]}
+                          placeholder="Select Category"
+                        />
+                      </FormField>
+                    </div>
+                    <div style={{ width: "210px" }}>
+                      <FormField label="Units">
+                        <Select
+                          selectedOption={selectedUnit}
+                          onChange={({ detail }) =>
+                            setSelectedUnit(detail.selectedOption)
+                          }
+                          options={[
+                            { label: "Option 1", value: "1" },
+                            { label: "Option 2", value: "2" },
+                            { label: "Option 3", value: "3" },
+                            { label: "Option 4", value: "4" },
+                            { label: "Option 5", value: "5" },
+                          ]}
+                        />
+                      </FormField>
+                    </div>
+                    <div style={{ width: "210px" }}>
+                      <FormField label="Status">
+                        <Select 
+                          selectedOption={selectedStatus}
+                          onChange={({ detail }) =>
+                            setSelectedStatus(detail.selectedOption)
+                          }
+                          options={[
+                            { label: "Option 1", value: "1" },
+                            { label: "Option 2", value: "2" },
+                            { label: "Option 3", value: "3" },
+                            { label: "Option 4", value: "4" },
+                            { label: "Option 5", value: "5" },
+                          ]}
+                        />
+                      </FormField>
+                    </div>
                 </div>
-              </div>
-            </div>
-          )}
+              
+              
+                 
+                    <FormField label="Product Description" >
+                    <div style={{ width: "52vw" }}>
+                      <Textarea
+                        
+                        rows={5}
+                        onChange={({ detail }) => setDescription(detail.value)}
+                        value={description}
+                      />
+                        </div>
+                    </FormField>
+                
+                </SpaceBetween>
+              </Form>
+            </form>
+          </Container>
+
+          <Container>
+            <form onSubmit={(e) => e.preventDefault()}>
+              <Form>
+                <SpaceBetween direction="vertical" size="l">
+                <div style={{ display: "flex", gap: "15px" }}>
+                  <FormField label="Purchasing Price">
+                    <Input size="3xs" placeholder="Input Purchasing Price" />
+                  </FormField>
+                  <FormField label="Minimum Selling Price">
+                    <Input size="3xs" placeholder="Min Selling Price" />
+                  </FormField>
+                  <FormField label="Compare At Price">
+                    <Input size="3xs" placeholder="Min Selling Price" />
+                  </FormField>
+                </div>
+                <Checkbox
+                  onChange={({ detail }) => setChecked(detail.checked)}
+                  checked={checked}
+                >
+                  Charge Tax on this Product
+                </Checkbox>
+                <hr></hr>
+                <div style={{ display: "flex", gap: "15px" }}>
+                  <FormField label="Online Store Price">
+                    <Input size="3xs" placeholder="90" />
+                  </FormField>
+                  <FormField label="Profit">
+                    <Input size="3xs" placeholder="80" />
+                  </FormField>
+                  <FormField label="Margin">
+                    <Input size="3xs" placeholder="70" />
+                  </FormField>
+                </div>
+                </SpaceBetween>
+              </Form>
+            </form>
+          </Container>
         </SpaceBetween>
-      </Form>
-    </form>
-    <SpaceBetween direction="vertical" size="l">
-     
-      <Toggle
-        onChange={({ detail }) => setChecked1(detail.checked)}
-        checked1={checked}
-      >
-        Add Expiry
-      </Toggle>
-      <Input />
-      <Checkbox
-        onChange={({ detail }) => setChecked(detail.checked)}
-        checked1={checked}
-      >
-        Keep me informed when items expire
-      </Checkbox>
+
+        <Container>
+          <img src={UploadImage} alt="upload" />
+          <span style={{ fontSize: "15px", fontWeight: "bold" }}>
+            Additional Images
+          </span>
+          <div style={{display:"flex", gap:"5px"}}
+          >
+            {/* <img src={upload2} alt="upload2" width="100px" height="100%" /> */}
+            <div
+              style={{
+                border: "1px dashed gray",
+                height: "110px",
+                width:"100px",
+                textAlign:"center",
+                alignContent:"center"
+                
+                
+              }} >
+            <Icon name="upload" size="large"
+            ></Icon>
+            </div>
+            <div
+              style={{
+                border: "1px dashed gray",
+                height: "110px",
+                width:"100px"
+              }} >
+
+            </div>
+          </div>
+        </Container>
+      </Grid>
     </SpaceBetween>
-
-</Container>
-<Container>
-
-            <img src={UploadImage} alt="upload"></img>
-            <span style={{fontSize:"15px",fontWeight:"bold"}}>Additional Images</span>
-            <Grid
-    gridDefinition={[
-      { colspan: { default: 6, xxs: 6 } },
-      { colspan: { default: 6, xxs: 6 } }
-    ]}
-  > 
-             
-              <img src={upload2} alt="upload2" width="full" height="110px"></img>
-              <div style={{ border: "1px dashed gray",borderRadius:"8px",height:"110px" }}></div>
-           
-    </Grid>
-    </Container>
-    </Grid>
-    </SpaceBetween>
-
   );
 };
 
-export default GetProductByid;
+export default GetProductById;

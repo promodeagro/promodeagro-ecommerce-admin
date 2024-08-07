@@ -81,6 +81,7 @@ const columns = [
 const Orders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
+  console.log(ordersData,"ordersss");
   const [paginationDetails, setPaginationDetails] = useState({
     pageSize: 10,
     page: 0,

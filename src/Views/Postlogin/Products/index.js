@@ -19,9 +19,9 @@ import { fetchProducts } from 'Redux-Store/Products/ProductThunk';
 
 
 const Products = () => {
-
-  const prod = useSelector((state) => state.products.products);
   const dispatch = useDispatch();
+  const prod = useSelector((state) => state.products.products);
+  console.log(prod,"proddd");
   const [activeButton, setActiveButton] = useState('All');
   const [products, setProducts] = useState(prod.data?.products || []);
   useEffect(() => {
