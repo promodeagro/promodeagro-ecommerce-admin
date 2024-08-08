@@ -4,7 +4,9 @@ import { PREFIX_APP_PATH, PREFIX_AUTH_PATH } from "./../Config/Config";
 import Inventory from "./Postlogin/Inventory";
 import SalesAndReport from "./Postlogin/salesAndReport";
 import ContentManagement from "./Postlogin/ContentManagement";
+import OrderDetail from "./Postlogin/Orders/OrderDetail";
 const Dashboards = lazy(() => import("./Postlogin/Dashboard"));
+
 
 const Customers = lazy(() => import("./Postlogin/Customers"));
 const AddNewCustomer = lazy(() =>
@@ -75,6 +77,12 @@ const Views = () => {
             element={<Navigate to="/app/inventory" />}
           />
           <Route exact path="/" element={<Navigate to="/app/dashboard" />} />
+          <Route
+  exact
+  path={`${PREFIX_APP_PATH}/order/orderdetail`}
+  element={<OrderDetail />}
+/>
+
 
           <Route path="*" element={<PathNotFOund />} />
         </Routes>
