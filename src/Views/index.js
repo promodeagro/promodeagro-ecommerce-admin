@@ -5,6 +5,7 @@ import Inventory from "./Postlogin/Inventory";
 import SalesAndReport from "./Postlogin/salesAndReport";
 import ContentManagement from "./Postlogin/ContentManagement";
 import OrderDetail from "./Postlogin/Orders/OrderDetail";
+import GetProductByid from "./Postlogin/Products/Components/GetSpecifProduct";
 const Dashboards = lazy(() => import("./Postlogin/Dashboard"));
 
 
@@ -64,6 +65,11 @@ const Views = () => {
             exact
             path={`${PREFIX_APP_PATH}/products`}
             element={<Products />}
+          />
+           <Route
+            exact
+            path={`${PREFIX_APP_PATH}/products/:id`}
+            element={<GetProductByid/>}
           />
 
           <Route
