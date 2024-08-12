@@ -60,7 +60,7 @@ const bottomPages = [
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeHref, setActiveHref] = React.useState(location.pathname);
+  const [activeHref, setActiveHref] = React.useState("/app/dashboard");
 
   const handleFollow = (event) => {
     const { href, external } = event.detail;
@@ -73,7 +73,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+   
       <SideNavigation
         activeHref={activeHref}
         header={{ href: "#/", text: <Box variant="h4">Promode Agro Farms</Box> }}
@@ -101,7 +101,7 @@ const Sidebar = () => {
           })),
         ]}
       />
-    </div>
+  
   );
 };
 

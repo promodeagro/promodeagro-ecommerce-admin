@@ -15,10 +15,12 @@ function App() {
     headerSelector="#header"
  headerVariant="high-contrast"
  navigationWidth={250}
+
+
     navigation={
-      <>
+      
       <Sidebar/>
-      </>
+    
     }
     toolsHide={true}
     content={

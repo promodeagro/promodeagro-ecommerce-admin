@@ -3,7 +3,6 @@ import {
   Box,
   ColumnLayout,
   Grid,
-  Link,
   Popover,
 } from '@cloudscape-design/components';
 import Container from '@cloudscape-design/components/container';
@@ -13,12 +12,12 @@ import Button from '@cloudscape-design/components/button';
 import ContentLayout from '@cloudscape-design/components/content-layout';
 import Calendar from '@cloudscape-design/components/calendar';
 import RecentOrders from './DashboardCards/RecentOrders';
-import ProfitPerformance from './DashboardCards/ProfitPerformance';
-import SalesRevenue from './DashboardCards/SalesRevenue';
-import StockMovement from './DashboardCards/StockMovement';
-import ExpensesByCatgry from './DashboardCards/ExpensesByCatgry';
-import SupportTickets from './DashboardCards/SupportTickets';
-import CustomerFeedbackTable from './DashboardCards/CustomerFeedbackTable';
+
+import ExpensesByCatgry from './DashboardCards/Expenses';
+import SalesReports from './DashboardCards/SalesReport';
+import CustomerTraffic from './DashboardCards/CustomerTraffic';
+import BestSellingProducts from './DashboardCards/BestSellingProducts';
+import Refundorders from './DashboardCards/Refundorders';
 
 const Dashboard = () => {
   const [isPopoverVisible, setPopoverVisible] = React.useState(false);
@@ -81,66 +80,72 @@ const Dashboard = () => {
           
         }
       >
-        <SpaceBetween direction="vertical" size="s">
-          <Container className="top-container" style={{ marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <h2 style={{ marginBottom: '1rem' }}>Adam's Dashboard</h2>
+        <SpaceBetween direction="vertical" size="l">
+        <Container className="top-container" style={{ marginBottom: '1rem' }}>
+          <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
+            <div>
+
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Today's Sales</p>
+              </Box>
+              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>55</span>
             </div>
-            <ColumnLayout columns={4} variant="default" minColumnWidth={170}>
-              <div>
-                <Box variant="awsui-key-label">
-                  <p style={{ fontSize: 12 }}>Total Revenue</p>
-                </Box>
-                <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>₹436K</span>
-              </div>
-              <div>
-                <Box variant="awsui-key-label">
-                  <p style={{ fontSize: 12 }}>Total Sales</p>
-                </Box>
-                <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>430</span>
-              </div>
-              <div>
-                <Box variant="awsui-key-label">
-                  <p style={{ fontSize: 12 }}>Total Orders</p>
-                </Box>
-                <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>123</span>
-              </div>
-              <div>
-                <Box variant="awsui-key-label">
-                  <p style={{ fontSize: 12 }}>Overall Customers</p>
-                </Box>
-                <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3 }}>128</span>
-              </div>
-            </ColumnLayout>
-          </Container>
+            <div>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Today's Procurement</p>
+              </Box>
+              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>32.4K</span>
+            </div>
+            <div>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Today's Orders</p>
+              </Box>
+              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>123</span>
+            </div>
+            <div>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Orders Cancelled</p>
+              </Box>
+              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>3</span>
+            </div>
+            <div>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12 }}>Orders Refunded</p>
+              </Box>
+
+              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>4</span>
+            </div>
+          </ColumnLayout>
+        </Container>
           <Grid
             gridDefinition={[
               { colspan: { default: 12, xxs: 6 } },
               { colspan: { default: 12, xxs: 6 } },
             ]}
           >
-            <RecentOrders />
-            <ProfitPerformance />
+            <SalesReports/>
+            <RecentOrders/>
+          </Grid>
+        
+          <Grid
+            gridDefinition={[
+              { colspan: { default: 12, xxs: 6 } },
+              { colspan: { default: 12, xxs: 6 } },
+            ]}
+          >   
+          <BestSellingProducts/>
+            <CustomerTraffic/>
           </Grid>
           <Grid
             gridDefinition={[
               { colspan: { default: 12, xxs: 6 } },
               { colspan: { default: 12, xxs: 6 } },
             ]}
-          >
-            <SalesRevenue />
-            <StockMovement />
-          </Grid>
-          <Grid
-            gridDefinition={[
-              { colspan: { default: 12, xxs: 6 } },
-              { colspan: { default: 12, xxs: 6 } },
-            ]}
-          >
-            <ExpensesByCatgry />
-            <SupportTickets />
-          </Grid>
-          <CustomerFeedbackTable />
+          > 
+           <ExpensesByCatgry />
+           <Refundorders/>
+           </Grid>
+       
         </SpaceBetween>
       </ContentLayout>
     </>
