@@ -12,6 +12,7 @@ import {
   FormField,
   Grid,
   ColumnLayout,
+  Header,
 } from "@cloudscape-design/components";
 import UploadImage from "../../../../assets/img/tomato.png";
 import upload2 from "../../../../assets/img/upload-img.png";
@@ -166,6 +167,49 @@ const GetProductById = () => {
               </Form>
             </form>
           </Container>
+          <Container>
+            <form onSubmit={(e) => e.preventDefault()}>
+              <Form>
+                <SpaceBetween direction="vertical" size="l">
+                <div style={{ display: "flex", gap: "15px" }}>
+                  <FormField label="Purchasing Price">
+                    <Input size="3xs" placeholder="Input Purchasing Price" />
+                  </FormField>
+                  <FormField label="Minimum Selling Price">
+                    <Input size="3xs" placeholder="Min Selling Price" />
+                  </FormField>
+                  <FormField label="Compare At Price">
+                    <Input size="3xs" placeholder="Min Selling Price" />
+                  </FormField>
+                </div>
+                <Checkbox
+                  onChange={({ detail }) => setChecked(detail.checked)}
+                  checked={checked}
+                >
+                  Charge Tax on this Product
+                </Checkbox>
+                <hr></hr>
+                <div style={{ display: "flex", gap: "15px" }}>
+                  <FormField label="Online Store Price">
+                    <Input size="3xs" placeholder="90" />
+                  </FormField>
+                  <FormField label="Profit">
+                    <Input size="3xs" placeholder="80" />
+                  </FormField>
+                  <FormField label="Margin">
+                    <Input size="3xs" placeholder="70" />
+                  </FormField>
+                </div>
+                </SpaceBetween>
+              </Form>
+            </form>
+          </Container>
+          <Container header={
+            <Header variant="h3">Attributes</Header>
+          }>
+           
+               
+          </Container>
         </SpaceBetween>
 
         <Container>
@@ -175,28 +219,10 @@ const GetProductById = () => {
           </span>
           <div style={{display:"flex", gap:"5px"}}
           >
-            {/* <img src={upload2} alt="upload2" width="100px" height="100%" /> */}
-            <div
-              style={{
-                border: "1px dashed gray",
-                height: "110px",
-                width:"100px",
-                textAlign:"center",
-                alignContent:"center"
-                
-                
-              }} >
-            <Icon name="upload" size="large"
-            ></Icon>
-            </div>
-            <div
-              style={{
-                border: "1px dashed gray",
-                height: "110px",
-                width:"100px"
-              }} >
-
-            </div>
+          
+          
+             <img src={UploadImage} alt="upload" height={150} width={100} />
+             <img src={UploadImage} alt="upload" height={150} width={100} />
           </div>
         </Container>
       </Grid>

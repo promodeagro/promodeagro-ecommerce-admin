@@ -1,142 +1,142 @@
-import React from 'react';
-import LineChart from "@cloudscape-design/components/line-chart";
-import Box from "@cloudscape-design/components/box";
-import Button from "@cloudscape-design/components/button";
-import { Container, Header} from '@cloudscape-design/components';
-
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchOrders } from 'Redux-Store/Orders/OrdersThunk';
+import {
+  Table,
+  Box,
+  SpaceBetween,
+  Button,
+  Header,
+  Grid,
+  Container,
+} from '@cloudscape-design/components';
+import SelectFilter from './SelectFilter'; // Import the reusable SelectFilter component
+import { Link } from 'react-router-dom';
 const RecentOrders = () => {
+  const dispatch = useDispatch();
+  const ordersData = useSelector((state) => state.orders.ordersData);
+  const { data = [], status } = ordersData;
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [filter, setFilter] = useState('7 days ago');
+
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
+
+  const handleFilterChange = ({ detail }) => {
+    setFilter(detail.selectedOption.value);
+  };
+
+  const getFilteredOrders = () => {
+    const now = new Date();
+    switch (filter) {
+      case 'Today':
+        return data.filter(order => new Date(order.createdAt).toDateString() === now.toDateString());
+      case '7 days ago':
+        return data.filter(order => new Date(order.createdAt) >= new Date(now.setDate(now.getDate() - 7)));
+      case '30 days ago':
+        return data.filter(order => new Date(order.createdAt) >= new Date(now.setDate(now.getDate() - 30)));
+      case '6 months ago':
+        return data.filter(order => new Date(order.createdAt) >= new Date(now.setMonth(now.getMonth() - 6)));
+      default:
+        return data;
+    }
+  };
+
+  const filteredOrders = getFilteredOrders().slice(0, 7); // Get only top 10 orders
+
+  if (status === 'IN_PROGRESS') {
+    return <div>Loading...</div>;
+  }
+
+  if (status === 'FAILURE') {
+    return <div>Error loading orders.</div>;
+  }
+
   return (
-    <Container 
-
-      header={
-        <Header variant='h5' className='font-extrabold'>Recent Orders</Header>
-      }>
-         <LineChart
-      series={[
-        {
-          title: "Site 1",
-          type: "line",
-          data: [
-            { x: new Date(1600972200000), y: 58020 },
-            { x: new Date(1600973100000), y: 102402 },
-            { x: new Date(1600974000000), y: 104920 },
-            { x: new Date(1600974900000), y: 94031 },
-            { x: new Date(1600975800000), y: 125021 },
-            { x: new Date(1600976700000), y: 159219 },
-            { x: new Date(1600977600000), y: 193082 },
-            { x: new Date(1600978500000), y: 162592 },
-            { x: new Date(1600979400000), y: 274021 },
-            { x: new Date(1600980300000), y: 264286 },
-            { x: new Date(1600981200000), y: 289210 },
-            { x: new Date(1600982100000), y: 256362 },
-            { x: new Date(1600983000000), y: 257306 },
-            { x: new Date(1600983900000), y: 186776 },
-            { x: new Date(1600984800000), y: 294020 },
-            { x: new Date(1600985700000), y: 385975 },
-            { x: new Date(1600986600000), y: 486039 },
-            { x: new Date(1600987500000), y: 490447 },
-            { x: new Date(1600988400000), y: 361845 },
-            { x: new Date(1600989300000), y: 339058 },
-            { x: new Date(1600990200000), y: 298028 },
-            { x: new Date(1600991100000), y: 231902 },
-            { x: new Date(1600992000000), y: 224558 },
-            { x: new Date(1600992900000), y: 253901 },
-            { x: new Date(1600993800000), y: 102839 },
-            { x: new Date(1600994700000), y: 234943 },
-            { x: new Date(1600995600000), y: 204405 },
-            { x: new Date(1600996500000), y: 190391 },
-            { x: new Date(1600997400000), y: 183570 },
-            { x: new Date(1600998300000), y: 162592 },
-            { x: new Date(1600999200000), y: 148910 },
-            { x: new Date(1601000100000), y: 229492 },
-            { x: new Date(1601001000000), y: 293910 }
-          ],
-          valueFormatter: function o(e) {
-            return Math.abs(e) >= 1e9
-              ? (e / 1e9).toFixed(1).replace(/\.0$/, "") +
-                  "G"
-              : Math.abs(e) >= 1e6
-              ? (e / 1e6).toFixed(1).replace(/\.0$/, "") +
-                "M"
-              : Math.abs(e) >= 1e3
-              ? (e / 1e3).toFixed(1).replace(/\.0$/, "") +
-                "K"
-              : e.toFixed(2);
-          }
-        },
-        {
-          title: "Peak hours",
-          type: "threshold",
-          x: new Date(1600990800000)
+    <Container fitHeight={300}>
+      <Table
+        variant='borderless'
+        header={
+          <Grid
+          gridDefinition={[
+            { colspan: { default: 8, xxs: 8 } },
+            { colspan: { default: 4, xxs: 4 } }
+          ]}
+        >
+            <Header variant='h4'>Recent Orders</Header>
+            <Box padding={{ bottom: 'm' }}>
+              <SelectFilter
+                selectedFilter={filter}
+                onFilterChange={handleFilterChange}
+                filterOptions={[
+                  { label: 'Today', value: 'Today' },
+                  { label: '7 days ago', value: '7 days ago' },
+                  { label: '30 days ago', value: '30 days ago' },
+                  { label: '6 months ago', value: '6 months ago' },
+                ]}
+              />
+            </Box>
+          </Grid>
         }
-      ]}
-      xDomain={[
-        new Date(1600972200000),
-        new Date(1601001000000)
-      ]}
-      yDomain={[0, 500000]}
-      i18nStrings={{
-        xTickFormatter: e =>
-          e
-            .toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              hour: "numeric",
-              minute: "numeric",
-              hour12: !1
-            })
-            .split(",")
-            .join("\n"),
-        yTickFormatter: function o(e) {
-          return Math.abs(e) >= 1e9
-            ? (e / 1e9).toFixed(1).replace(/\.0$/, "") +
-                "G"
-            : Math.abs(e) >= 1e6
-            ? (e / 1e6).toFixed(1).replace(/\.0$/, "") +
-              "M"
-            : Math.abs(e) >= 1e3
-            ? (e / 1e3).toFixed(1).replace(/\.0$/, "") +
-              "K"
-            : e.toFixed(2);
+        renderAriaLive={({ firstIndex, lastIndex, totalItemsCount }) =>
+          `Displaying items ${firstIndex + 1} to ${lastIndex + 1} of ${totalItemsCount}`
         }
-      }}
-    //   detailPopoverSeriesContent={({ series, x, y }) => ({
-    //     key: (
-    //       <Link external="true" href="#">
-    //         {series.title}
-    //       </Link>
-    //     ),
-    //     value: numberFormatter(y)
-    //   })}
-      ariaLabel="Single data series line chart"
-      height={300}
-      hideFilter
-      hideLegend
-      xScaleType="time"
-      // xTitle="Time (UTC)"
-      // yTitle="Bytes transferred"
-      empty={
-        <Box textAlign="center" color="inherit">
-          <b>No data available</b>
-          <Box variant="p" color="inherit">
-            There is no data available
+        onSelectionChange={({ detail }) => setSelectedItems(detail.selectedItems)}
+        selectedItems={selectedItems}
+        ariaLabels={{
+          selectionGroupLabel: 'Items selection',
+          allItemsSelectionLabel: ({ selectedItems }) =>
+            `${selectedItems.length} ${selectedItems.length === 1 ? 'item' : 'items'} selected`,
+          itemSelectionLabel: ({ selectedItems }, item) => item.name,
+        }}
+        items={filteredOrders}
+        columnDefinitions={[
+          {
+            id: 'id',
+            header: 'Order ID',
+            cell: item =>
+              item.id ? (
+                <Link to={`/app/order/orderdetail`}>#{item.id}</Link>
+              ) : (
+                'N/A'
+              ),
+          },
+          {
+            id: 'customerName',
+            header: 'Customer Name',
+            cell: item => item.address?.name?.S || 'N/A',
+          },
+          {
+            id: 'status',
+            header: 'Order Status',
+            cell: item => item.status || 'N/A',
+          },
+          {
+            id: 'totalPrice',
+            header: 'Total Amount',
+            cell: item => (item.totalPrice ? `Rs. ${item.totalPrice}` : 'N/A'),
+          },
+          {
+            id: 'address',
+            header: 'Delivery Details',
+            cell: item => item.address?.address?.S || 'N/A',
+          },
+        ]}
+        enableKeyboardNavigation
+        loadingText="Loading orders"
+        trackBy="id"
+        empty={
+          <Box margin={{ vertical: 'xs' }} textAlign="center" color="inherit">
+            <SpaceBetween size="m">
+              <b>No orders found</b>
+              <Button>Add order</Button>
+            </SpaceBetween>
           </Box>
-        </Box>
-      }
-      noMatch={
-        <Box textAlign="center" color="inherit">
-          <b>No matching data</b>
-          <Box variant="p" color="inherit">
-            There is no matching data to display
-          </Box>
-          <Button>Clear filter</Button>
-        </Box>
-      }
-    />
-      </Container>
-   
+        }
+      />
+    </Container>
+  );
+};
 
-  )
-}
-
-export default RecentOrders
+export default RecentOrders;
