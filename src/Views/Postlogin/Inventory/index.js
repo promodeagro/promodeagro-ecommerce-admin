@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import BreadcrumbGroup from "@cloudscape-design/components/breadcrumb-group";
 import Table from "@cloudscape-design/components/table";
@@ -10,7 +11,6 @@ import Button from "@cloudscape-design/components/button";
 import TextFilter from "@cloudscape-design/components/text-filter";
 import Header from "@cloudscape-design/components/header";
 import Container from "@cloudscape-design/components/container";
-import Badge from "@cloudscape-design/components/badge";
 import Tabs from "@cloudscape-design/components/tabs";
 import Overview from "./drawerTabs/overview";
 import StatusIndicator from "@cloudscape-design/components/status-indicator";
@@ -21,7 +21,7 @@ const Inventory = () => {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState(null);
   const [activeTabId, setActiveTabId] = React.useState("first");
-  // Fetch products data from Redux store
+  const [currentPage, setCurrentPage] = useState(1);
   const products = useSelector((state) => state.items.items.data);
 
   // Check if products is an array and has elements
@@ -32,11 +32,13 @@ const Inventory = () => {
       </Box>
     );
   }
+  const ordersPerPage = 10;
 
   // Filter products based on the filteringText
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(filteringText.toLowerCase())
   );
+  const totalPages = Math.ceil(filteredProducts.length / ordersPerPage);
 
   // Determine the color based on the stock alert value
   const getStockAlertColor = (stockAlert) => {
@@ -55,154 +57,145 @@ const Inventory = () => {
     setSelectedProduct(null);
   };
 
+  const handlePageChange = (pageIndex) => {
+    setCurrentPage(pageIndex + 1); // Pagination component uses 0-based index
+  };
+
+  const handleSearchChange = (e) => {
+    setFilteringText(e.detail.filteringText);
+    setCurrentPage(1); // Reset to the first page on search text change
+  };
+
   return (
     <div className="flex-col gap-3">
       <div className="flex flex-col gap-3">
-      <ContentLayout
-      headerVariant="high-contrast"
-      defaultPadding
-      breadcrumbs={
-        <BreadcrumbGroup
-        items={[
-          { text: "Dashboard", href: "#" },
-          { text: "Inventory", href: "#components" },
-        ]}
-        ariaLabel="Breadcrumbs"
-      />
-      }
-      header={
-        <Header
-          variant="h1"
-          actions={
-            <div>
-            <Button
-      iconName="add-plus"
-      variant="primary"
-      wrapText={false}
-    >
-      Add Item
-    </Button>
-            </div>
+        <ContentLayout
+          headerVariant="high-contrast"
+          defaultPadding
+          breadcrumbs={
+            <BreadcrumbGroup
+              items={[
+                { text: "Dashboard", href: "/app/dashboard" },
+                { text: "Inventory", href: "#components" },
+              ]}
+              ariaLabel="Breadcrumbs"
+            />
+          }
+          header={
+            <Header
+              variant="h1"
+            >
+              Inventory
+            </Header>
           }
         >
-          Inventory
-        </Header>
-      }
-    >
-      <Container
-      >
-       <ColumnLayout columns={5} variant="default" minColumnWidth={120}>
-            <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>All Products</p></Box>
-              <span style={{ fontSize: 40, fontWeight: '1000', lineHeight: 1.3,color:"#037F0C"}}>924</span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Published Stock</p></Box>
-              <span style={{ fontSize: 40, fontWeight: '1000', lineHeight: 1.3, color:"#602400"}}>423</span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Low Stock Alert</p></Box>
-              <span style={{ fontSize: 40, fontWeight: '1000', lineHeight: 1.3,color:"#2EA597" }}>123</span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Expired</p></Box>
-              <span style={{ fontSize: 40, fontWeight: '1000', lineHeight: 1.3,color:"#56CCF2" }}>128</span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label"><p style={{ fontSize: 12}}>Categories</p></Box>
-              <span style={{ fontSize: 40, fontWeight: '1000', lineHeight: 1.3,color:"#EB5757" }}>4</span>
-            </div>
-          </ColumnLayout>
-      </Container>
-    </ContentLayout>
-    
+          <Container>
+            <ColumnLayout columns={5} variant="default" minColumnWidth={120}>
+              <div>
+                <Box variant="awsui-key-label">
+                  <p style={{ fontSize: 12 }}>All Products</p>
+                </Box>
+                <span
+                  style={{
+                    fontSize: 40,
+                    fontWeight: "1000",
+                    lineHeight: 1.3,
+                    color: "#037F0C",
+                  }}
+                >
+                  924
+                </span>
+              </div>
+              <div>
+                <Box variant="awsui-key-label">
+                  <p style={{ fontSize: 12 }}>Published Stock</p>
+                </Box>
+                <span
+                  style={{
+                    fontSize: 40,
+                    fontWeight: "1000",
+                    lineHeight: 1.3,
+                    color: "#602400",
+                  }}
+                >
+                  423
+                </span>
+              </div>
+              <div>
+                <Box variant="awsui-key-label">
+                  <p style={{ fontSize: 12 }}>Low Stock Alert</p>
+                </Box>
+                <span
+                  style={{
+                    fontSize: 40,
+                    fontWeight: "1000",
+                    lineHeight: 1.3,
+                    color: "#2EA597",
+                  }}
+                >
+                  123
+                </span>
+              </div>
+              <div>
+                <Box variant="awsui-key-label">
+                  <p style={{ fontSize: 12 }}>Expired</p>
+                </Box>
+                <span
+                  style={{
+                    fontSize: 40,
+                    fontWeight: "1000",
+                    lineHeight: 1.3,
+                    color: "#56CCF2",
+                  }}
+                >
+                  128
+                </span>
+              </div>
+              <div>
+                <Box variant="awsui-key-label">
+                  <p style={{ fontSize: 12 }}>Categories</p>
+                </Box>
+                <span
+                  style={{
+                    fontSize: 40,
+                    fontWeight: "1000",
+                    lineHeight: 1.3,
+                    color: "#EB5757",
+                  }}
+                >
+                  4
+                </span>
+              </div>
+            </ColumnLayout>
+          </Container>
+        </ContentLayout>
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "1fr auto auto",
-            gap: "10px",
-            alignItems: "center",
-            marginTop: "12px",
+            display: "flex",
+            justifyContent: "space-between",
+            paddingRight: "25px",
+            paddingLeft: "25px",
+            paddingTop: "15px",
           }}
         >
-          <TextFilter
-            filteringText={filteringText}
-            filteringPlaceholder="Search"
-            filteringAriaLabel="Filter instances"
-            onChange={({ detail }) => setFilteringText(detail.filteringText)}
-          />
-          {
-        <Pagination currentPageIndex={1} pagesCount={5} />
-      }
-        </div>
+          <div style={{ width: "60%" }}>
+            <TextFilter
+              size="3xs"
+              filteringPlaceholder="Search"
+              filteringText={filteringText}
+              onChange={handleSearchChange}
+            />
+          </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(5, 1fr)",
-            gap: "10px",
-            marginTop: "20px",
-          }}
-        >
-          <div
-            style={{
-              boxShadow: "0 1px 8px rgba(0, 0, 0, 0.2)",
-              borderRadius: "15px",
-            }}
-          >
-            <Container
-              variant="borderless"
-              size="xs"
-              header={<Header variant="h2">1921</Header>}
-            >
-              <b>All Products</b>
-            </Container>
-          </div>
-          <div
-            style={{
-              boxShadow: "0 1px 8px rgba(0, 0, 0, 0.2)",
-              borderRadius: "15px",
-            }}
-          >
-            <Container
-              variant="borderless"
-              size="xs"
-              header={<Header variant="h2">421</Header>}
-            >
-              <b>Published Stock</b>
-            </Container>
-          </div>
-          <div
-            style={{
-              boxShadow: "0 1px 8px rgba(0, 0, 0, 0.2)",
-              borderRadius: "15px",
-            }}
-          >
-            <Container
-              variant="borderless"
-              size="xs"
-              header={<Header variant="h2">212</Header>}
-            >
-              <b>Low Stock Alert</b>
-            </Container>
-          </div>
-          <div
-            style={{
-              boxShadow: "0 1px 8px rgba(0, 0, 0, 0.2)",
-              borderRadius: "15px",
-            }}
-          >
-            <Container
-              variant="borderless"
-              size="xs"
-              header={<Header variant="h2">223</Header>}
-            >
-              <b>Expired</b>
-            </Container>
-          </div>
+          <Pagination
+            currentPageIndex={currentPage - 1}
+            pagesCount={totalPages}
+            openEnd
+            onChange={({ detail }) => handlePageChange(detail.currentPageIndex)}
+          />
         </div>
       </div>
-      <div style={{ marginTop: "15px" }}>
+      <div style={{ marginTop: "15px", padding: "0 25px 0 25px" }}>
         <Table
           variant="borderless"
           columnDefinitions={[
@@ -271,16 +264,6 @@ const Inventory = () => {
               header: "MSP",
               cell: (e) => e.msp,
             },
-            {
-              sortingField: "status",
-              id: "status",
-              header: "Status",
-              cell: (e) => (
-                <Badge color={e.status === "Published" ? "green" : "red"}>
-                  {e.status}
-                </Badge>
-              ),
-            },
           ]}
           columnDisplay={[
             { id: "itemCode", visible: true },
@@ -327,12 +310,13 @@ const Inventory = () => {
             justifyContent="space-between"
             backgroundColor="lightgrey"
           >
-           <div style={{display:"flex",justifyContent:"end"}}>
-           <Button
-          iconName="close"
-          variant="icon"
-          onClick={handleCloseDrawer}
-        /></div>
+            <div style={{ display: "flex", justifyContent: "end" }}>
+              <Button
+                iconName="close"
+                variant="icon"
+                onClick={handleCloseDrawer}
+              />
+            </div>
             <div
               style={{
                 display: "flex",
@@ -343,7 +327,13 @@ const Inventory = () => {
               <h1 style={{ color: "#0972D3" }}>
                 {selectedProduct.name}
                 <br />
-                <p style={{ color: "black", fontSize: "large", paddingTop: "15px" }}>
+                <p
+                  style={{
+                    color: "black",
+                    fontSize: "large",
+                    paddingTop: "15px",
+                  }}
+                >
                   Stock: {selectedProduct.quantityOnHand}Kg&nbsp;&nbsp;
                   <span style={{ fontSize: "10px" }}>
                     {selectedProduct.stockAlert === "Low Stock" ? (
@@ -358,20 +348,10 @@ const Inventory = () => {
                   </span>
                 </p>
               </h1>
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "12px" }}
-              >
-          
-                <Button
-                  size="xs"
-                  variant="primary"
-                >
-                  Publish
-                </Button>
-              </div>
             </div>
           </Box>
           <Tabs
+          variant="borderless"
             onChange={({ detail }) => setActiveTabId(detail.activeTabId)}
             activeTabId={activeTabId}
             tabs={[
@@ -379,21 +359,6 @@ const Inventory = () => {
                 label: "Overview",
                 id: "first",
                 content: <Overview selectedProduct={selectedProduct} />,
-              },
-              {
-                label: "Order History",
-                id: "second",
-                content: "Second tab content area",
-              },
-              {
-                label: "Movement History",
-                id: "third",
-                content: "Third tab content area",
-              },
-              {
-                label: "Item-Vendor",
-                id: "fourth",
-                content: "Third tab content area",
               },
             ]}
           />

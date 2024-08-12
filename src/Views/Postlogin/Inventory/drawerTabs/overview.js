@@ -11,7 +11,7 @@ const Overview = ({ selectedProduct }) => {
     <>
       <div style={{padding:"0 20px"}}>
         <ColumnLayout minColumnWidth={300} columns={3}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "5px", fontSize: "13px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px", fontSize: "12px" }}>
             <h3>
               <b>Item Information</b>
             </h3>
@@ -32,7 +32,7 @@ const Overview = ({ selectedProduct }) => {
             <p>Atmakur Warehouse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;kg</p>
             <p>Valigunda Warehouse &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;103 kg</p>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "5px", fontSize: "13px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px", fontSize: "12px" }}>
             <h3>
               <b>Purchase and Sales Information</b>
             </h3>

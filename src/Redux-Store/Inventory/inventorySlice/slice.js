@@ -15,15 +15,9 @@ const itemSlice = createSlice({
     addProduct: (state, action) => {
       state.items.data.push(action.payload);
     },
-    toggleStatus: (state, action) => {
-      const item = state.items.data.find(p => p.itemCode === action.payload.itemCode);
-      if (item) {
-        item.status = item.status === "Active" ? "Inactive" : "Active";
-      }
-    },
   },
 });
 
-export const { addProduct, toggleStatus } = itemSlice.actions;
+export const { addProduct} = itemSlice.actions;
 
 export default itemSlice.reducer;
