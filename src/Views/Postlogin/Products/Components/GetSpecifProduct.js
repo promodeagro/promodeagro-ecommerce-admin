@@ -1,9 +1,7 @@
 import * as React from "react";
 import {
   Textarea,
-  Icon,
   Container,
-  Toggle,
   Select,
   Input,
   Form,
@@ -11,11 +9,9 @@ import {
   Checkbox,
   FormField,
   Grid,
-  ColumnLayout,
   Header,
 } from "@cloudscape-design/components";
 import UploadImage from "../../../../assets/img/tomato.png";
-import upload2 from "../../../../assets/img/upload-img.png";
 import { useParams } from "react-router-dom";
 
 const GetProductById = () => {
