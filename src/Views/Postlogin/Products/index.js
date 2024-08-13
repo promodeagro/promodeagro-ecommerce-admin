@@ -7,7 +7,8 @@ import {
   Header,
   SpaceBetween,
   ContentLayout,
-  Table
+  Table,
+  BreadcrumbGroup
 } from '@cloudscape-design/components';
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from 'react-router-dom';
@@ -19,26 +20,17 @@ import { fetchProducts } from 'Redux-Store/Products/ProductThunk';
 
 const Products = () => {
   const dispatch = useDispatch();
-  const prod = useSelector((state) => state.products?.products);
+  const products= useSelector((state) => state.products.products);
  
-  // const { data = [], status } = products;
+  const { data = [], status } = products;
   const [activeButton, setActiveButton] = useState('All');
-  const [products, setProducts] = useState(prod.data?.products || []);
+
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
-  useEffect(() => {
-    setProducts(prod.data?.products || []);
-  }, [prod]);
-  // console.log(prod,"proo");
-  // if (status === "IN_PROGRESS") {
-  //   return <div>Loading...</div>;
-  // }
 
-  // if (status === "FAILURE") {
-  //   return <div>Error loading orders.</div>;
-  // }
+
 
 
   const buttons = ['All', 'Unpublished', 'Stopped', 'Published'];
@@ -71,13 +63,23 @@ const Products = () => {
         return {};
     }
   };
-//  console.log(data,"data");
+ console.log(data,"data");
  console.log(products,"productss");
   // const filteredProducts = activeButton === 'All' ? data : data.filter(product => product.status === activeButton);
-  const filteredProducts = activeButton === 'All' ? products : products.filter(product => product.status === activeButton);
+  const filteredProducts = activeButton === 'All' ? data : data.filter(product => product.status === activeButton);
 
   return (
     <ContentLayout
+      breadcrumbs={
+      
+        <BreadcrumbGroup
+        items={[
+          { text: "Dashboard", href: "/app/dashboard" },
+          { text: "Products", href: "/app/dashboard/products" }
+        ]}
+        ariaLabel="Breadcrumbs"
+      />
+      }
       headerVariant="high-contrast"
       header={
         <Header
@@ -158,7 +160,7 @@ const Products = () => {
               {
                 id: 'code',
                 header: 'Item Code',
-                cell: item => <Link to={`/app/products/${item.itemCode}`}>{item.itemCode}</Link>,
+                cell: item => <Link to={`/app/products/${item.id}`}>{item.itemCode}</Link>,
               },
               {
                 id: 'name',

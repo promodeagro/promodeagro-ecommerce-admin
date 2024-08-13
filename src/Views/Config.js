@@ -1,4 +1,4 @@
-const BASE_URL = "https://09ubwkjphb.execute-api.us-east-1.amazonaws.com";
+const BASE_URL = "https://wj7wzozdcc.execute-api.us-east-1.amazonaws.com";
 
 const Config = {
   BASE_URL,
@@ -10,8 +10,9 @@ const Config = {
   ORDERS_DETAILS:`${BASE_URL}/order/{orderId}`,
   ORDERS_VIEWATTACHMENTS:`${BASE_URL}/users`,
    FETCH_BATCH_SHEET:`${BASE_URL}/users`,
-   FETCH_PRODUCTS:`${BASE_URL}/product`,
-   FETCH_PRODUCTS_DETAIL:`${BASE_URL}/product/{productId}?userId={userId}`,
+   FETCH_PRODUCTS:`${BASE_URL}/inventory`,
+   FETCH_PRODUCTS_DETAIL:`${BASE_URL}/inventory`,
+   PUT_PRODUCTS_DETAIL:`${BASE_URL}publish`,
    FETCH_RAW_MATERIALS:`${BASE_URL}/users`,
    FETCH_PURCHASE_ORDER:`${BASE_URL}/users`,
    FETCH_PURCHASE_REQUSTION_LIST:`${BASE_URL}/users`,
