@@ -1,9 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {
-  fetchOrders,
-  ordersDetails,
-  ordersViewAttachments,
-} from "Redux-Store/Orders/OrdersThunk";
+import { fetchOrders, ordersDetails } from "Redux-Store/Orders/OrdersThunk";
 import status from "Redux-Store/Constants";
 
 const OrderSlice = createSlice({
@@ -13,9 +9,6 @@ const OrderSlice = createSlice({
       status: null,
     },
     order_details: {
-      status: null,
-    },
-    order_viewattachments: {
       status: null,
     },
   },
@@ -68,34 +61,6 @@ const OrderSlice = createSlice({
         return {
           ...state,
           order_details: {
-            status: status.FAILURE,
-          },
-        };
-      })
-      .addCase(ordersViewAttachments.pending.toString(), (state, action) => {
-        return {
-          ...state,
-          order_viewattachments: {
-            status: status.IN_PROGRESS,
-          },
-        };
-      })
-      .addCase(
-        ordersViewAttachments.fulfilled.toString(),
-        (state, { payload }) => {
-          return {
-            ...state,
-            order_viewattachments: {
-              status: status.SUCCESS,
-              data: payload,
-            },
-          };
-        }
-      )
-      .addCase(ordersViewAttachments.rejected.toString(), (state, action) => {
-        return {
-          ...state,
-          order_viewattachments: {
             status: status.FAILURE,
           },
         };

@@ -32,7 +32,7 @@ const Dashboard = () => {
     ];
     const month = monthNames[date.getMonth()];
     const year = date.getFullYear();
-    return `${month} ${year}`; // Corrected line
+    return `${month} ${year}`; 
   }
 
   const handleButtonClick = () => {
@@ -42,7 +42,7 @@ const Dashboard = () => {
   const handleCalendarChange = ({ detail }) => {
     const selectedDate = new Date(detail.value);
     setSelectedMonth(getCurrentMonthYear(selectedDate));
-    setPopoverVisible(false); // Close the popover
+    setPopoverVisible(false);
   };
 
   return (
@@ -59,7 +59,7 @@ const Dashboard = () => {
                     content={
                       <Calendar
                         onChange={handleCalendarChange}
-                        value={null} // Initially set to null
+                        value={null} 
                         granularity="month"
                       />
                     }
@@ -75,7 +75,6 @@ const Dashboard = () => {
             variant="h1"
           >
             Dashboard
-            {/* <Link variant="secondary">info</Link> */}
           </Header>
           
         }
