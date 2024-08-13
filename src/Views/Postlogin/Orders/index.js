@@ -14,9 +14,8 @@ import {
   Box,
   SpaceBetween,
   Grid,
-  ButtonDropdown,
 } from "@cloudscape-design/components";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const Orders = () => {
   const dispatch = useDispatch();
@@ -32,22 +31,16 @@ const Orders = () => {
     dispatch(fetchOrders());
   }, [dispatch]);
 
-  if (status === "IN_PROGRESS") {
-    return <div>Loading...</div>;
-  }
-
-  if (status === "FAILURE") {
-    return <div>Error loading orders.</div>;
-  }
-
-  const filteredOrders = data.filter((item) => {
-    const matchesStatus =
-      activeButton === "All" || item.status === activeButton;
-    const matchesSearch = item.id
-      .toLowerCase()
-      .includes(filteringText.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  const filteredOrders = data.items
+    ? data.items.filter((item) => {
+        const matchesStatus =
+          activeButton === "All" || item.status === activeButton;
+        const matchesSearch = item.id
+          .toLowerCase()
+          .includes(filteringText.toLowerCase());
+        return matchesStatus && matchesSearch;
+      })
+    : [];
 
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
 
@@ -59,21 +52,19 @@ const Orders = () => {
   );
 
   const handlePageChange = (pageIndex) => {
-    setCurrentPage(pageIndex + 1); 
+    setCurrentPage(pageIndex + 1);
   };
-
 
   const handleButtonClick = (button) => {
     setActiveButton(button);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   };
 
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
-    setCurrentPage(1); 
   };
 
-  const buttons = ["All", "Confirmed", "Unpaid", "Open", "Completed"];
+  const buttons = ["All", "Confirmed", "Open", "Completed"];
 
   return (
     <ContentLayout
@@ -133,7 +124,6 @@ const Orders = () => {
                   color: "#1D4ED8",
                 }}
               >
-                {/* Replace with actual data */}
                 423
               </span>
             </div>
@@ -151,7 +141,6 @@ const Orders = () => {
                   color: "#1D4ED8",
                 }}
               >
-                {/* Replace with actual data */}
                 123
               </span>
             </div>
@@ -169,7 +158,6 @@ const Orders = () => {
                   color: "#1D4ED8",
                 }}
               >
-                {/* Replace with actual data */}
                 128
               </span>
             </div>
@@ -187,7 +175,7 @@ const Orders = () => {
                   color: "#1D4ED8",
                 }}
               >
-                {/* Replace with actual data */}4
+                4
               </span>
             </div>
           </ColumnLayout>
@@ -195,13 +183,13 @@ const Orders = () => {
 
         <SpaceBetween direction="vertical" size="s">
           <Box>
-          <Grid
-      gridDefinition={[
-        { colspan: { default: 14, xxs: 4 } },
-        { colspan: { default: 12, xxs: 8 } }
-      ]}
-    >
-                <div style={{ display: "flex" }}>
+            <Grid
+              gridDefinition={[
+                { colspan: { default: 14, xxs: 4 } },
+                { colspan: { default: 12, xxs: 8 } },
+              ]}
+            >
+              <div style={{ display: "flex" }}>
                 {buttons.map((button) => (
                   <button
                     key={button}
@@ -236,7 +224,6 @@ const Orders = () => {
                     onChange={handleSearchChange}
                   />
                 </div>
-
                 <Pagination
                   currentPageIndex={currentPage - 1}
                   pagesCount={totalPages}
@@ -266,105 +253,83 @@ const Orders = () => {
                 } selected`,
               itemSelectionLabel: ({ selectedItems }, item) => item.name,
             }}
-            items={currentOrders} 
+            items={currentOrders}
             columnDefinitions={[
               {
                 id: "id",
                 header: "Order ID",
-                cell: (item) => (
+                cell: (item) =>
                   item.id ? (
                     <Link to={`/app/order/orderdetail`}>#{item.id}</Link>
-                    
                   ) : (
                     "N/A"
-                  )
-                ),
+                  ),
               },
-              
+
               {
-                id: "CreatedAt",
+                id: "orderDate",
                 header: "Order Date",
                 cell: (item) => {
-                  if (!item.createdAt) {
+                  if (!item.orderDate) {
                     return "N/A";
                   }
-                  const date = new Date(item.createdAt);
-                  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-                  return date.toLocaleDateString('en-GB', options).replace(/\//g, '-'); // Replace / with -
+                  const date = new Date(item.orderDate);
+                  const options = {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  };
+                  return date
+                    .toLocaleDateString("en-GB", options)
+                    .replace(/\//g, "-"); 
                 },
-                sortingField: 'createdAt',
-
               },
               {
-                id: 'customerName',
-                header: 'Customer Name',
-                cell: item => {
-                  if (item.address && item.address.name && item.address.name.S) {
-                    return item.address.name.S;
+                id: "customerName",
+                header: "Customer Name",
+                cell: (item) => {
+                  if (
+                    item.customerName &&
+                    item.customerName &&
+                    item.customerName
+                  ) {
+                    return item.customerName;
                   }
-                  return 'N/A';
+                  return "N/A";
                 },
               },
               {
-                id: 'item',
-                header: 'Item',
-                cell: item => {
-                  if (item.items && item.items.length > 0 && item.items[0].quantity) {
-                    const quantity = item.items[0].quantity;
-                    return quantity === "1" ? `${quantity} Item` : `${quantity} Items`;
+                id: "item",
+                header: "Item",
+                cell: (item) => {
+                  if (item.items) {
+                    const itemCount = item.items;
+                    return itemCount === 1
+                      ? `${itemCount} Item`
+                      : `${itemCount} Items`;
                   }
-                  return 'N/A';
+                  return "N/A";
                 },
-                sortingField: 'item',
-
               },
-              
               {
-                id: "status",
+                id: "orderStatus",
                 header: "Order Status",
-                cell: (item) => item.status || "N/A",
-                sortingField: 'status',
+                cell: (item) => item.orderStatus || "N/A",
+              },
 
-              },
-             
               {
-                id: "totalPrice",
+                id: "totalAmount",
                 header: "Total Amount",
-                cell: (item) => item.totalPrice ? `Rs. ${item.totalPrice}` : "N/A",
+                cell: (item) =>
+                  item.totalAmount ? `Rs. ${item.totalAmount}` : "N/A",
               },
               {
-                id: 'address',
-                header: 'Delivery Area',
-                cell: item => {
-                  if (item.address && item.address.address && item.address.address.S) {
-                    return item.address.address.S;
-                  }
-                  return 'N/A';
-                },
-                sortingField: 'address',
+                id: "area",
+                header: "Delivery Area",
+                cell: (item) => item.area || "N/A",
               },
-              {
-                id: 'actions',
-                header: 'Actions',
-                cell: item => (
-                  <ButtonDropdown
-                    expandToViewport
-                    items={[
-                      { id: 'start', text: 'Start' },
-                      { id: 'stop', text: 'Stop', disabled: true },
-                      { id: 'hibernate', text: 'Hibernate', disabled: true },
-                      { id: 'reboot', text: 'Reboot', disabled: true },
-                      { id: 'terminate', text: 'Terminate' },
-                    ]}
-                    ariaLabel="Control instance"
-                    variant="icon"
-                  />
-                ),
-              },
-              
             ]}
             loadingText="Loading resources"
-            resizableColumns
             selectionType="multi"
             trackBy="id"
             variant="borderless"
