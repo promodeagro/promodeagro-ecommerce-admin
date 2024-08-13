@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  ButtonDropdown,
   ColumnLayout,
   Container,
   Header,
@@ -20,20 +19,29 @@ import { fetchProducts } from 'Redux-Store/Products/ProductThunk';
 
 const Products = () => {
   const dispatch = useDispatch();
-  const prod = useSelector((state) => state.products.products);
-  console.log(prod,"proddd");
+  const prod = useSelector((state) => state.products?.products);
+ 
+  // const { data = [], status } = products;
   const [activeButton, setActiveButton] = useState('All');
   const [products, setProducts] = useState(prod.data?.products || []);
+
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
-
   useEffect(() => {
     setProducts(prod.data?.products || []);
   }, [prod]);
-  console.log(prod,"proo");
+  // console.log(prod,"proo");
+  // if (status === "IN_PROGRESS") {
+  //   return <div>Loading...</div>;
+  // }
 
-  const buttons = ['All', 'Draft', 'Stopped', 'Published'];
+  // if (status === "FAILURE") {
+  //   return <div>Error loading orders.</div>;
+  // }
+
+
+  const buttons = ['All', 'Unpublished', 'Stopped', 'Published'];
 
   const handleButtonClick = (button) => {
     setActiveButton(button);
@@ -42,8 +50,8 @@ const Products = () => {
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'Draft':
-        return { backgroundColor: 'gray', color: 'white', padding: '2px 5px', borderRadius: '4px' };
+      case 'Unpublished':
+        return { backgroundColor: '#0972D3', color: 'white', padding: '2px 5px', borderRadius: '4px' };
       case 'Published':
         return { backgroundColor: 'green', color: 'white', padding: '2px 5px', borderRadius: '4px' };
       case 'Stopped':
@@ -63,7 +71,9 @@ const Products = () => {
         return {};
     }
   };
-
+//  console.log(data,"data");
+ console.log(products,"productss");
+  // const filteredProducts = activeButton === 'All' ? data : data.filter(product => product.status === activeButton);
   const filteredProducts = activeButton === 'All' ? products : products.filter(product => product.status === activeButton);
 
   return (
@@ -90,13 +100,13 @@ const Products = () => {
               <Box variant="awsui-key-label">
                 <p style={{ fontSize: 12 }}>Total Published Products</p>
               </Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>₹436K</span>
+              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>123</span>
             </div>
             <div>
               <Box variant="awsui-key-label">
                 <p style={{ fontSize: 12 }}>Total Stock</p>
               </Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>430</span>
+              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>₹436K</span>
             </div>
             <div>
               <Box variant="awsui-key-label">
@@ -108,14 +118,14 @@ const Products = () => {
               <Box variant="awsui-key-label">
                 <p style={{ fontSize: 12 }}>Net Profit</p>
               </Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>128</span>
+              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>1238K</span>
             </div>
             <div>
               <Box variant="awsui-key-label">
                 <p style={{ fontSize: 12 }}>Stopped Products</p>
               </Box>
 
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>128</span>
+              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>12</span>
             </div>
           </ColumnLayout>
         </Container>
@@ -140,17 +150,19 @@ const Products = () => {
               </button>
             ))}
           </div>
+          <Container variant='borderless' fitHeight={500}>
           <Table
+          
             variant='borderless'
             columnDefinitions={[
               {
                 id: 'code',
                 header: 'Item Code',
-                cell: item => <Link to={`/app/products/${item.code}`}>{item.code}</Link>,
+                cell: item => <Link to={`/app/products/${item.itemCode}`}>{item.itemCode}</Link>,
               },
               {
                 id: 'name',
-                header: 'Product Name',
+                header: 'Name',
                 cell: item => (
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <img src={item.imageUrl} alt={item.name} height={35} width={35} style={{ borderRadius: '8px', marginRight: '10px' }} />
@@ -165,7 +177,7 @@ const Products = () => {
                 sortingField: "status"
               },
               {
-                id: 'category',
+                id: 'Category',
                 header: 'Category',
                 cell: item => item.category,
                 sortingField: "category"
@@ -173,7 +185,7 @@ const Products = () => {
               {
                 id: 'allocatedStock',
                 header: 'Allocated Stock',
-                cell: item => item.allocatedStock,
+                cell: item => item.quantityOnHand,
                 sortingField: "allocatedStock"
               },
               {
@@ -182,40 +194,14 @@ const Products = () => {
                 cell: item => <span style={getStockAlertStyle(item.stockAlert)}>{item.stockAlert}</span>,
                 sortingField: "stockAlert"
               },
-              {
-                id: 'purchasingPrice',
-                header: 'Purchasing Price',
-                cell: item => item.purchasingPrice,
-                sortingField: "purchasingPrice"
-              },
-              {
-                id: 'msp',
-                header: 'MSP',
-                cell: item => item.msp,
-                sortingField: "msp"
-              },
-              {
-                id: 'actions',
-                header: 'Actions',
-                cell: item => (
-                  <ButtonDropdown
-                    expandToViewport
-                    items={[
-                      { id: "start", text: "Start" },
-                      { id: "stop", text: "Stop", disabled: true },
-                      { id: "hibernate", text: "Hibernate", disabled: true },
-                      { id: "reboot", text: "Reboot", disabled: true },
-                      { id: "terminate", text: "Terminate" }
-                    ]}
-                    ariaLabel="Control instance"
-                    variant="icon"
-                  />
-                ),
-              },
+            
+            
+            
             ]}
             items={filteredProducts}
             selectionType="multi"
           />
+          </Container>
         </div>
       </SpaceBetween>
     </ContentLayout>

@@ -11,6 +11,7 @@ const Config = {
   ORDERS_VIEWATTACHMENTS:`${BASE_URL}/users`,
    FETCH_BATCH_SHEET:`${BASE_URL}/users`,
    FETCH_PRODUCTS:`${BASE_URL}/product`,
+   FETCH_PRODUCTS_DETAIL:`${BASE_URL}/product/{productId}?userId={userId}`,
    FETCH_RAW_MATERIALS:`${BASE_URL}/users`,
    FETCH_PURCHASE_ORDER:`${BASE_URL}/users`,
    FETCH_PURCHASE_REQUSTION_LIST:`${BASE_URL}/users`,
