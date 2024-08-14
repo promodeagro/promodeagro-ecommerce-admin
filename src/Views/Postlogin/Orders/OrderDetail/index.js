@@ -3,19 +3,67 @@ import Header from "@cloudscape-design/components/header";
 import SpaceBetween from "@cloudscape-design/components/space-between";
 import Button from "@cloudscape-design/components/button";
 import BreadcrumbGroup from "@cloudscape-design/components/breadcrumb-group";
-import { Icon, Grid, Container } from "@cloudscape-design/components";
-import Wizard from "@cloudscape-design/components/wizard";
-import Input from "@cloudscape-design/components/input";
-import FormField from "@cloudscape-design/components/form-field";
-
-
-
+import { Container, Icon, Box } from "@cloudscape-design/components";
+import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
+import Refund from "./Refund";
 
 const OrderDetail = () => {
-  const [
-    activeStepIndex,
-    setActiveStepIndex
-  ] = React.useState(0);
+  const navigate = useNavigate(); // Initialize the navigate function
+
+  const events = [
+    { step: "Step 1", title: "Order Confirmed" },
+    { step: "Step 2", title: "In-progress" },
+    { step: "Step 3", title: "Out for Delivery" },
+    { step: "Step 4", title: "Delivered" },
+  ];
+
+  const timelineContainerStyle = {
+    position: "relative",
+    padding: "20px",
+    margin: "20px 0",
+  };
+
+  const timelineItemStyle = {
+    position: "relative",
+    paddingLeft: "30px",
+    marginBottom: "20px",
+  };
+
+  const timelineItemBeforeStyle = {
+    content: '""',
+    position: "absolute",
+    left: "-5px",
+    top: "0",
+    width: "16px",
+    height: "16px",
+    backgroundColor: "#0073bb",
+    borderRadius: "50%",
+    border: "2px solid #0073bb",
+  };
+
+  const timelineConnectorStyle = {
+    position: "absolute",
+    left: "2px", // Adjusted to align better
+    width: "1px",
+    backgroundColor: "#0073bb",
+    zIndex: 0,
+  };
+
+  const timelineStepStyle = {
+    color: "black",
+    fontSize: "12px", // Adjust text size as needed
+    marginBottom: "5px",
+  };
+
+  const timelineContentStyle = {
+    background: "#ffffff",
+  };
+
+  const timelineTitleStyle = {
+    color: "#0073bb", // Title color
+    fontSize: "14px", // Title text size
+    margin: "0", // Remove default margin
+  };
 
   return (
     <div>
@@ -30,142 +78,65 @@ const OrderDetail = () => {
       <Header
         actions={
           <SpaceBetween direction="horizontal" size="xs">
-            <Button iconAlign="right" iconName="caret-down-filled">
-              In-progress
-            </Button>
-            <Button iconName="external">Refund</Button>
-            <Button iconAlign="right" iconName="angle-down">
-              Print
-            </Button>
+            <Button iconName="external" onClick={() => navigate("/app/order/orderdetail/refund")} 
+            >Refund</Button>
+            
             <Button iconAlign="right" iconName="angle-down">
               Actions
             </Button>
-            <button style={{cursor: 'pointer', borderRadius: '1rem', width: '46px', height: '30px', backgroundColor: 'black', color: 'white'}}>
+            <button
+              style={{
+                cursor: "pointer",
+                borderRadius: "1rem",
+                width: "46px",
+                height: "30px",
+                backgroundColor: "black",
+                color: "white",
+              }}
+            >
               <Icon name="angle-left" />
-              
             </button>
-            <button style={{cursor: 'pointer', borderRadius: '1rem', width: '46px', height: '30px', backgroundColor: 'black', color: 'white'}}>
+            <button
+              style={{
+                cursor: "pointer",
+                borderRadius: "1rem",
+                width: "46px",
+                height: "30px",
+                backgroundColor: "black",
+                color: "white",
+              }}
+            >
               <Icon name="angle-right" />
-              
             </button>
           </SpaceBetween>
         }
       >
         #1110
       </Header>
-      <Wizard
-      i18nStrings={{
-        stepNumberLabel: stepNumber =>
-          `Step ${stepNumber}`,
-        collapsedStepsLabel: (stepNumber, stepsCount) =>
-          `Step ${stepNumber} of ${stepsCount}`,
-        skipToButtonLabel: (step, stepNumber) =>
-          `Skip to ${step.title}`,
-        navigationAriaLabel: "Steps",
-        cancelButton: "Cancel",
-        previousButton: "Previous",
-        nextButton: "Next",
-        submitButton: "Launch instance",
-        optional: "optional"
-      }}
-      onNavigate={({ detail }) =>
-        setActiveStepIndex(detail.requestedStepIndex)
-      }
-      activeStepIndex={activeStepIndex}
-      allowSkipTo
-      steps={[
-        {
-          title: "Choose instance type",
-          description:
-            "Each instance type includes one or more instance sizes, allowing you to scale your resources to the requirements of your target workload.",
-          content: (
-            <Container
-              header={
-                <Header variant="h2">
-                  Form container header
-                </Header>
-              }
-            >
-              <SpaceBetween direction="vertical" size="l">
-                <FormField label="First field">
-                  <Input />
-                </FormField>
-                <FormField label="Second field">
-                  <Input />
-                </FormField>
-              </SpaceBetween>
-            </Container>
-          )
-        },
-        {
-          title: "Add storage",
-          content: (
-            <Container
-              header={
-                <Header variant="h2">
-                  Form container header
-                </Header>
-              }
-            >
-              <SpaceBetween direction="vertical" size="l">
-                <FormField label="First field">
-                  <Input />
-                </FormField>
-                <FormField label="Second field">
-                  <Input />
-                </FormField>
-              </SpaceBetween>
-            </Container>
-          ),
-          isOptional: true
-        },
-        {
-          title: "Configure security group",
-          content: (
-            <Container
-              header={
-                <Header variant="h2">
-                  Form container header
-                </Header>
-              }
-            >
-              <SpaceBetween direction="vertical" size="l">
-                <FormField label="First field">
-                  <Input />
-                </FormField>
-                <FormField label="Second field">
-                  <Input />
-                </FormField>
-              </SpaceBetween>
-            </Container>
-          ),
-          isOptional: true
-        },
-        {
-          title: "Review and launch",
-          content: (
-            <SpaceBetween size="xs">
-              <Header
-                variant="h3"
-                actions={
-                  <Button
-                    onClick={() => setActiveStepIndex(0)}
-                  >
-                    Edit
-                  </Button>
-                }
-              >
-                Step 1: Instance type
-              </Header>
-                          </SpaceBetween>
-          )
-        }
-      ]}
-    />
-
-   
+      <Box>
+        <div style={timelineContainerStyle}>
+          {events.map((event, index) => (
+            <div key={index} style={timelineItemStyle}>
+              {/* Render vertical line only for non-last items */}
+              {index < events.length - 1 && (
+                <div
+                  style={{
+                    ...timelineConnectorStyle,
+                    height: "calc(120%)", // Adjust height as needed
+                    top: "calc(12px)", // Center line to start from middle of step
+                  }}
+                ></div>
+              )}
+              <div style={timelineItemBeforeStyle}></div>
+              <div style={timelineStepStyle}>{event.step}</div>
+              <div style={timelineContentStyle}>
+                <h3 style={timelineTitleStyle}>{event.title}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Box>
     </div>
-     
   );
 };
 

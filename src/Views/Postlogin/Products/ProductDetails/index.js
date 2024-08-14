@@ -26,20 +26,32 @@ const ProductDetail = () => {
   const error = useSelector((state) => state.products.productDetail.status === 'FAILURE');
   const [isPublishing, setIsPublishing] = useState(false);
 
+  const [basicDetails, setBasicDetails] = useState({
+    name: product?.data?.name,
+    description: product?.data?.description,
+    category: product?.data?.category,
+    units: product?.data?.units,
+    status: "1", // Default value
+  });
+
   useEffect(() => {
     if (id) {
       dispatch(fetchProductById(id));
     }
   }, [dispatch, id]);
 
+  const handleBasicDetailsChange = (updatedDetails) => {
+    setBasicDetails(updatedDetails);
+  };
+
   const handlePublish = async () => {
     setIsPublishing(true);
-    console.log('Preparing to send PUT request with data:', { id, productData: { ...product.data, status: 'Published' } });
+    console.log('Preparing to send PUT request with data:', { id, productData: { ...product.data, ...basicDetails, status: 'Published' } });
     try {
-      const response = dispatch(putProductById({ id, productData: { ...product.data, status: 'Published' } }));
+      const response = await dispatch(putProductById({ id, productData: { ...product.data, ...basicDetails, status: 'Published' } }));
       console.log('PUT request successful:', response);
     } catch (err) {
-      console.error('Error publishing product:', err); // Log the full error
+      console.error('Error publishing product:', err);
     } finally {
       setIsPublishing(false);
     }
@@ -123,7 +135,7 @@ const ProductDetail = () => {
           ]}
         >
           <SpaceBetween direction="vertical" size="l">
-            <BasicDetails product={product} />
+            <BasicDetails product={product} onChange={handleBasicDetailsChange} />
             <Pricing product={product} />
             <InventoryTracking product={product} />
             <Attributes product={product} />
