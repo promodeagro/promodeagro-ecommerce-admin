@@ -15,6 +15,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchProducts, PutToggle } from 'Redux-Store/Products/ProductThunk';
 import "../../../assets/styles/CloudscapeGlobalstyle.css"
+
 const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
@@ -56,11 +57,18 @@ const Products = () => {
   // Handle toggle change
   const handleToggleChange = (item) => {
     const newStatus = !item.active;
-    // Dispatch the update action and check the response
+    // Optimistically update the local state
+    // const updatedProducts = data.map((product) =>
+    //   product.id === item.id ? { ...product, active: newStatus } : product
+    // );
+
     dispatch(PutToggle({ id: item.id, active: newStatus })).then((response) => {
       if (response.meta.requestStatus === 'fulfilled' && response.payload.status === 200) {
-        // Update the toggle state only if the response is successful
-        dispatch(fetchProducts()); // Refresh the product list to update the state
+        // Update the local state and Redux store only if the request was successful
+        dispatch(fetchProducts());
+      } else {
+        // Revert back to the original state if the request fails
+        dispatch(fetchProducts());
       }
     });
   };
@@ -70,7 +78,6 @@ const Products = () => {
 
   return (
     <ContentLayout
-     
       breadcrumbs={
         <BreadcrumbGroup
           items={[
@@ -97,6 +104,7 @@ const Products = () => {
       <SpaceBetween direction="vertical" size="s">
         <Container>
           <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
+            {/* Dashboard Metrics */}
             <div>
               <Box variant="awsui-key-label">
                 <p style={{ fontSize: 12 }}>Total Published Products</p>
@@ -131,28 +139,27 @@ const Products = () => {
         </Container>
 
         <div>
-          <div style={{ display:"flex",justifyContent:"space-between"}}>
-          <span>
-            {['All', 'Inactive', 'Active'].map((button) => (
-              <button
-                key={button}
-                onClick={() => handleButtonClick(button)}
-                style={{
-                  border: activeButton === button ? '2px solid black' : 'none',
-                  color: activeButton === button ? 'black' : 'gray',
-                  backgroundColor: 'white',
-                  fontWeight: activeButton === button ? 'bolder' : 'normal',
-                  padding: '8px 16px',
-                  cursor: 'pointer',
-                  borderRadius: "32px"
-                }}
-              >
-                {button}
-              </button>
-            ))}
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span>
+              {['All', 'Inactive', 'Active'].map((button) => (
+                <button
+                  key={button}
+                  onClick={() => handleButtonClick(button)}
+                  style={{
+                    border: activeButton === button ? '2px solid black' : 'none',
+                    color: activeButton === button ? 'black' : 'gray',
+                    backgroundColor: 'white',
+                    fontWeight: activeButton === button ? 'bolder' : 'normal',
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    borderRadius: "32px"
+                  }}
+                >
+                  {button}
+                </button>
+              ))}
             </span>
             <Button variant='normal'>Set Price</Button>
-          
           </div>
           <Container variant='borderless' fitHeight={500}>
             <Table
