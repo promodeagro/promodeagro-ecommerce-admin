@@ -15,7 +15,7 @@ import {
 } from "@cloudscape-design/components";
 import edit from "../../../../../assets/img/icons/edit.png";
 import deleteIcon from "../../../../../assets/img/icons/Icon.png"; // Ensure this path is correct
-
+import "../../../../../assets/styles/CloudscapeGlobalstyle.css"
 const Attributes = () => {
   const [option, setOption] = React.useState("");
   const [options, setOptions] = React.useState([]);
@@ -62,7 +62,7 @@ const Attributes = () => {
   };
 
   return (
-    <Container
+    <Container className='container-box-shadow' variant='borderless'
       header={
         <Grid
           gridDefinition={[

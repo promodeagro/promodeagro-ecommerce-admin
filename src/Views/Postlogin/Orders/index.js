@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 const Orders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
-  const { data = [], status } = ordersData;
+  const { data = [] } = ordersData;
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 10;

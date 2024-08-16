@@ -7,6 +7,7 @@ import Sidebar from "components/Sidebar";
 import {
   AppLayout,
 } from '@cloudscape-design/components';
+// import "./assets/styles/CloudscapeGlobalstyle.css"
 function App() {
   return (
     <Router>
@@ -15,6 +16,7 @@ function App() {
     headerSelector="#header"
  headerVariant="high-contrast"
  navigationWidth={250}
+//  disableContentPaddings
 
 
     navigation={

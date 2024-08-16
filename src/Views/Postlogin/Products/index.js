@@ -14,11 +14,11 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchProducts, PutToggle } from 'Redux-Store/Products/ProductThunk';
-
+import "../../../assets/styles/CloudscapeGlobalstyle.css"
 const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
-  const { data = [], status } = products;
+  const { data = [] } = products;
   const [activeButton, setActiveButton] = useState('All');
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const Products = () => {
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'InActive':
+      case 'Inactive':
         return { backgroundColor: '#0972D3', color: 'white', padding: '2px 5px', borderRadius: '4px' };
       case 'Active':
         return { backgroundColor: 'green', color: 'white', padding: '2px 5px', borderRadius: '4px' };
@@ -70,6 +70,7 @@ const Products = () => {
 
   return (
     <ContentLayout
+     
       breadcrumbs={
         <BreadcrumbGroup
           items={[
@@ -94,7 +95,7 @@ const Products = () => {
       }
     >
       <SpaceBetween direction="vertical" size="s">
-        <Container className="top-container" style={{ marginBottom: '1rem' }}>
+        <Container>
           <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
             <div>
               <Box variant="awsui-key-label">
@@ -130,8 +131,9 @@ const Products = () => {
         </Container>
 
         <div>
-          <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-            {['All', 'InActive', 'Active'].map((button) => (
+          <div style={{ display:"flex",justifyContent:"space-between"}}>
+          <span>
+            {['All', 'Inactive', 'Active'].map((button) => (
               <button
                 key={button}
                 onClick={() => handleButtonClick(button)}
@@ -148,6 +150,9 @@ const Products = () => {
                 {button}
               </button>
             ))}
+            </span>
+            <Button variant='normal'>Set Price</Button>
+          
           </div>
           <Container variant='borderless' fitHeight={500}>
             <Table
@@ -195,7 +200,7 @@ const Products = () => {
                         onChange={() => handleToggleChange(item)}
                         checked={item.active}
                       >
-                        {item.active ? 'Active' : 'InActive'}
+                        {item.active ? 'Active' : 'Inactive'}
                       </Toggle>
                     </span>
                   ),

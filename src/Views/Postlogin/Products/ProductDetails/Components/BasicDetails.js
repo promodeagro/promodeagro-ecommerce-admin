@@ -1,5 +1,6 @@
 import { Container, Input, Form, FormField, Textarea, Select, SpaceBetween } from '@cloudscape-design/components';
 import React, { useEffect } from 'react';
+import "../../../../../assets/styles/CloudscapeGlobalstyle.css"
 
 const BasicDetails = ({ product, onChange }) => {
   const [description, setDescription] = React.useState(product.data?.description || "");
@@ -44,10 +45,10 @@ const BasicDetails = ({ product, onChange }) => {
       units: selectedUnit.value,
       status: selectedStatus.value,
     });
-  }, [name, description, selectedCategory, selectedUnit, selectedStatus]); 
+  }, [name, description, selectedCategory, selectedUnit, selectedStatus,onChange]); 
 
   return (
-    <Container>
+    <Container variant='borderless' className='container-box-shadow'>
       <Form>
         <SpaceBetween direction="vertical" size="l">
           <div style={{ width: "52vw" }}>

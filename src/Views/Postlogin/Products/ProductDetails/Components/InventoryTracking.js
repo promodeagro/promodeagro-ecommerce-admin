@@ -12,13 +12,14 @@ import {
     Header,
  
   } from "@cloudscape-design/components";
+  import "../../../../../assets/styles/CloudscapeGlobalstyle.css"
 
 const InventoryTracking = () => {
     
   const [checked, setChecked] = React.useState(false);
   const [toggleChecked, setToggleChecked] = React.useState(false);
   return (
-    <Container header={<Header variant="h3">Inventory Tracking</Header>}>
+    <Container variant='borderless'  className='container-box-shadow' header={<Header variant="h3">Inventory Tracking</Header>}>
             <form onSubmit={(e) => e.preventDefault()}>
               <Form>
                 <SpaceBetween direction="vertical" size="l">

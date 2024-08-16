@@ -16,7 +16,7 @@ import SelectFilter from "./SelectFilter";
 const RecentOrders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
-  const { data = [], status } = ordersData;
+  const { data = []} = ordersData;
   useEffect(() => {
     dispatch(fetchOrders());
   }, [dispatch]);

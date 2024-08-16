@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   SpaceBetween,
-  Grid,
   Header,
   Box,
   BreadcrumbGroup,
@@ -25,6 +24,7 @@ import BasicDetails from "./Components/BasicDetails";
 import InventoryTracking from "./Components/InventoryTracking";
 import Attributes from "./Components/Attributes";
 import ProductImages from "./Components/ProductImages";
+import "../../../../assets/styles/CloudscapeGlobalstyle.css"
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -108,6 +108,7 @@ const ProductDetail = () => {
   };
 
   const handlePublish = async () => {
+    
     setIsPublishing(true);
     try {
       const pricingData = {
@@ -115,18 +116,15 @@ const ProductDetail = () => {
         onlineStorePrice: parseFloat(pricingDetails.onlineStorePrice) || 0,
       };
 
-      const response = await dispatch(putPricingById({ id, pricingData }));
+     dispatch(putPricingById({ id, pricingData }));
 
-      if (response.meta.requestStatus === "fulfilled") {
-        console.log("PUT request successful:", response.payload);
-      } else {
-        console.error("PUT request failed:", response.payload);
-      }
+    
     } catch (err) {
       console.error("Error publishing product:", err);
     } finally {
       setIsPublishing(false);
     }
+  
   };
 
   if (loading) {
@@ -141,14 +139,11 @@ const ProductDetail = () => {
   const isAtLastProduct = productIds.indexOf(currentProductId) === productIds.length - 1;
 
   return (
-    <Container variant="borderless">
-      <Box margin={"s"}>
-        <Toggle onChange={handleToggleChange} checked={product.data?.active}>
-          {product.data?.active ? "Active" : "Inactive"}
-        </Toggle>
+    <Box margin={{ top: "n" }}>
+       
         <BreadcrumbGroup
           items={[
-            { text: "Dashboard", href: "/app/dashboard" },
+            { text: "Dashboard", href : "/app/dashboard" },
             { text: "Products", href: "/app/products" },
             {
               text: product.data?.name || "Product Details",
@@ -157,63 +152,68 @@ const ProductDetail = () => {
           ]}
           ariaLabel="Breadcrumbs"
         />
-        <div style={{ marginBottom: "10px" }}>
+        <div style={{ marginBottom: "15px" }}>
           <Header
             variant="h3"
             actions={
-              <div style={{ display: "flex", gap: "2px" }}>
+              <div style={{ display: "flex", gap: "8px",alignItems:"center" }}>
+                 <Toggle onChange={handleToggleChange} checked={product.data?.active}>
+          {product.data?.active ? "Active" : "Inactive"}
+        </Toggle>
                 <Button
                   variant="primary"
                   onClick={handlePublish}
                   disabled={isPublishing}
+                  
                 >
                   {isPublishing ? "Saving..." : "Save Changes"}
                 </Button>
+                <div style={{ display: "flex", gap: "3px",justifyContent:"center" }}>
                 <button
                   onClick={goToPreviousProduct}
                   style={{
                     cursor: isAtFirstProduct ? "not-allowed" : "pointer",
                     borderRadius: "1rem",
-                    width: "32px",
+                    width: "45px",
                     height: "30px",
                     backgroundColor: isAtFirstProduct ? "gray" : "black",
                     color: "white",
+                    textAlign:"center",
+                    padding:"5px"
                   }}
                   disabled={isAtFirstProduct}
                 >
-                  <Icon name="angle-left" />
+                  <Icon size="small" name="angle-left" />
                 </button>
                 <button
                   onClick={goToNextProduct}
                   style={{
                     cursor: isAtLastProduct ? "not-allowed" : "pointer",
                     borderRadius: "1rem",
-                    width: "32px",
+                    width: "45px",
                     height: "30px",
+                    padding:"5px",
                     backgroundColor: isAtLastProduct ? "gray" : "black",
                     color: "white",
+                    textAlign:"center"
                   }}
                   disabled={isAtLastProduct}
                 >
-                  <Icon name="angle-right" />
+                  <Icon size="small" name="angle-right" />
                 </button>
-              </div>
-            }
-          />
+                </div>
+                </div>} >{product.data?.name}</Header>
+             </div>
           <SpaceBetween direction="vertical" size="l">
-            <Grid
-              gridDefinition={[
-                { colspan: { default: 3, xxs: 9 } },
-                { colspan: { default: 9, xxs: 3 } },
-              ]}
+            < div style={{display:"flex",gap:"15px"}}
             >
               <SpaceBetween direction="vertical" size="l">
                 <BasicDetails
                   product={product}
                   onChange={handleBasicDetailsChange}
                 />
-                <Container header={<Header variant="h3">Pricing</Header>}>
-                  <form onSubmit={(e) => e.preventDefault()}>
+                <Container variant="borderless" className="container-box-shadow" header={<Header variant="h3">Pricing</Header>}>
+                
                     <SpaceBetween direction="vertical" size="l">
                       <div style={{ display: "flex", gap: "15px" }}>
                         <FormField label="Purchasing Price">
@@ -277,25 +277,25 @@ const ProductDetail = () => {
                               pricingDetails.compareAt -
                                 pricingDetails.onlineStorePrice || 0
                             }
-                            readOnly
+                            
                           />
                         </FormField>
                         <FormField label="Margin">
-                          <Input size="3xs" placeholder="Margin" readOnly />
+                          <Input size="3xs" placeholder="Margin"  />
                         </FormField>
                       </div>
                     </SpaceBetween>
-                  </form>
+                
                 </Container>
                 <InventoryTracking product={product} />
                 <Attributes product={product} />
               </SpaceBetween>
               <ProductImages product={product} />
-            </Grid>
+            </div>
           </SpaceBetween>
-        </div>
+        
       </Box>
-    </Container>
+ 
   );
 };
 
