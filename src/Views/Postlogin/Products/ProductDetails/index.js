@@ -40,20 +40,20 @@ const ProductDetail = () => {
     (state) => state.products.productDetail.status === "FAILURE"
   );
   const products = useSelector((state) => state.products.products);
-  useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+
   const [isPublishing, setIsPublishing] = useState(false);
   const [checked, setChecked] = useState(false);
-  const [purchasePrice, setPurchasePrice] = useState(
-    product?.data?.purchasingPrice || ""
-  );
+  const [purchasePrice, setPurchasePrice] = useState("");
   const [pricingDetails, setPricingDetails] = useState({
-    compareAt: product?.data?.compareAt || "",
-    onlineStorePrice: product?.data?.onlineStorePrice || "",
+    compareAt: "",
+    onlineStorePrice: "",
   });
   const [productIds, setProductIds] = useState([]);
   const [currentProductId, setCurrentProductId] = useState(id);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   useEffect(() => {
     if (id) {
@@ -71,14 +71,11 @@ const ProductDetail = () => {
       setChecked(product.data.chargeTax || false);
     }
   }, [product.data]);
-  console.log(products?.data);
 
   useEffect(() => {
-    // Extract IDs from products and store them in state
     const ids = products.data?.map((product) => product.id);
     setProductIds(ids);
-    console.log(ids, "ids");
-    // Get current product ID from URL
+
     const currentId = location.pathname.split("/").pop();
     setCurrentProductId(currentId);
   }, [products, location.pathname]);
@@ -89,7 +86,6 @@ const ProductDetail = () => {
       const nextId = productIds[currentIndex + 1];
       setCurrentProductId(nextId);
       navigate(`/app/products/${nextId}`);
-      console.log("clicked");
     }
   };
 
@@ -99,7 +95,6 @@ const ProductDetail = () => {
       const prevId = productIds[currentIndex - 1];
       setCurrentProductId(prevId);
       navigate(`/app/products/${prevId}`);
-      console.log("clicked");
     }
   };
 
@@ -115,7 +110,6 @@ const ProductDetail = () => {
   const handlePublish = async () => {
     setIsPublishing(true);
     try {
-      // Convert string values to numbers
       const pricingData = {
         compareAt: parseFloat(pricingDetails.compareAt) || 0,
         onlineStorePrice: parseFloat(pricingDetails.onlineStorePrice) || 0,
@@ -143,14 +137,15 @@ const ProductDetail = () => {
     return <div>Error loading product: {error.message}</div>;
   }
 
+  const isAtFirstProduct = productIds.indexOf(currentProductId) === 0;
+  const isAtLastProduct = productIds.indexOf(currentProductId) === productIds.length - 1;
+
   return (
     <Container variant="borderless">
       <Box margin={"s"}>
-        <span style={{ cursor: "pointer" }}>
-          <Toggle onChange={handleToggleChange} checked={product.data?.active}>
-            {product.data?.active ? "Active" : "Inactive"}
-          </Toggle>
-        </span>
+        <Toggle onChange={handleToggleChange} checked={product.data?.active}>
+          {product.data?.active ? "Active" : "Inactive"}
+        </Toggle>
         <BreadcrumbGroup
           items={[
             { text: "Dashboard", href: "/app/dashboard" },
@@ -162,152 +157,144 @@ const ProductDetail = () => {
           ]}
           ariaLabel="Breadcrumbs"
         />
-        <Grid
-          gridDefinition={[
-            { colspan: { default: 10, xxs: 9 } },
-            { colspan: { default: 2, xxs: 3 } },
-          ]}
-        >
-          <Header variant="h3">{product.data?.name}</Header>
-          <Grid
-            disableGutters
-            gridDefinition={[
-              { colspan: { default: 9, xxs: 10 } },
-              { colspan: { default: 1, xxs: 1 } },
-              { colspan: { default: 2, xxs: 1 } },
-            ]}
-          >
-            <Button
-              variant="primary"
-              onClick={handlePublish}
-              disabled={isPublishing}
-            >
-              {isPublishing ? "Saving..." : "Save Changes"}
-            </Button>
-
-            <button
-              onClick={goToPreviousProduct}
-              style={{
-                cursor: "pointer",
-                borderRadius: "1rem",
-                width: "32px",
-                height: "30px",
-                backgroundColor: "black",
-                color: "white",
-              }}
-            >
-              <Icon name="angle-left" />
-            </button>
-            <button
-              onClick={goToNextProduct}
-              style={{
-                cursor: "pointer",
-                borderRadius: "1rem",
-                width: "32px",
-                height: "30px",
-                backgroundColor: "black",
-                color: "white",
-                marginLeft: "20px",
-              }}
-            >
-              <Icon name="angle-right" />
-            </button>
-          </Grid>
-        </Grid>
-      </Box>
-      <SpaceBetween direction="vertical" size="l">
-        <Grid
-          gridDefinition={[
-            { colspan: { default: 3, xxs: 9 } },
-            { colspan: { default: 9, xxs: 3 } },
-          ]}
-        >
+        <div style={{ marginBottom: "10px" }}>
+          <Header
+            variant="h3"
+            actions={
+              <div style={{ display: "flex", gap: "2px" }}>
+                <Button
+                  variant="primary"
+                  onClick={handlePublish}
+                  disabled={isPublishing}
+                >
+                  {isPublishing ? "Saving..." : "Save Changes"}
+                </Button>
+                <button
+                  onClick={goToPreviousProduct}
+                  style={{
+                    cursor: isAtFirstProduct ? "not-allowed" : "pointer",
+                    borderRadius: "1rem",
+                    width: "32px",
+                    height: "30px",
+                    backgroundColor: isAtFirstProduct ? "gray" : "black",
+                    color: "white",
+                  }}
+                  disabled={isAtFirstProduct}
+                >
+                  <Icon name="angle-left" />
+                </button>
+                <button
+                  onClick={goToNextProduct}
+                  style={{
+                    cursor: isAtLastProduct ? "not-allowed" : "pointer",
+                    borderRadius: "1rem",
+                    width: "32px",
+                    height: "30px",
+                    backgroundColor: isAtLastProduct ? "gray" : "black",
+                    color: "white",
+                  }}
+                  disabled={isAtLastProduct}
+                >
+                  <Icon name="angle-right" />
+                </button>
+              </div>
+            }
+          />
           <SpaceBetween direction="vertical" size="l">
-            <BasicDetails
-              product={product}
-              onChange={handleBasicDetailsChange}
-            />
-            <Container header={<Header variant="h3">Pricing</Header>}>
-              <form onSubmit={(e) => e.preventDefault()}>
-                <SpaceBetween direction="vertical" size="l">
-                  <div style={{ display: "flex", gap: "15px" }}>
-                    <FormField label="Purchasing Price">
-                      <Input
-                        value={purchasePrice}
-                        size="3xs"
-                        onChange={({ detail }) =>
-                          setPurchasePrice(detail.value)
-                        }
-                        placeholder="Input Purchasing Price"
-                        disabled
-                      />
-                    </FormField>
-                    <FormField label="Minimum Selling Price">
-                      <Input
-                        size="3xs"
-                        placeholder="Min Selling Price"
-                        disabled
-                      />
-                    </FormField>
-                    <FormField label="Compare At Price">
-                      <Input
-                        value={pricingDetails.compareAt}
-                        size="3xs"
-                        onChange={({ detail }) =>
-                          setPricingDetails((prev) => ({
-                            ...prev,
-                            compareAt: detail.value,
-                          }))
-                        }
-                        placeholder="Compare At Price"
-                      />
-                    </FormField>
-                  </div>
-                  <Checkbox
-                    onChange={({ detail }) => setChecked(detail.checked)}
-                    checked={checked}
-                  >
-                    Charge Tax on this Product
-                  </Checkbox>
-                  <hr />
-                  <div style={{ display: "flex", gap: "15px" }}>
-                    <FormField label="Online Store Price">
-                      <Input
-                        value={pricingDetails.onlineStorePrice}
-                        size="3xs"
-                        onChange={({ detail }) =>
-                          setPricingDetails((prev) => ({
-                            ...prev,
-                            onlineStorePrice: detail.value,
-                          }))
-                        }
-                        placeholder="Online Store Price"
-                      />
-                    </FormField>
-                    <FormField label="Profit">
-                      <Input
-                        size="3xs"
-                        placeholder="Profit"
-                        value={
-                          pricingDetails.compareAt -
-                            pricingDetails.onlineStorePrice || 0
-                        }
-                        readOnly
-                      />
-                    </FormField>
-                    <FormField label="Margin">
-                      <Input size="3xs" placeholder="Margin" readOnly />
-                    </FormField>
-                  </div>
-                </SpaceBetween>
-              </form>
-            </Container>
-            <InventoryTracking product={product} />
-            <Attributes product={product} />
+            <Grid
+              gridDefinition={[
+                { colspan: { default: 3, xxs: 9 } },
+                { colspan: { default: 9, xxs: 3 } },
+              ]}
+            >
+              <SpaceBetween direction="vertical" size="l">
+                <BasicDetails
+                  product={product}
+                  onChange={handleBasicDetailsChange}
+                />
+                <Container header={<Header variant="h3">Pricing</Header>}>
+                  <form onSubmit={(e) => e.preventDefault()}>
+                    <SpaceBetween direction="vertical" size="l">
+                      <div style={{ display: "flex", gap: "15px" }}>
+                        <FormField label="Purchasing Price">
+                          <Input
+                            value={purchasePrice}
+                            size="3xs"
+                            onChange={({ detail }) =>
+                              setPurchasePrice(detail.value)
+                            }
+                            placeholder="Input Purchasing Price"
+                            disabled
+                          />
+                        </FormField>
+                        <FormField label="Minimum Selling Price">
+                          <Input
+                            size="3xs"
+                            placeholder="Min Selling Price"
+                            disabled
+                          />
+                        </FormField>
+                        <FormField label="Compare At Price">
+                          <Input
+                            value={pricingDetails.compareAt}
+                            size="3xs"
+                            onChange={({ detail }) =>
+                              setPricingDetails((prev) => ({
+                                ...prev,
+                                compareAt: detail.value,
+                              }))
+                            }
+                            placeholder="Compare At Price"
+                          />
+                        </FormField>
+                      </div>
+                      <Checkbox
+                        onChange={({ detail }) => setChecked(detail.checked)}
+                        checked={checked}
+                      >
+                        Charge Tax on this Product
+                      </Checkbox>
+                      <hr />
+                      <div style={{ display: "flex", gap: "15px" }}>
+                        <FormField label="Online Store Price">
+                          <Input
+                            value={pricingDetails.onlineStorePrice}
+                            size="3xs"
+                            onChange={({ detail }) =>
+                              setPricingDetails((prev) => ({
+                                ...prev,
+                                onlineStorePrice: detail.value,
+                              }))
+                            }
+                            placeholder="Online Store Price"
+                          />
+                        </FormField>
+                        <FormField label="Profit">
+                          <Input
+                            size="3xs"
+                            placeholder="Profit"
+                            value={
+                              pricingDetails.compareAt -
+                                pricingDetails.onlineStorePrice || 0
+                            }
+                            readOnly
+                          />
+                        </FormField>
+                        <FormField label="Margin">
+                          <Input size="3xs" placeholder="Margin" readOnly />
+                        </FormField>
+                      </div>
+                    </SpaceBetween>
+                  </form>
+                </Container>
+                <InventoryTracking product={product} />
+                <Attributes product={product} />
+              </SpaceBetween>
+              <ProductImages product={product} />
+            </Grid>
           </SpaceBetween>
-          <ProductImages product={product} />
-        </Grid>
-      </SpaceBetween>
+        </div>
+      </Box>
     </Container>
   );
 };
