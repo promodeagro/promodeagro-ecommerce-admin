@@ -8,6 +8,7 @@ const Config = {
   FINISH_PRODUCT_DETAILS: `${BASE_URL}/users`,
   FETCH_ORDERS: `${BASE_URL}/order`,
   ORDERS_DETAILS:`${BASE_URL}/order/{id}`,
+  ORDERS_STATUS:`${BASE_URL}/order/stats`,
   ORDERS_VIEWATTACHMENTS:`${BASE_URL}/users`,
    FETCH_BATCH_SHEET:`${BASE_URL}/users`,
    FETCH_PRODUCTS:`${BASE_URL}/inventory`,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders } from "Redux-Store/Orders/OrdersThunk";
+import { fetchOrders, fetchOrderStatus } from "Redux-Store/Orders/OrdersThunk";
 import {
   Table,
   Pagination,
@@ -20,6 +20,8 @@ import { Link } from "react-router-dom";
 const Orders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
+  const orderStatus = useSelector((state) => state.orders.order_status); // Ensure naming matches
+
   const { data = [] } = ordersData;
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,7 +31,9 @@ const Orders = () => {
 
   useEffect(() => {
     dispatch(fetchOrders());
+    dispatch(fetchOrderStatus());
   }, [dispatch]);
+  
 
   const filteredOrders = data.items
     ? data.items.filter((item) => {
@@ -93,93 +97,88 @@ const Orders = () => {
       }
     >
       <SpaceBetween direction="vertical" size="xl">
-        <Container className="top-container" style={{ marginBottom: "1rem" }}>
-          <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12, fontWeight: "bold" }}>Total Orders</p>
-              </Box>
-              <span
-                style={{
-                  fontSize: 34,
-                  fontWeight: "900",
-                  lineHeight: 1.3,
-                  color: "#1D4ED8",
-                }}
-              >
-                114
-              </span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12, fontWeight: "bold" }}>
-                  Orders Completed
-                </p>
-              </Box>
-              <span
-                style={{
-                  fontSize: 34,
-                  fontWeight: "900",
-                  lineHeight: 1.3,
-                  color: "#1D4ED8",
-                }}
-              >
-                423
-              </span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12, fontWeight: "bold" }}>
-                  Orders Confirmed
-                </p>
-              </Box>
-              <span
-                style={{
-                  fontSize: 34,
-                  fontWeight: "900",
-                  lineHeight: 1.3,
-                  color: "#1D4ED8",
-                }}
-              >
-                123
-              </span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12, fontWeight: "bold" }}>
-                  Orders Cancelled
-                </p>
-              </Box>
-              <span
-                style={{
-                  fontSize: 34,
-                  fontWeight: "900",
-                  lineHeight: 1.3,
-                  color: "#1D4ED8",
-                }}
-              >
-                128
-              </span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12, fontWeight: "bold" }}>
-                  Orders Refunded
-                </p>
-              </Box>
-              <span
-                style={{
-                  fontSize: 34,
-                  fontWeight: "900",
-                  lineHeight: 1.3,
-                  color: "#1D4ED8",
-                }}
-              >
-                4
-              </span>
-            </div>
-          </ColumnLayout>
-        </Container>
+      <Container className="top-container" style={{ marginBottom: "1rem" }}>
+  <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
+    <div>
+      <Box variant="awsui-key-label">
+        <p style={{ fontSize: 12, fontWeight: "bold" }}>Total Orders</p>
+      </Box>
+      <span
+        style={{
+          fontSize: 34,
+          fontWeight: "900",
+          lineHeight: 1.3,
+          color: "#1D4ED8",
+        }}
+      >
+  {orderStatus?.data?.totalOrderCount || "N/A"}
+  </span>
+    </div>
+    <div>
+      <Box variant="awsui-key-label">
+        <p style={{ fontSize: 12, fontWeight: "bold" }}>Orders Completed</p>
+      </Box>
+      <span
+        style={{
+          fontSize: 34,
+          fontWeight: "900",
+          lineHeight: 1.3,
+          color: "#1D4ED8",
+        }}
+      >
+          {orderStatus?.data?.completedOrderCount}
+
+      </span>
+    </div>
+    <div>
+      <Box variant="awsui-key-label">
+        <p style={{ fontSize: 12, fontWeight: "bold" }}>Orders Confirmed</p>
+      </Box>
+      <span
+        style={{
+          fontSize: 34,
+          fontWeight: "900",
+          lineHeight: 1.3,
+          color: "#1D4ED8",
+        }}
+      >
+  {orderStatus?.data?.confirmedOrderCount}
+  </span>
+    </div>
+    <div>
+      <Box variant="awsui-key-label">
+        <p style={{ fontSize: 12, fontWeight: "bold" }}>Orders Cancelled</p>
+      </Box>
+      <span
+        style={{
+          fontSize: 34,
+          fontWeight: "900",
+          lineHeight: 1.3,
+          color: "#1D4ED8",
+        }}
+      >
+  {orderStatus?.data?.cancelledOrderCount}
+  </span>
+    </div>
+    <div>
+      <Box variant="awsui-key-label">
+        <p style={{ fontSize: 12, fontWeight: "bold" }}>Orders Refunded</p>
+      </Box>
+      <span
+        style={{
+          fontSize: 34,
+          fontWeight: "900",
+          lineHeight: 1.3,
+          color: "#1D4ED8",
+        }}
+      >
+  {orderStatus?.data?.refundedOrderCount}
+  </span>
+    </div>
+  </ColumnLayout>
+</Container>
+
+
 
         <SpaceBetween direction="vertical" size="s">
           <Box>

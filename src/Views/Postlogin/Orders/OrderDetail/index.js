@@ -36,7 +36,7 @@ const OrderDetail = () => {
     { step: "Step 1", title: "Order Confirmed", status: "Order placed" },
     { step: "Step 2", title: "In-progress", status: "PLACED" },
     { step: "Step 3", title: "Out for Delivery", status: "Out for Delivery" },
-    { step: "Step 4", title: "Delivered", status: "delivered" }, 
+    { step: "Step 4", title: "Delivered", status: "delivered" },
   ];
 
   const getCurrentStep = (status) => {
@@ -145,7 +145,7 @@ const OrderDetail = () => {
                   color: "white",
                 }}
                 onClick={handlePreviousOrder}
-                disabled={currentIndex === 0} // Disable when on the first order
+                disabled={currentIndex === 0} 
               >
                 <Icon name="angle-left" />
               </button>
@@ -162,7 +162,7 @@ const OrderDetail = () => {
                   color: "white",
                 }}
                 onClick={handleNextOrder}
-                disabled={currentIndex === allOrders.length - 1} // Disable when on the last order
+                disabled={currentIndex === allOrders.length - 1} 
               >
                 <Icon name="angle-right" />
               </button>
@@ -198,7 +198,7 @@ const OrderDetail = () => {
                 color: "white",
               }}
             >
-              {orderDetail?.paymentDetails?.paymentStatus || "N/A"} 
+              {orderDetail?.paymentDetails?.paymentStatus || "N/A"}
             </div>
           </SpaceBetween>
         </Header>
@@ -304,7 +304,6 @@ const OrderDetail = () => {
           </Container>
         </Grid>
 
-
         <Container header={<Header variant="h2">Items</Header>}>
           <SpaceBetween size="s">
             <Table
@@ -318,22 +317,16 @@ const OrderDetail = () => {
                   <p>Subtotal &nbsp;:</p>
                 </div>
                 <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  <p style={{ fontWeight: "bold"}}>
-                    ₹{subtotal}
-                  </p>
+                  <p style={{ fontWeight: "bold" }}>₹{subtotal}</p>
                 </div>
                 <div style={{ fontSize: "16px", fontWeight: "bold" }}>
                   Shipping Charges&nbsp;:
                 </div>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  N/A
-                </div>
+                <div style={{ fontSize: "16px", fontWeight: "bold" }}>N/A</div>
                 <div style={{ fontSize: "16px", fontWeight: "bold" }}>
                   Tax&nbsp;:
                 </div>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  N/A
-                </div>
+                <div style={{ fontSize: "16px", fontWeight: "bold" }}>N/A</div>
                 <div style={{ fontSize: "18px", fontWeight: "bold" }}>
                   Total Price&nbsp;:
                 </div>
@@ -344,7 +337,8 @@ const OrderDetail = () => {
                     fontWeight: "bold",
                   }}
                 >
- ₹{orderDetail?.paymentDetails?.totalAmount || 0}                </div>
+                  ₹{orderDetail?.paymentDetails?.totalAmount || 0}
+                </div>
               </ColumnLayout>
             </Grid>
           </SpaceBetween>
