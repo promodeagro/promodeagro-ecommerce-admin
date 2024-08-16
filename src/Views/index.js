@@ -5,8 +5,8 @@ import Inventory from "./Postlogin/Inventory";
 import SalesAndReport from "./Postlogin/salesAndReport";
 import ContentManagement from "./Postlogin/ContentManagement";
 import OrderDetail from "./Postlogin/Orders/OrderDetail";
-import GetProductByid from "./Postlogin/Products/Components/GetSpecifProduct";
 import Refund from "./Postlogin/Orders/OrderDetail/Refund";
+import ProductDetail from "./Postlogin/Products/ProductDetails";
 const Dashboards = lazy(() => import("./Postlogin/Dashboard"));
 const Customers = lazy(() => import("./Postlogin/Customers"));
 const AddNewCustomer = lazy(() =>
@@ -67,7 +67,7 @@ const Views = () => {
           <Route
             exact
             path={`${PREFIX_APP_PATH}/products/:id`}
-            element={<GetProductByid />}
+            element={<ProductDetail/>}
           />
 
           <Route
