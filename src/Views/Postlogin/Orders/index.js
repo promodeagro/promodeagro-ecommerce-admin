@@ -260,7 +260,7 @@ const Orders = () => {
                 header: "Order ID",
                 cell: (item) =>
                   item.id ? (
-                    <Link to={`/app/order/orderdetail`}>#{item.id}</Link>
+                    <Link to={`/app/order/orderdetail/${item.id}`}>#{item.id}</Link>
                   ) : (
                     "N/A"
                   ),

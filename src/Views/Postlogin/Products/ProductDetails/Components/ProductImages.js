@@ -2,7 +2,7 @@ import { Container } from '@cloudscape-design/components'
 import React from 'react'
 import UploadImage from "../../../../../assets/img/Upload Image.png";
 import "../../../../../assets/styles/CloudscapeGlobalstyle.css"
-import UploadImageTomato from "../../../../../assets/img/tomato1.png";
+import UploadImageTomato from "../../../../../assets/img/finish-product/Upload Image.png";
 
 const ProductImages = () => {
   return (

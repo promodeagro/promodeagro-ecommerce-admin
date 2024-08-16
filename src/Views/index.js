@@ -8,7 +8,6 @@ import OrderDetail from "./Postlogin/Orders/OrderDetail";
 import Refund from "./Postlogin/Orders/OrderDetail/Refund";
 import ProductDetail from "./Postlogin/Products/ProductDetails";
 const Dashboards = lazy(() => import("./Postlogin/Dashboard"));
-
 const Customers = lazy(() => import("./Postlogin/Customers"));
 const AddNewCustomer = lazy(() =>
   import("./Postlogin/Customers/AddNewCustomer")
@@ -84,7 +83,7 @@ const Views = () => {
           <Route exact path="/" element={<Navigate to="/app/dashboard" />} />
           <Route
             exact
-            path={`${PREFIX_APP_PATH}/order/orderdetail`}
+            path={`${PREFIX_APP_PATH}/order/orderdetail/:id`}
             element={<OrderDetail />}
           />
           <Route
