@@ -34,5 +34,19 @@ export const ordersDetails = createAsyncThunk(
   }
 );
 
+export const fetchOrderStatus = createAsyncThunk(
+  "orders/status",
+  async () => {
+    try {
+      const url = config.ORDERS_STATUS;
+      const response = await postLoginService.get(url);
+      console.log('Order status:', response);
+      return response.data;
+    } catch (error) {
+      console.error('API error:', error);
+      return Promise.reject(error);
+    }
+  }
+);
 
   
