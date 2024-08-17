@@ -123,7 +123,7 @@ const Dashboard = () => {
             ]}
           >
             <SalesReports/>
-            {/* <RecentOrders/> */}
+            <RecentOrders/>
           </Grid>
         
           <Grid

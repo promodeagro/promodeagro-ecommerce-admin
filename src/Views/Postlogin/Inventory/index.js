@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector ,useDispatch} from "react-redux";
 import BreadcrumbGroup from "@cloudscape-design/components/breadcrumb-group";
 import Table from "@cloudscape-design/components/table";
 import Box from "@cloudscape-design/components/box";
@@ -15,27 +15,30 @@ import Tabs from "@cloudscape-design/components/tabs";
 import Overview from "./drawerTabs/overview";
 import StatusIndicator from "@cloudscape-design/components/status-indicator";
 import { ColumnLayout } from "@cloudscape-design/components";
-
+import { fetchProducts } from "Redux-Store/Inventory/inventoryThunk";
 const Inventory = () => {
   const [filteringText, setFilteringText] = React.useState("");
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState(null);
   const [activeTabId, setActiveTabId] = React.useState("first");
   const [currentPage, setCurrentPage] = useState(1);
-  const products = useSelector((state) => state.items.items.data);
+  const products = useSelector((state) => state.items.products);
 
+  const dispatch = useDispatch();
+  console.log("pro",products)
+  const { data = [], status } = products;
+  console.log("data",data)
+   // Fetch products when component mounts
+   useEffect(() => {
+     dispatch(fetchProducts()
+   );
+   }, [dispatch]);
   // Check if products is an array and has elements
-  if (!Array.isArray(products)) {
-    return (
-      <Box margin={{ vertical: "xs" }} textAlign="center" color="inherit">
-        <Header>No data available</Header>
-      </Box>
-    );
-  }
+
   const ordersPerPage = 10;
 
   // Filter products based on the filteringText
-  const filteredProducts = products.filter((product) =>
+  const filteredProducts = data.items.filter((product) =>
     product.name.toLowerCase().includes(filteringText.toLowerCase())
   );
   const totalPages = Math.ceil(filteredProducts.length / ordersPerPage);
@@ -218,7 +221,7 @@ const Inventory = () => {
                   onClick={() => handleProductClick(e)}
                 >
                   <img
-                    src={e.imageUrl}
+                    src={e.images}
                     alt={e.name}
                     style={{
                       width: "30px",
@@ -240,15 +243,16 @@ const Inventory = () => {
               sortingField: "quantityOnHand",
               id: "quantityOnHand",
               header: "Quantity on Hand",
-              cell: (e) => e.quantityOnHand,
+              cell: (e) => e.stockQuantity,
             },
             {
               sortingField: "stockAlert",
               id: "stockAlert",
               header: "Stock Alert",
               cell: (e) => (
-                <span style={{ color: getStockAlertColor(e.stockAlert) }}>
-                  {e.stockAlert}
+                <span style={{ color: getStockAlertColor("Available") }}>
+              "Available"
+                 
                 </span>
               ),
             },

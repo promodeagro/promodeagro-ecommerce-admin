@@ -7,52 +7,34 @@ import {
   Header,
   SpaceBetween,
   ContentLayout,
-  Table
+  Table,
+  BreadcrumbGroup,
+  Toggle
 } from '@cloudscape-design/components';
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchProducts } from 'Redux-Store/Products/ProductThunk';
-
-
-
-
+import { fetchProducts, PutToggle } from 'Redux-Store/Products/ProductThunk';
+import "../../../assets/styles/CloudscapeGlobalstyle.css"
 
 const Products = () => {
   const dispatch = useDispatch();
-  const prod = useSelector((state) => state.products?.products);
- 
-  // const { data = [], status } = products;
+  const products = useSelector((state) => state.products.products);
+  const { data = [] } = products;
   const [activeButton, setActiveButton] = useState('All');
-  const [products, setProducts] = useState(prod.data?.products || []);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
-  useEffect(() => {
-    setProducts(prod.data?.products || []);
-  }, [prod]);
-  // console.log(prod,"proo");
-  // if (status === "IN_PROGRESS") {
-  //   return <div>Loading...</div>;
-  // }
-
-  // if (status === "FAILURE") {
-  //   return <div>Error loading orders.</div>;
-  // }
-
-
-  const buttons = ['All', 'Unpublished', 'Stopped', 'Published'];
 
   const handleButtonClick = (button) => {
     setActiveButton(button);
   };
 
-
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'Unpublished':
+      case 'Inactive':
         return { backgroundColor: '#0972D3', color: 'white', padding: '2px 5px', borderRadius: '4px' };
-      case 'Published':
+      case 'Active':
         return { backgroundColor: 'green', color: 'white', padding: '2px 5px', borderRadius: '4px' };
       case 'Stopped':
         return { backgroundColor: 'red', color: 'white', padding: '2px 5px', borderRadius: '4px' };
@@ -71,13 +53,40 @@ const Products = () => {
         return {};
     }
   };
-//  console.log(data,"data");
- console.log(products,"productss");
-  // const filteredProducts = activeButton === 'All' ? data : data.filter(product => product.status === activeButton);
-  const filteredProducts = activeButton === 'All' ? products : products.filter(product => product.status === activeButton);
+
+  // Handle toggle change
+  const handleToggleChange = (item) => {
+    const newStatus = !item.active;
+    // Optimistically update the local state
+    // const updatedProducts = data.map((product) =>
+    //   product.id === item.id ? { ...product, active: newStatus } : product
+    // );
+
+    dispatch(PutToggle({ id: item.id, active: newStatus })).then((response) => {
+      if (response.meta.requestStatus === 'fulfilled' && response.payload.status === 200) {
+        // Update the local state and Redux store only if the request was successful
+        dispatch(fetchProducts());
+      } else {
+        // Revert back to the original state if the request fails
+        dispatch(fetchProducts());
+      }
+    });
+  };
+
+  // Filter products based on the active button
+  const filteredProducts = activeButton === 'All' ? data : data.filter(product => product.active === (activeButton === 'Active'));
 
   return (
     <ContentLayout
+      breadcrumbs={
+        <BreadcrumbGroup
+          items={[
+            { text: "Dashboard", href: "/app/dashboard" },
+            { text: "Products", href: "/app/dashboard/products" }
+          ]}
+          ariaLabel="Breadcrumbs"
+        />
+      }
       headerVariant="high-contrast"
       header={
         <Header
@@ -93,10 +102,10 @@ const Products = () => {
       }
     >
       <SpaceBetween direction="vertical" size="s">
-        <Container className="top-container" style={{ marginBottom: '1rem' }}>
+        <Container>
           <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
+            {/* Dashboard Metrics */}
             <div>
-
               <Box variant="awsui-key-label">
                 <p style={{ fontSize: 12 }}>Total Published Products</p>
               </Box>
@@ -124,88 +133,95 @@ const Products = () => {
               <Box variant="awsui-key-label">
                 <p style={{ fontSize: 12 }}>Stopped Products</p>
               </Box>
-
               <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>12</span>
             </div>
           </ColumnLayout>
         </Container>
 
         <div>
-          <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-            {buttons.map((button) => (
-              <button
-                key={button}
-                onClick={() => handleButtonClick(button)}
-                style={{
-                  border: activeButton === button ? '2px solid black' : 'none',
-                  color: activeButton === button ? 'black' : 'gray',
-                  backgroundColor: 'white',
-                  fontWeight: activeButton === button ? 'bolder' : 'normal',
-                  padding: '8px 16px',
-                  cursor: 'pointer',
-                  borderRadius: "32px"
-                }}
-              >
-                {button}
-              </button>
-            ))}
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span>
+              {['All', 'Inactive', 'Active'].map((button) => (
+                <button
+                  key={button}
+                  onClick={() => handleButtonClick(button)}
+                  style={{
+                    border: activeButton === button ? '2px solid black' : 'none',
+                    color: activeButton === button ? 'black' : 'gray',
+                    backgroundColor: 'white',
+                    fontWeight: activeButton === button ? 'bolder' : 'normal',
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    borderRadius: "32px"
+                  }}
+                >
+                  {button}
+                </button>
+              ))}
+            </span>
+            <Button variant='normal'>Set Price</Button>
           </div>
           <Container variant='borderless' fitHeight={500}>
-          <Table
-          
-            variant='borderless'
-            columnDefinitions={[
-              {
-                id: 'code',
-                header: 'Item Code',
-                cell: item => <Link to={`/app/products/${item.itemCode}`}>{item.itemCode}</Link>,
-              },
-              {
-                id: 'name',
-                header: 'Name',
-                cell: item => (
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <img src={item.imageUrl} alt={item.name} height={35} width={35} style={{ borderRadius: '8px', marginRight: '10px' }} />
-                    {item.name}
-                  </div>
-                ),
-              },
-              {
-                id: 'status',
-                header: 'Status',
-                cell: item => <span style={getStatusStyle(item.status)}>{item.status}</span>,
-                sortingField: "status"
-              },
-              {
-                id: 'Category',
-                header: 'Category',
-                cell: item => item.category,
-                sortingField: "category"
-              },
-              {
-                id: 'allocatedStock',
-                header: 'Allocated Stock',
-                cell: item => item.quantityOnHand,
-                sortingField: "allocatedStock"
-              },
-              {
-                id: 'stockAlert',
-                header: 'Stock Alert',
-                cell: item => <span style={getStockAlertStyle(item.stockAlert)}>{item.stockAlert}</span>,
-                sortingField: "stockAlert"
-              },
-            
-            
-            
-            ]}
-            items={filteredProducts}
-            selectionType="multi"
-          />
+            <Table
+              variant='borderless'
+              columnDefinitions={[
+                {
+                  id: 'code',
+                  header: 'Item Code',
+                  cell: item => <Link to={`/app/products/${item.id}`}>{item.itemCode}</Link>,
+                },
+                {
+                  id: 'name',
+                  header: 'Name',
+                  cell: item => (
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <img src={item.images} alt={item.name} height={35} width={35} style={{ borderRadius: '8px', marginRight: '10px' }} />
+                      {item.name}
+                    </div>
+                  ),
+                },
+                {
+                  id: 'Category',
+                  header: 'Category',
+                  cell: item => item.category,
+                  sortingField: "category"
+                },
+                {
+                  id: 'allocatedStock',
+                  header: 'Allocated Stock',
+                  cell: item => item.stockQuantity,
+                  sortingField: "allocatedStock"
+                },
+                {
+                  id: 'stockAlert',
+                  header: 'Stock Alert',
+                  cell: item => <span style={getStockAlertStyle(item.stockAlert)}>{item.stockAlert}</span>,
+                  sortingField: "stockAlert"
+                },
+                {
+                  id: 'active',
+                  header: 'Status',
+                  cell: item => (
+                    <span style={getStatusStyle(item.active)}>
+                      <Toggle
+                        onChange={() => handleToggleChange(item)}
+                        checked={item.active}
+                      >
+                        {item.active ? 'Active' : 'Inactive'}
+                      </Toggle>
+                    </span>
+                  ),
+                  sortingField: "status"
+                }
+              ]}
+              items={filteredProducts}
+              selectionType="multi"
+            />
           </Container>
         </div>
       </SpaceBetween>
     </ContentLayout>
   );
-}
+};
 
 export default Products;

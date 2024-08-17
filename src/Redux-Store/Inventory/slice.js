@@ -1,23 +1,33 @@
-import { createSlice } from "@reduxjs/toolkit";
-import itemlist from "Redux-Store/Inventory/dummy/productsList.json";
+import { createSlice } from '@reduxjs/toolkit';
+import { fetchProducts} from './inventoryThunk';
 
-const initialState = {
-  items: {
-    status: "SUCCESS",
-    data: itemlist,
+const productsSlice = createSlice({
+  name: 'products',
+  initialState: {
+    products: {
+      data: [],
+      status: 'idle',
+      error: null
+    }
   },
-};
-
-const itemSlice = createSlice({
-  name: "items",
-  initialState,
   reducers: {
-    addProduct: (state, action) => {
-      state.items.data.push(action.payload);
-    },
+
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProducts.pending, (state) => {
+        state.products.status = 'LOADING';
+      })
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        state.products.data = action.payload;
+        state.products.status = 'SUCCEEDED';
+      })
+      .addCase(fetchProducts.rejected, (state, action) => {
+        state.products.status = 'ERROR';
+        state.products.error = action.error.message;
+      })
+
   },
 });
 
-export const { addProduct} = itemSlice.actions;
-
-export default itemSlice.reducer;
+export default productsSlice.reducer;

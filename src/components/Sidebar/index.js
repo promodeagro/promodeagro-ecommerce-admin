@@ -2,7 +2,7 @@ import React from "react";
 import SideNavigation from "@cloudscape-design/components/side-navigation";
 import Badge from "@cloudscape-design/components/badge";
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Box } from "@cloudscape-design/components";
 
 const pages = [
@@ -58,7 +58,7 @@ const bottomPages = [
 ];
 
 const Sidebar = () => {
-  const location = useLocation();
+
   const navigate = useNavigate();
   const [activeHref, setActiveHref] = React.useState("/app/dashboard");
 

@@ -7,7 +7,7 @@ export const fetchOrders = createAsyncThunk(
     try {
       let url = config.FETCH_ORDERS;
       const response = await postLoginService.get(url, params);
-      console.log('API response:', response); 
+      console.log('All orders:', response); 
       return response.data;
     } catch (error) {
       console.error('API error:', error); 
@@ -16,22 +16,37 @@ export const fetchOrders = createAsyncThunk(
   }
 );
 
-
 export const ordersDetails = createAsyncThunk(
-    "orders/details",
-    async (params) => {
-      try {
-        let url = config.ORDERS_DETAILS;
-        const response = await postLoginService.get(url, params);
-        console.log('API response:', response); 
-        return response.data;
-      } catch (error) {
-        console.error('API error:', error); 
-        return Promise.reject(error);
+  "orders/details",
+  async (id) => {
+    try {
+      if (!id) {
+        throw new Error("Order ID is required");
       }
+      const url = `${config.ORDERS_DETAILS.replace("{id}", id)}`; // Replace placeholder with actual ID
+      const response = await postLoginService.get(url);
+      console.log('Order detail:', response);
+      return response.data;
+    } catch (error) {
+      console.error('API error:', error);
+      return Promise.reject(error);
     }
-  );
-  
+  }
+);
 
+export const fetchOrderStatus = createAsyncThunk(
+  "orders/status",
+  async () => {
+    try {
+      const url = config.ORDERS_STATUS;
+      const response = await postLoginService.get(url);
+      console.log('Order status:', response);
+      return response.data;
+    } catch (error) {
+      console.error('API error:', error);
+      return Promise.reject(error);
+    }
+  }
+);
 
   
