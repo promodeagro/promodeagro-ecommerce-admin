@@ -38,9 +38,11 @@ const Inventory = () => {
   const ordersPerPage = 10;
 
   // Filter products based on the filteringText
-  const filteredProducts = data.items.filter((product) =>
-    product.name.toLowerCase().includes(filteringText.toLowerCase())
-  );
+  const filteredProducts = Array.isArray(data?.items)
+  ? data.items.filter((product) =>
+      product.name.toLowerCase().includes(filteringText.toLowerCase())
+    )
+  : [];
   const totalPages = Math.ceil(filteredProducts.length / ordersPerPage);
 
   // Determine the color based on the stock alert value

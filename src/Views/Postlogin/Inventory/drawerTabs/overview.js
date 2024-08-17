@@ -24,7 +24,7 @@ const Overview = ({ selectedProduct }) => {
                 <b>Quantity On Hand</b>
               </h3>
               <h1 style={{ backgroundColor: "#E9EBED", padding: "15px", fontSize: "20px", fontWeight: "700", borderRadius: "10px", display: "inline-block", color: "#354150" }}>
-                {selectedProduct.quantityOnHand}KG
+                {selectedProduct.stockQuantity}KG
               </h1>
             </span>
             <p>Suncity Warehouse &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{selectedProduct.quantityOnHand}kg</p>
@@ -43,7 +43,7 @@ const Overview = ({ selectedProduct }) => {
             <div>
               <img
                 style={{ borderRadius: "10px", border: "1px solid #D9D9D9" }}
-                src={selectedProduct.imageUrl}
+                src={selectedProduct.images}
                 alt="product"
                 height="full"
                 width="full"
