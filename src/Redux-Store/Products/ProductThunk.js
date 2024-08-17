@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import config from "Views/Config";
 import { postLoginService } from "Services";
+
 import productslsit from "Redux-Store/Products/dummy/productlist.json";
 
 export const fetchProducts = createAsyncThunk("products", async (params) => {
