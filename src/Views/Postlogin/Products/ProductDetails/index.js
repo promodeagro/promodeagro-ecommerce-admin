@@ -24,7 +24,7 @@ import BasicDetails from "./Components/BasicDetails";
 import InventoryTracking from "./Components/InventoryTracking";
 import Attributes from "./Components/Attributes";
 import ProductImages from "./Components/ProductImages";
-import "../../../../assets/styles/CloudscapeGlobalstyle.css"
+import "../../../../assets/styles/CloudscapeGlobalstyle.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -33,17 +33,14 @@ const ProductDetail = () => {
   const location = useLocation();
 
   const product = useSelector((state) => state.products.productDetail);
-  const loading = useSelector(
-    (state) => state.products.productDetail.status === "IN_PROGRESS"
-  );
-  const error = useSelector(
-    (state) => state.products.productDetail.status === "FAILURE"
-  );
   const products = useSelector((state) => state.products.products);
 
+  const [specificProduct, setSpecificProduct] = useState({});
+  const [active, setActive] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const [charge, setCharge] = useState(false);
   const [purchasePrice, setPurchasePrice] = useState("");
+  const [msp, setmsp] = useState("");
   const [pricingDetails, setPricingDetails] = useState({
     compareAt: "",
     onlineStorePrice: "",
@@ -51,11 +48,12 @@ const ProductDetail = () => {
   const [productIds, setProductIds] = useState([]);
   const [currentProductId, setCurrentProductId] = useState(id);
 
-  useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+  // New state for validation errors
+  const [priceError, setPriceError] = useState("");
+  const [compareAtError, setCompareAtError] = useState("");
 
   useEffect(() => {
+    dispatch(fetchProducts());
     if (id) {
       dispatch(fetchProductById(id));
     }
@@ -63,14 +61,17 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (product.data) {
+      setSpecificProduct(product.data);
+      setActive(product.data.active);
       setPricingDetails({
         compareAt: product.data.compareAt || "",
         onlineStorePrice: product.data.onlineStorePrice || "",
       });
       setPurchasePrice(product.data.purchasingPrice || "");
-      setChecked(product.data.chargeTax || false);
+      setmsp(product.data.msp || "");
+      setCharge(product.data.chargeTax || false);
     }
-  }, [product.data]);
+  }, [product]);
 
   useEffect(() => {
     const ids = products.data?.map((product) => product.id);
@@ -98,17 +99,39 @@ const ProductDetail = () => {
     }
   };
 
-  const handleBasicDetailsChange = (updatedDetails) => {
-    setPricingDetails((prev) => ({ ...prev, ...updatedDetails }));
-  };
-
   const handleToggleChange = () => {
-    const newStatus = !product.data?.active;
-    dispatch(PutToggle({ id: product.data?.id, active: newStatus }));
+    const newStatus = !active;
+    setActive(newStatus);
+    dispatch(PutToggle({ id: specificProduct.id, active: newStatus }));
+    setSpecificProduct((prev) => ({ ...prev, active: newStatus }));
   };
 
   const handlePublish = async () => {
-    
+    // Reset errors
+    setPriceError("");
+    setCompareAtError("");
+
+    // Validation
+    if (
+      parseFloat(pricingDetails.onlineStorePrice) >=
+      parseFloat(pricingDetails.compareAt)
+    ) {
+      setPriceError(
+        "Online Store Price must be less than Compare At Price"
+      );
+      return;
+    }
+
+    if (!pricingDetails.compareAt || !pricingDetails.onlineStorePrice) {
+      if (!pricingDetails.compareAt) {
+        setCompareAtError("Compare At Price is required");
+      }
+      if (!pricingDetails.onlineStorePrice) {
+        setPriceError("Online Store Price is required");
+      }
+      return;
+    }
+
     setIsPublishing(true);
     try {
       const pricingData = {
@@ -116,59 +139,91 @@ const ProductDetail = () => {
         onlineStorePrice: parseFloat(pricingDetails.onlineStorePrice) || 0,
       };
 
-     dispatch(putPricingById({ id, pricingData }));
+      // Dispatch the action to update the pricing details
+      const response = await dispatch(putPricingById({ id, pricingData }));
 
-    
+      // Check if the update was successful (status 200)
+      if (response.meta.requestStatus === "fulfilled") {
+        // Optionally update the local state here if needed
+        setSpecificProduct((prev) => ({
+          ...prev,
+          compareAt: pricingDetails.compareAt,
+          onlineStorePrice: pricingDetails.onlineStorePrice,
+          chargeTax: charge,
+        }));
+
+        // Refresh the page after 2 seconds
+        setTimeout(() => {
+          window.location.reload();
+        }, 5);
+      } else {
+        console.error("Failed to update product pricing.");
+      }
     } catch (err) {
       console.error("Error publishing product:", err);
     } finally {
       setIsPublishing(false);
     }
-  
   };
 
-  if (loading) {
+  const handleInputChange = (field, value) => {
+    setPricingDetails((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    // Clear errors when user starts typing
+    if (field === "onlineStorePrice" && priceError) {
+      setPriceError("");
+    }
+    if (field === "compareAt" && compareAtError) {
+      setCompareAtError("");
+    }
+  };
+
+  if (!product.data) {
     return <div>Loading...</div>;
   }
 
-  if (error) {
-    return <div>Error loading product: {error.message}</div>;
-  }
-
   const isAtFirstProduct = productIds.indexOf(currentProductId) === 0;
-  const isAtLastProduct = productIds.indexOf(currentProductId) === productIds.length - 1;
+  const isAtLastProduct = productIds.indexOf(currentProductId) ===
+    productIds.length - 1;
 
   return (
     <Box margin={{ top: "n" }}>
-       
-        <BreadcrumbGroup
-          items={[
-            { text: "Dashboard", href : "/app/dashboard" },
-            { text: "Products", href: "/app/products" },
-            {
-              text: product.data?.name || "Product Details",
-              href: `/app/products/${id}`,
-            },
-          ]}
-          ariaLabel="Breadcrumbs"
-        />
-        <div style={{ marginBottom: "15px" }}>
-          <Header
-            variant="h3"
-            actions={
-              <div style={{ display: "flex", gap: "8px",alignItems:"center" }}>
-                 <Toggle onChange={handleToggleChange} checked={product.data?.active}>
-          {product.data?.active ? "Active" : "Inactive"}
-        </Toggle>
-                <Button
-                  variant="primary"
-                  onClick={handlePublish}
-                  disabled={isPublishing}
-                  
-                >
-                  {isPublishing ? "Saving..." : "Save Changes"}
-                </Button>
-                <div style={{ display: "flex", gap: "3px",justifyContent:"center" }}>
+      <BreadcrumbGroup
+        items={[
+          { text: "Dashboard", href: "/app/dashboard" },
+          { text: "Products", href: "/app/products" },
+          {
+            text: specificProduct.name || "Product Details",
+            href: `/app/products/${id}`,
+          },
+        ]}
+        ariaLabel="Breadcrumbs"
+      />
+      <div style={{ marginBottom: "15px" }}>
+        <Header
+          variant="h3"
+          actions={
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <Toggle onChange={handleToggleChange} checked={active}>
+                {active ? "Active" : "Inactive"}
+              </Toggle>
+              <Button
+                variant="primary"
+                onClick={handlePublish}
+                disabled={isPublishing}
+              >
+                {isPublishing ? "Saving..." : "Save Changes"}
+              </Button>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "3px",
+                  justifyContent: "center",
+                }}
+              >
                 <button
                   onClick={goToPreviousProduct}
                   style={{
@@ -178,8 +233,8 @@ const ProductDetail = () => {
                     height: "30px",
                     backgroundColor: isAtFirstProduct ? "gray" : "black",
                     color: "white",
-                    textAlign:"center",
-                    padding:"5px"
+                    textAlign: "center",
+                    padding: "5px",
                   }}
                   disabled={isAtFirstProduct}
                 >
@@ -192,83 +247,117 @@ const ProductDetail = () => {
                     borderRadius: "1rem",
                     width: "45px",
                     height: "30px",
-                    padding:"5px",
+                    padding: "5px",
                     backgroundColor: isAtLastProduct ? "gray" : "black",
                     color: "white",
-                    textAlign:"center"
+                    textAlign: "center",
                   }}
                   disabled={isAtLastProduct}
                 >
                   <Icon size="small" name="angle-right" />
                 </button>
-                </div>
-                </div>} >{product.data?.name}</Header>
-             </div>
+              </div>
+            </div>
+          }
+        >
+          {specificProduct.name}
+        </Header>
+      </div>
+      <SpaceBetween direction="vertical" size="l">
+        <div style={{ display: "flex", gap: "15px" }}>
           <SpaceBetween direction="vertical" size="l">
-            < div style={{display:"flex",gap:"15px"}}
+            <BasicDetails product={product} />
+            <Container
+              variant="borderless"
+              className="container-box-shadow"
+              header={<Header variant="h3">Pricing</Header>}
             >
-              <SpaceBetween direction="vertical" size="l">
-                <BasicDetails
-                  product={product}
-                  onChange={handleBasicDetailsChange}
-                />
-                <Container variant="borderless" className="container-box-shadow" header={<Header variant="h3">Pricing</Header>}>
-                
-                    <SpaceBetween direction="vertical" size="l">
-                      <div style={{ display: "flex", gap: "15px" }}>
-                        <FormField label="Purchasing Price">
-                          <Input
-                            value={purchasePrice}
-                            size="3xs"
-                            onChange={({ detail }) =>
-                              setPurchasePrice(detail.value)
-                            }
-                            placeholder="Input Purchasing Price"
-                            disabled
-                          />
-                        </FormField>
-                        <FormField label="Minimum Selling Price">
-                          <Input
-                            size="3xs"
-                            placeholder="Min Selling Price"
-                            disabled
-                          />
-                        </FormField>
-                        <FormField label="Compare At Price">
-                          <Input
-                            value={pricingDetails.compareAt}
-                            size="3xs"
-                            onChange={({ detail }) =>
-                              setPricingDetails((prev) => ({
-                                ...prev,
-                                compareAt: detail.value,
-                              }))
-                            }
-                            placeholder="Compare At Price"
-                          />
-                        </FormField>
-                      </div>
-                      <Checkbox
-                        onChange={({ detail }) => setChecked(detail.checked)}
-                        checked={checked}
-                      >
-                        Charge Tax on this Product
-                      </Checkbox>
-                      <hr />
-                      <div style={{ display: "flex", gap: "15px" }}>
-                        <FormField label="Online Store Price">
-                          <Input
-                            value={pricingDetails.onlineStorePrice}
-                            size="3xs"
-                            onChange={({ detail }) =>
-                              setPricingDetails((prev) => ({
-                                ...prev,
-                                onlineStorePrice: detail.value,
-                              }))
-                            }
-                            placeholder="Online Store Price"
-                          />
-                        </FormField>
+              <SpaceBetween size="l">
+              <div style={{ display: "flex", gap: "15px" }}>
+                  <FormField label="Purchasing Price">
+                    <Input
+                      value={purchasePrice}
+                      size="3xs"
+                      onChange={({ detail }) =>
+                        setPurchasePrice(detail.value)
+                      }
+                      placeholder="Input Purchasing Price"
+                      disabled
+                    />
+                  </FormField>
+                  <FormField label="Minimum Selling Price">
+                    <Input
+                      value={msp}
+                      size="3xs"
+                      onChange={({ detail }) =>
+                        setmsp(detail.value)
+                      }
+                    
+                      placeholder="Min Selling Price"
+                      disabled
+                    />
+                  </FormField>
+                  <FormField
+                    label="Compare At Price"
+                    
+                    errorText={compareAtError}
+                  >
+                    <Input
+                      value={pricingDetails.compareAt}
+                      // type="number"
+                      onChange={(e) =>
+                        handleInputChange("compareAt", e.detail.value)
+                      }
+                      onBlur={() => {
+                        if (!pricingDetails.compareAt) {
+                          setCompareAtError("Compare At Price is required");
+                        } else if (
+                          parseFloat(pricingDetails.onlineStorePrice) >=
+                          parseFloat(pricingDetails.compareAt)
+                        ) {
+                          setPriceError(
+                            "Online Store Price must be less than Compare At Price"
+                          );
+                        }
+                      }}
+                    />
+                  </FormField>
+                 
+                </div>
+                <Checkbox
+                  onChange={({ detail }) => setCharge(detail.checked)}
+                  checked={charge}
+                >
+                  Charge Tax on this Product
+                </Checkbox>
+                <hr />
+                <div style={{ display: "flex", gap: "15px" }}>
+                <FormField
+                    label="Online Store Price"
+                   
+                    errorText={priceError}
+                  >
+                    <Input
+                      value={pricingDetails.onlineStorePrice}
+                      // type="number"
+                      onChange={(e) =>
+                        handleInputChange("onlineStorePrice", e.detail.value)
+                      }
+                      onBlur={() => {
+                        if (!pricingDetails.onlineStorePrice) {
+                          setPriceError("Online Store Price is required");
+                        } else if (
+                          parseFloat(pricingDetails.onlineStorePrice) >=
+                          parseFloat(pricingDetails.compareAt)
+                        ) {
+                          setPriceError(
+                            "Online Store Price must be less than Compare At Price"
+                          );
+                        }
+                      }}
+                    />
+                  </FormField>
+                  
                         <FormField label="Profit">
                           <Input
                             size="3xs"
@@ -283,19 +372,22 @@ const ProductDetail = () => {
                         <FormField label="Margin">
                           <Input size="3xs" placeholder="Margin"  />
                         </FormField>
-                      </div>
-                    </SpaceBetween>
-                
-                </Container>
-                <InventoryTracking product={product} />
-                <Attributes product={product} />
+                </div>
+
+              
+               
               </SpaceBetween>
-              <ProductImages product={product} />
-            </div>
+            </Container>
+            <InventoryTracking product={product} />
+            <Attributes product={product} />
           </SpaceBetween>
         
-      </Box>
- 
+            <ProductImages product={product} />
+            
+
+        </div>
+      </SpaceBetween>
+    </Box>
   );
 };
 

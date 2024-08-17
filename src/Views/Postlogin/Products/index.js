@@ -175,7 +175,7 @@ const Products = () => {
                   header: 'Name',
                   cell: item => (
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <img src={item.imageUrl} alt={item.name} height={35} width={35} style={{ borderRadius: '8px', marginRight: '10px' }} />
+                      <img src={item.images} alt={item.name} height={35} width={35} style={{ borderRadius: '8px', marginRight: '10px' }} />
                       {item.name}
                     </div>
                   ),
@@ -189,7 +189,7 @@ const Products = () => {
                 {
                   id: 'allocatedStock',
                   header: 'Allocated Stock',
-                  cell: item => item.quantityOnHand,
+                  cell: item => item.stockQuantity,
                   sortingField: "allocatedStock"
                 },
                 {
