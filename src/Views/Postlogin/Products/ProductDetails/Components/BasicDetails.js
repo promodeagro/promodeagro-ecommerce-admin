@@ -37,15 +37,15 @@ const BasicDetails = ({ product, onChange }) => {
     });
   }, [product]); // Only rerun this effect if the product prop changes
   
-  useEffect(() => {
-    onChange({
-      name,
-      description,
-      category: selectedCategory.value,
-      units: selectedUnit.value,
-      status: selectedStatus.value,
-    });
-  }, [name, description, selectedCategory, selectedUnit, selectedStatus,onChange]); 
+  // useEffect(() => {
+  //   onChange({
+  //     name,
+  //     description,
+  //     category: selectedCategory.value,
+  //     units: selectedUnit.value,
+  //     status: selectedStatus.value,
+  //   });
+  // }, [name, description, selectedCategory, selectedUnit, selectedStatus,onChange]); 
 
   return (
     <Container variant='borderless' className='container-box-shadow'>
