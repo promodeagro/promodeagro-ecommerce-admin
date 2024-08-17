@@ -48,6 +48,10 @@ const ProductDetail = () => {
   const [productIds, setProductIds] = useState([]);
   const [currentProductId, setCurrentProductId] = useState(id);
 
+  // New state for validation errors
+  const [priceError, setPriceError] = useState("");
+  const [compareAtError, setCompareAtError] = useState("");
+
   useEffect(() => {
     dispatch(fetchProducts());
     if (id) {
@@ -95,7 +99,6 @@ const ProductDetail = () => {
     }
   };
 
-
   const handleToggleChange = () => {
     const newStatus = !active;
     setActive(newStatus);
@@ -104,53 +107,87 @@ const ProductDetail = () => {
   };
 
   const handlePublish = async () => {
+    // Reset errors
+    setPriceError("");
+    setCompareAtError("");
+
+    // Validation
+    if (
+      parseFloat(pricingDetails.onlineStorePrice) >=
+      parseFloat(pricingDetails.compareAt)
+    ) {
+      setPriceError(
+        "Online Store Price must be less than Compare At Price"
+      );
+      return;
+    }
+
+    if (!pricingDetails.compareAt || !pricingDetails.onlineStorePrice) {
+      if (!pricingDetails.compareAt) {
+        setCompareAtError("Compare At Price is required");
+      }
+      if (!pricingDetails.onlineStorePrice) {
+        setPriceError("Online Store Price is required");
+      }
+      return;
+    }
+
     setIsPublishing(true);
     try {
-        const pricingData = {
-            compareAt: parseFloat(pricingDetails.compareAt) || 0,
-            onlineStorePrice: parseFloat(pricingDetails.onlineStorePrice) || 0,
-        };
-    
-        // Dispatch the action to update the pricing details
-        const response = await dispatch(putPricingById({ id, pricingData }));
-        
-        // Check if the update was successful (status 200)
-        if (response.meta.requestStatus === "fulfilled") {
-            // Optionally update the local state here if needed
-            setSpecificProduct((prev) => ({
-                ...prev,
-                compareAt: pricingDetails.compareAt,
-                onlineStorePrice: pricingDetails.onlineStorePrice,
-                chargeTax: charge,
-            }));
+      const pricingData = {
+        compareAt: parseFloat(pricingDetails.compareAt) || 0,
+        onlineStorePrice: parseFloat(pricingDetails.onlineStorePrice) || 0,
+      };
 
-            // Refresh the page after 2 seconds
-            setTimeout(() => {
-                window.location.reload();
-            }, 300);
-        } else {
-            console.error("Failed to update product pricing.");
-        }
+      // Dispatch the action to update the pricing details
+      const response = await dispatch(putPricingById({ id, pricingData }));
+
+      // Check if the update was successful (status 200)
+      if (response.meta.requestStatus === "fulfilled") {
+        // Optionally update the local state here if needed
+        setSpecificProduct((prev) => ({
+          ...prev,
+          compareAt: pricingDetails.compareAt,
+          onlineStorePrice: pricingDetails.onlineStorePrice,
+          chargeTax: charge,
+        }));
+
+        // Refresh the page after 2 seconds
+        setTimeout(() => {
+          window.location.reload();
+        }, 5);
+      } else {
+        console.error("Failed to update product pricing.");
+      }
     } catch (err) {
-        console.error("Error publishing product:", err);
+      console.error("Error publishing product:", err);
     } finally {
-        setIsPublishing(false);
+      setIsPublishing(false);
     }
-};
+  };
 
-// const handleBasicDetailsChange = (updatedDetails) => {
-//     setSpecificProduct((prev) => ({
-//         ...prev,
-//         ...updatedDetails,
-//     }));
-// };
+  const handleInputChange = (field, value) => {
+    setPricingDetails((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    // Clear errors when user starts typing
+    if (field === "onlineStorePrice" && priceError) {
+      setPriceError("");
+    }
+    if (field === "compareAt" && compareAtError) {
+      setCompareAtError("");
+    }
+  };
 
   if (!product.data) {
     return <div>Loading...</div>;
   }
 
   const isAtFirstProduct = productIds.indexOf(currentProductId) === 0;
-  const isAtLastProduct = productIds.indexOf(currentProductId) === productIds.length - 1;
+  const isAtLastProduct = productIds.indexOf(currentProductId) ===
+    productIds.length - 1;
 
   return (
     <Box margin={{ top: "n" }}>
@@ -229,17 +266,14 @@ const ProductDetail = () => {
       <SpaceBetween direction="vertical" size="l">
         <div style={{ display: "flex", gap: "15px" }}>
           <SpaceBetween direction="vertical" size="l">
-            <BasicDetails
-              product={product}
-              // onChange={handleBasicDetailsChange}
-            />
+            <BasicDetails product={product} />
             <Container
               variant="borderless"
               className="container-box-shadow"
               header={<Header variant="h3">Pricing</Header>}
             >
-              <SpaceBetween direction="vertical" size="l">
-                <div style={{ display: "flex", gap: "15px" }}>
+              <SpaceBetween size="l">
+              <div style={{ display: "flex", gap: "15px" }}>
                   <FormField label="Purchasing Price">
                     <Input
                       value={purchasePrice}
@@ -263,19 +297,32 @@ const ProductDetail = () => {
                       disabled
                     />
                   </FormField>
-                  <FormField label="Compare At Price">
+                  <FormField
+                    label="Compare At Price"
+                    
+                    errorText={compareAtError}
+                  >
                     <Input
                       value={pricingDetails.compareAt}
-                      size="3xs"
-                      onChange={({ detail }) =>
-                        setPricingDetails((prev) => ({
-                          ...prev,
-                          compareAt: detail.value,
-                        }))
+                      // type="number"
+                      onChange={(e) =>
+                        handleInputChange("compareAt", e.detail.value)
                       }
-                      placeholder="Compare At Price"
+                      onBlur={() => {
+                        if (!pricingDetails.compareAt) {
+                          setCompareAtError("Compare At Price is required");
+                        } else if (
+                          parseFloat(pricingDetails.onlineStorePrice) >=
+                          parseFloat(pricingDetails.compareAt)
+                        ) {
+                          setPriceError(
+                            "Online Store Price must be less than Compare At Price"
+                          );
+                        }
+                      }}
                     />
                   </FormField>
+                 
                 </div>
                 <Checkbox
                   onChange={({ detail }) => setCharge(detail.checked)}
@@ -285,17 +332,29 @@ const ProductDetail = () => {
                 </Checkbox>
                 <hr />
                 <div style={{ display: "flex", gap: "15px" }}>
-                  <FormField label="Online Store Price">
+                <FormField
+                    label="Online Store Price"
+                   
+                    errorText={priceError}
+                  >
                     <Input
                       value={pricingDetails.onlineStorePrice}
-                      size="3xs"
-                      onChange={({ detail }) =>
-                        setPricingDetails((prev) => ({
-                          ...prev,
-                          onlineStorePrice: detail.value,
-                        }))
+                      // type="number"
+                      onChange={(e) =>
+                        handleInputChange("onlineStorePrice", e.detail.value)
                       }
-                      placeholder="Input Online Store Price"
+                      onBlur={() => {
+                        if (!pricingDetails.onlineStorePrice) {
+                          setPriceError("Online Store Price is required");
+                        } else if (
+                          parseFloat(pricingDetails.onlineStorePrice) >=
+                          parseFloat(pricingDetails.compareAt)
+                        ) {
+                          setPriceError(
+                            "Online Store Price must be less than Compare At Price"
+                          );
+                        }
+                      }}
                     />
                   </FormField>
                   
@@ -314,13 +373,18 @@ const ProductDetail = () => {
                           <Input size="3xs" placeholder="Margin"  />
                         </FormField>
                 </div>
+
+              
+               
               </SpaceBetween>
             </Container>
             <InventoryTracking product={product} />
             <Attributes product={product} />
           </SpaceBetween>
-          <ProductImages product={product} />
         
+            <ProductImages product={product} />
+            
+
         </div>
       </SpaceBetween>
     </Box>
