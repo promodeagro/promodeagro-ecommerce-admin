@@ -26,7 +26,7 @@ const Inventory = () => {
 
   const dispatch = useDispatch();
   console.log("pro",products)
-  const { data = [], status } = products;
+  const { data = []} = products;
   console.log("data",data)
    // Fetch products when component mounts
    useEffect(() => {
