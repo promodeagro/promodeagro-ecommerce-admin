@@ -34,8 +34,8 @@ const OrderDetail = () => {
 
   const events = [
     { step: "Step 1", title: "Order Confirmed", status: "Order placed" },
-    { step: "Step 2", title: "In-progress", status: "PLACED" },
-    { step: "Step 3", title: "Out for Delivery", status: "Out for Delivery" },
+    { step: "Step 2", title: "Packed", status: "PLACED" },
+    { step: "Step 3", title: "On the Way", status: "Out for Delivery" },
     { step: "Step 4", title: "Delivered", status: "delivered" },
   ];
 
