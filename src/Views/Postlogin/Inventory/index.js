@@ -223,7 +223,7 @@ const Inventory = () => {
                   onClick={() => handleProductClick(e)}
                 >
                   <img
-                    src={e.images}
+                    src={e.images[0]}
                     alt={e.name}
                     style={{
                       width: "30px",
@@ -340,7 +340,7 @@ const Inventory = () => {
                     paddingTop: "15px",
                   }}
                 >
-                  Stock: {selectedProduct.quantityOnHand}Kg&nbsp;&nbsp;
+                  Stock: {selectedProduct.stockQuantity}Kg&nbsp;&nbsp;
                   <span style={{ fontSize: "10px" }}>
                     {selectedProduct.stockAlert === "Low Stock" ? (
                       <StatusIndicator type="warning" size="small">
