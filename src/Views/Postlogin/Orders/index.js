@@ -14,13 +14,14 @@ import {
   Box,
   SpaceBetween,
   Grid,
+  Select,
 } from "@cloudscape-design/components";
 import { Link } from "react-router-dom";
 
 const Orders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
-  const orderStatus = useSelector((state) => state.orders.order_status); // Ensure naming matches
+  const orderStatus = useSelector((state) => state.orders.order_status);
 
   const { data = [] } = ordersData;
   const [selectedItems, setSelectedItems] = useState([]);
@@ -33,12 +34,14 @@ const Orders = () => {
     dispatch(fetchOrders());
     dispatch(fetchOrderStatus());
   }, [dispatch]);
-  
 
   const filteredOrders = data.items
     ? data.items.filter((item) => {
         const matchesStatus =
-          activeButton === "All" || item.status === activeButton;
+          activeButton === "All" ||
+          (activeButton === "Confirmed" &&
+            item.orderStatus === "order placed") ||
+          item.orderStatus === activeButton;
         const matchesSearch = item.id
           .toLowerCase()
           .includes(filteringText.toLowerCase());
@@ -46,7 +49,7 @@ const Orders = () => {
       })
     : [];
 
-  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+  // const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
 
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
@@ -59,8 +62,8 @@ const Orders = () => {
     setCurrentPage(pageIndex + 1);
   };
 
-  const handleButtonClick = (button) => {
-    setActiveButton(button);
+  const handleSelectChange = ({ detail }) => {
+    setActiveButton(detail.selectedOption.value);
     setCurrentPage(1);
   };
 
@@ -68,7 +71,13 @@ const Orders = () => {
     setFilteringText(e.detail.filteringText);
   };
 
-  const buttons = ["All", "Confirmed", "Open", "Completed"];
+  const selectOptions = [
+    { label: "All", value: "All" }, //value is from the api
+    { label: "Order Confirmed", value: "order placed" },
+    { label: "Packed", value: "PLACED" },
+    { label: "On the Way", value: "on the way" },
+    { label: "Delivered", value: "delivered" },
+  ];
 
   return (
     <ContentLayout
@@ -97,141 +106,127 @@ const Orders = () => {
       }
     >
       <SpaceBetween direction="vertical" size="xl">
-      <Container className="top-container" style={{ marginBottom: "1rem" }}>
-  <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
-    <div>
-      <Box variant="awsui-key-label">
-        <p style={{ fontSize: 12, fontWeight: "bold" }}>Total Orders</p>
-      </Box>
-      <span
-        style={{
-          fontSize: 34,
-          fontWeight: "900",
-          lineHeight: 1.3,
-          color: "#1D4ED8",
-        }}
-      >
-  {orderStatus?.data?.totalOrderCount || "N/A"}
-  </span>
-    </div>
-    <div>
-      <Box variant="awsui-key-label">
-        <p style={{ fontSize: 12, fontWeight: "bold" }}>Orders Completed</p>
-      </Box>
-      <span
-        style={{
-          fontSize: 34,
-          fontWeight: "900",
-          lineHeight: 1.3,
-          color: "#1D4ED8",
-        }}
-      >
-          {orderStatus?.data?.completedOrderCount}
-
-      </span>
-    </div>
-    <div>
-      <Box variant="awsui-key-label">
-        <p style={{ fontSize: 12, fontWeight: "bold" }}>Orders Confirmed</p>
-      </Box>
-      <span
-        style={{
-          fontSize: 34,
-          fontWeight: "900",
-          lineHeight: 1.3,
-          color: "#1D4ED8",
-        }}
-      >
-  {orderStatus?.data?.confirmedOrderCount}
-  </span>
-    </div>
-    <div>
-      <Box variant="awsui-key-label">
-        <p style={{ fontSize: 12, fontWeight: "bold" }}>Orders Cancelled</p>
-      </Box>
-      <span
-        style={{
-          fontSize: 34,
-          fontWeight: "900",
-          lineHeight: 1.3,
-          color: "#1D4ED8",
-        }}
-      >
-  {orderStatus?.data?.cancelledOrderCount}
-  </span>
-    </div>
-    <div>
-      <Box variant="awsui-key-label">
-        <p style={{ fontSize: 12, fontWeight: "bold" }}>Orders Refunded</p>
-      </Box>
-      <span
-        style={{
-          fontSize: 34,
-          fontWeight: "900",
-          lineHeight: 1.3,
-          color: "#1D4ED8",
-        }}
-      >
-  {orderStatus?.data?.refundedOrderCount}
-  </span>
-    </div>
-  </ColumnLayout>
-</Container>
-
-
+        <Container className="top-container" style={{ marginBottom: "1rem" }}>
+          <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
+            <div>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12, fontWeight: "bold" }}>Total Orders</p>
+              </Box>
+              <span
+                style={{
+                  fontSize: 34,
+                  fontWeight: "900",
+                  lineHeight: 1.3,
+                  color: "#1D4ED8",
+                }}
+              >
+                {orderStatus?.data?.totalOrderCount || "N/A"}
+              </span>
+            </div>
+            <div>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12, fontWeight: "bold" }}>
+                  Orders Completed
+                </p>
+              </Box>
+              <span
+                style={{
+                  fontSize: 34,
+                  fontWeight: "900",
+                  lineHeight: 1.3,
+                  color: "#1D4ED8",
+                }}
+              >
+                {orderStatus?.data?.completedOrderCount}
+              </span>
+            </div>
+            <div>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12, fontWeight: "bold" }}>
+                  Orders Confirmed
+                </p>
+              </Box>
+              <span
+                style={{
+                  fontSize: 34,
+                  fontWeight: "900",
+                  lineHeight: 1.3,
+                  color: "#1D4ED8",
+                }}
+              >
+                {orderStatus?.data?.confirmedOrderCount}
+              </span>
+            </div>
+            <div>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12, fontWeight: "bold" }}>
+                  Orders Cancelled
+                </p>
+              </Box>
+              <span
+                style={{
+                  fontSize: 34,
+                  fontWeight: "900",
+                  lineHeight: 1.3,
+                  color: "#1D4ED8",
+                }}
+              >
+                {orderStatus?.data?.cancelledOrderCount}
+              </span>
+            </div>
+            <div>
+              <Box variant="awsui-key-label">
+                <p style={{ fontSize: 12, fontWeight: "bold" }}>
+                  Orders Refunded
+                </p>
+              </Box>
+              <span
+                style={{
+                  fontSize: 34,
+                  fontWeight: "900",
+                  lineHeight: 1.3,
+                  color: "#1D4ED8",
+                }}
+              >
+                {orderStatus?.data?.refundedOrderCount}
+              </span>
+            </div>
+          </ColumnLayout>
+        </Container>
 
         <SpaceBetween direction="vertical" size="s">
           <Box>
             <Grid
+              disableGutters
               gridDefinition={[
-                { colspan: { default: 14, xxs: 4 } },
-                { colspan: { default: 12, xxs: 8 } },
+                { colspan: { default: 12, xxs: 6 } },
+                { colspan: { default: 12, xxs: 6 } },
               ]}
             >
-              <div style={{ display: "flex" }}>
-                {buttons.map((button) => (
-                  <button
-                    key={button}
-                    onClick={() => handleButtonClick(button)}
-                    style={{
-                      border:
-                        activeButton === button ? "2px solid black" : "none",
-                      color: activeButton === button ? "black" : "gray",
-                      backgroundColor:
-                        activeButton === button ? "white" : "transparent",
-                      fontWeight: activeButton === button ? "bolder" : "normal",
-                      padding: "4px 12px",
-                      cursor: "pointer",
-                      borderRadius: "32px",
-                    }}
-                  >
-                    {button}
-                  </button>
-                ))}
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  width: "100%",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <div style={{ width: "40%" }}>
-                  <TextFilter
-                    filteringPlaceholder="Search"
-                    filteringText={filteringText}
-                    onChange={handleSearchChange}
-                  />
-                </div>
-                <Pagination
-                  currentPageIndex={currentPage - 1}
-                  pagesCount={totalPages}
-                  openEnd
-                  onChange={({ detail }) =>
-                    handlePageChange(detail.currentPageIndex)
-                  }
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <TextFilter
+                  filteringPlaceholder="Search"
+                  filteringText={filteringText}
+                  onChange={handleSearchChange}
+                />
+                <Select
+                  options={selectOptions}
+                  selectedOption={selectOptions.find(
+                    (option) => option.value === activeButton
+                  )}
+                  onChange={handleSelectChange}
+                  placeholder="Select Order Status"
                 />
               </div>
+              <Pagination
+                currentPageIndex={currentPage - 1}
+                // pagesCount={totalPages}
+                onChange={({ detail }) =>
+                  handlePageChange(detail.currentPageIndex)
+                }
+                openEnd
+                pagesCount={5}
+              />
             </Grid>
           </Box>
           <Table
@@ -259,7 +254,9 @@ const Orders = () => {
                 header: "Order ID",
                 cell: (item) =>
                   item.id ? (
-                    <Link to={`/app/order/orderdetail/${item.id}`}>#{item.id}</Link>
+                    <Link to={`/app/order/orderdetail/${item.id}`}>
+                      #{item.id}
+                    </Link>
                   ) : (
                     "N/A"
                   ),
@@ -280,7 +277,7 @@ const Orders = () => {
                   };
                   return date
                     .toLocaleDateString("en-GB", options)
-                    .replace(/\//g, "-"); 
+                    .replace(/\//g, "-");
                 },
               },
               {

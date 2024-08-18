@@ -11,7 +11,7 @@ const Overview = ({ selectedProduct }) => {
     <>
       <div style={{padding:"0 20px"}}>
         <ColumnLayout minColumnWidth={300} columns={3}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "5px", fontSize: "13px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px", fontSize: "12px" }}>
             <h3>
               <b>Item Information</b>
             </h3>
@@ -24,7 +24,7 @@ const Overview = ({ selectedProduct }) => {
                 <b>Quantity On Hand</b>
               </h3>
               <h1 style={{ backgroundColor: "#E9EBED", padding: "15px", fontSize: "20px", fontWeight: "700", borderRadius: "10px", display: "inline-block", color: "#354150" }}>
-                {selectedProduct.quantityOnHand}KG
+                {selectedProduct.stockQuantity}KG
               </h1>
             </span>
             <p>Suncity Warehouse &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{selectedProduct.quantityOnHand}kg</p>
@@ -32,7 +32,7 @@ const Overview = ({ selectedProduct }) => {
             <p>Atmakur Warehouse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;kg</p>
             <p>Valigunda Warehouse &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;103 kg</p>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "5px", fontSize: "13px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px", fontSize: "12px" }}>
             <h3>
               <b>Purchase and Sales Information</b>
             </h3>
@@ -40,29 +40,29 @@ const Overview = ({ selectedProduct }) => {
             <p>Minimum Selling Price: {selectedProduct.msp}</p>
           </div>
           <div style={{ borderRadius: "10px", width: "200px", height: "250px" }}>
-            <div>
+            <div  >
               <img
-                style={{ borderRadius: "10px", border: "1px solid #D9D9D9" }}
-                src={selectedProduct.imageUrl}
+                style={{ borderRadius: "10px", border: "1px solid #D9D9D9", width: "230px", height: "240px"}}
+                src={selectedProduct.images[0]}
                 alt="product"
                 height="full"
                 width="full"
               ></img>
             </div>
             <div style={{ display: "flex", gap: "15px", paddingTop: "7px" }}>
-              <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px" }}>
+              <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px" , height: "47.5px", width: "45px"}}>
                 <img
-                  style={{ borderRadius: "10px", height: "42px", width: "45px" }}
-                  src={selectedProduct.imageUrl}
+                  style={{ borderRadius: "10px",  height: "46px", width: "45px"}}
+                  src={selectedProduct.images[1]}
                   alt="product"
                   height="full"
                   width="full"
                 ></img>
               </div>
-              <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px" }}>
+              <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px",height: "47.5px", width: "45px"  }}>
                 <img
-                  style={{ borderRadius: "10px", height: "42px", width: "45px" }}
-                  src={selectedProduct.imageUrl}
+                  style={{ borderRadius: "10px", height: "46px", width: "45px" }}
+                  src={selectedProduct.images[2]}
                   alt="product"
                   height="full"
                   width="full"

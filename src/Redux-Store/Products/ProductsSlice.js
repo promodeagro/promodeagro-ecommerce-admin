@@ -14,7 +14,14 @@ const ProductsSlice = createSlice({
       data: null,
     },
   },
-  reducers: {},
+  reducers: {
+    toggleStatus: (state, action) => {
+      const product = state.products.data.find(p => p.itemCode === action.payload.itemCode);
+      if (product) {
+        product.status = product.status === "Active" ? "Inactive" : "Active";
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Fetch All Products
@@ -85,5 +92,5 @@ const ProductsSlice = createSlice({
       });
   },
 });
-
+export const { toggleStatus } = ProductsSlice.actions;
 export default ProductsSlice.reducer;
