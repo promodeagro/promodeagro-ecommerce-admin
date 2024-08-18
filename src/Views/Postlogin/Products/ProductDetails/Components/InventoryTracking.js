@@ -14,7 +14,7 @@ import {
   } from "@cloudscape-design/components";
   import "../../../../../assets/styles/CloudscapeGlobalstyle.css"
 
-const InventoryTracking = () => {
+const InventoryTracking = ({product}) => {
     
   const [checked, setChecked] = React.useState(false);
   const [toggleChecked, setToggleChecked] = React.useState(false);
@@ -34,7 +34,7 @@ const InventoryTracking = () => {
                       <Input size="3xs" placeholder="stock" />
                     </FormField>
                     <FormField label="Quantity">
-                      <Input disabled size="3xs" placeholder="Quantity" />
+                      <Input value={product.data?.stockQuantity} disabled size="3xs" placeholder="Quantity" />
                     </FormField>
                   </div>
                   <Toggle
