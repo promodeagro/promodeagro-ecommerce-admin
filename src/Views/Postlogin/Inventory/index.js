@@ -26,7 +26,7 @@ const Inventory = () => {
 
   const dispatch = useDispatch();
   console.log("pro",products)
-  const { data = []} = products;
+  const { data = [],status} = products;
   console.log("data",data)
    // Fetch products when component mounts
    useEffect(() => {
@@ -223,7 +223,7 @@ const Inventory = () => {
                   onClick={() => handleProductClick(e)}
                 >
                   <img
-                    src={e.images}
+                    src={e.images[0]}
                     alt={e.name}
                     style={{
                       width: "30px",
@@ -310,9 +310,9 @@ const Inventory = () => {
           }}
         >
           <Box
-            padding={{ left: "m", right: "m", top: "s", bottom: "s" }}
+            padding={{ left: "m", right: "m", top: "s", }}
             display="flex"
-            alignItems="center"
+            // alignItems="center"
             justifyContent="space-between"
             backgroundColor="lightgrey"
           >
@@ -327,7 +327,7 @@ const Inventory = () => {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center",
+                // alignItems: "center",
               }}
             >
               <h1 style={{ color: "#0972D3" }}>
@@ -340,7 +340,7 @@ const Inventory = () => {
                     paddingTop: "15px",
                   }}
                 >
-                  Stock: {selectedProduct.quantityOnHand}Kg&nbsp;&nbsp;
+                  Stock: {selectedProduct.stockQuantity}Kg&nbsp;&nbsp;
                   <span style={{ fontSize: "10px" }}>
                     {selectedProduct.stockAlert === "Low Stock" ? (
                       <StatusIndicator type="warning" size="small">
@@ -356,18 +356,20 @@ const Inventory = () => {
               </h1>
             </div>
           </Box>
+          <div>
           <Tabs
           variant="borderless"
             onChange={({ detail }) => setActiveTabId(detail.activeTabId)}
             activeTabId={activeTabId}
             tabs={[
               {
+                size:"xs",
                 label: "Overview",
                 id: "first",
                 content: <Overview selectedProduct={selectedProduct} />,
               },
             ]}
-          />
+          /></div>
         </div>
       )}
     </div>

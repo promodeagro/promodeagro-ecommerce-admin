@@ -40,29 +40,29 @@ const Overview = ({ selectedProduct }) => {
             <p>Minimum Selling Price: {selectedProduct.msp}</p>
           </div>
           <div style={{ borderRadius: "10px", width: "200px", height: "250px" }}>
-            <div>
+            <div  >
               <img
-                style={{ borderRadius: "10px", border: "1px solid #D9D9D9" }}
-                src={selectedProduct.images}
+                style={{ borderRadius: "10px", border: "1px solid #D9D9D9", width: "230px", height: "240px"}}
+                src={selectedProduct.images[0]}
                 alt="product"
                 height="full"
                 width="full"
               ></img>
             </div>
             <div style={{ display: "flex", gap: "15px", paddingTop: "7px" }}>
-              <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px" }}>
+              <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px" , height: "47.5px", width: "45px"}}>
                 <img
-                  style={{ borderRadius: "10px", height: "42px", width: "45px" }}
-                  src={selectedProduct.imageUrl}
+                  style={{ borderRadius: "10px",  height: "46px", width: "45px"}}
+                  src={selectedProduct.images[1]}
                   alt="product"
                   height="full"
                   width="full"
                 ></img>
               </div>
-              <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px" }}>
+              <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px",height: "47.5px", width: "45px"  }}>
                 <img
-                  style={{ borderRadius: "10px", height: "42px", width: "45px" }}
-                  src={selectedProduct.imageUrl}
+                  style={{ borderRadius: "10px", height: "46px", width: "45px" }}
+                  src={selectedProduct.images[2]}
                   alt="product"
                   height="full"
                   width="full"
