@@ -43,7 +43,7 @@ const Overview = ({ selectedProduct }) => {
             <div>
               <img
                 style={{ borderRadius: "10px", border: "1px solid #D9D9D9" }}
-                src={selectedProduct.images}
+                src={selectedProduct.images[0]}
                 alt="product"
                 height="full"
                 width="full"
@@ -53,7 +53,7 @@ const Overview = ({ selectedProduct }) => {
               <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px" }}>
                 <img
                   style={{ borderRadius: "10px", height: "42px", width: "45px" }}
-                  src={selectedProduct.imageUrl}
+                  src={selectedProduct.images[1]}
                   alt="product"
                   height="full"
                   width="full"
@@ -62,7 +62,7 @@ const Overview = ({ selectedProduct }) => {
               <div style={{ border: "1px solid #D9D9D9", borderRadius: "10px" }}>
                 <img
                   style={{ borderRadius: "10px", height: "42px", width: "45px" }}
-                  src={selectedProduct.imageUrl}
+                  src={selectedProduct.images[2]}
                   alt="product"
                   height="full"
                   width="full"
