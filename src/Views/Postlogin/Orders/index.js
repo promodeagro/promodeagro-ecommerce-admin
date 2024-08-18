@@ -64,9 +64,10 @@ const Orders = () => {
 
   const handleSelectChange = ({ detail }) => {
     setActiveButton(detail.selectedOption.value);
+    setSelectedItems([]);  // Reset selected items when changing filters
     setCurrentPage(1);
   };
-
+  
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
   };
@@ -196,38 +197,69 @@ const Orders = () => {
 
         <SpaceBetween direction="vertical" size="s">
           <Box>
-            <Grid
-              disableGutters
-              gridDefinition={[
-                { colspan: { default: 12, xxs: 6 } },
-                { colspan: { default: 12, xxs: 6 } },
-              ]}
-            >
-              <div style={{ display: "flex", gap: "1rem" }}>
-                <TextFilter
-                  filteringPlaceholder="Search"
-                  filteringText={filteringText}
-                  onChange={handleSearchChange}
-                />
-                <Select
-                  options={selectOptions}
-                  selectedOption={selectOptions.find(
-                    (option) => option.value === activeButton
-                  )}
-                  onChange={handleSelectChange}
-                  placeholder="Select Order Status"
-                />
-              </div>
-              <Pagination
-                currentPageIndex={currentPage - 1}
-                // pagesCount={totalPages}
-                onChange={({ detail }) =>
-                  handlePageChange(detail.currentPageIndex)
-                }
-                openEnd
-                pagesCount={5}
-              />
-            </Grid>
+          <Grid
+  disableGutters
+  gridDefinition={[
+    { colspan: { default: 12, xxs: 6 } },
+    { colspan: { default: 12, xxs: 6 } },
+  ]}
+>
+  <div style={{ display: "flex", gap: "0.5rem" }}>
+    <TextFilter
+      filteringPlaceholder="Search"
+      filteringText={filteringText}
+      onChange={handleSearchChange}
+    />
+    <Select
+      options={selectOptions}
+      selectedOption={selectOptions.find(
+        (option) => option.value === activeButton
+      )}
+      onChange={handleSelectChange}
+      placeholder="Sort by Status"
+    />
+  </div>
+  <div style={{ display: "flex", gap: "0.5rem", justifyContent:'flex-end' }}>
+    {/* Conditionally render the Move to Packed button */}
+    {activeButton === "order placed" && (
+      <Button 
+        disabled={selectedItems.length === 0}
+        onClick={() => {/* Your logic to move to packed */}}
+      >
+        Move to Packed
+      </Button>
+    )}
+    
+    {/* Conditionally render the Assign Orders button */}
+    {activeButton === "PLACED" && (
+      <Button 
+        disabled={selectedItems.length === 0}
+        onClick={() => {/* Your logic to assign orders */}}
+      >
+        Assign Orders
+      </Button>
+    )}
+
+    {/* Conditionally render the Move to Delivery button */}
+    {activeButton === "on the way" && (
+      <Button 
+        disabled={selectedItems.length === 0}
+        onClick={() => {/* Your logic to move to delivery */}}
+      >
+        Move to Delivered
+      </Button>
+    )}
+
+    <Pagination
+      currentPageIndex={currentPage - 1}
+      onChange={({ detail }) =>
+        handlePageChange(detail.currentPageIndex)
+      }
+      openEnd
+      pagesCount={5}
+    />
+  </div>
+</Grid>
           </Box>
           <Table
             renderAriaLive={({ firstIndex, lastIndex, totalItemsCount }) =>
@@ -308,10 +340,16 @@ const Orders = () => {
                 },
               },
               {
+                id: "paymentStatus",
+                header: "Payment Status",
+                cell: (item) => item.paymentStatus || "N/A",
+              },
+              {
                 id: "orderStatus",
                 header: "Order Status",
                 cell: (item) => item.orderStatus || "N/A",
               },
+
 
               {
                 id: "totalAmount",
