@@ -9,38 +9,45 @@ import {
   ContentLayout,
   Table,
   BreadcrumbGroup,
-  Toggle
+  Toggle,
+  TextFilter,
+  Select,
+  Pagination,
+  Input,
+  Modal
 } from '@cloudscape-design/components';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchProducts, PutToggle } from 'Redux-Store/Products/ProductThunk';
-import "../../../assets/styles/CloudscapeGlobalstyle.css"
+import { fetchProducts, PutToggle, putPricingById } from 'Redux-Store/Products/ProductThunk';
+import "../../../assets/styles/CloudscapeGlobalstyle.css";
 
 const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const { data = [] } = products;
-  const [activeButton, setActiveButton] = useState('All');
 
+  const [activeButton, setActiveButton] = useState('All');
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 10;
+  const [filteringText, setFilteringText] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const [editedProducts, setEditedProducts] = useState({});
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [isBulkModifySuccess, setBulkModifySuccess] = useState(false); 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  const handleButtonClick = (button) => {
-    setActiveButton(button);
-  };
-
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case 'Inactive':
-        return { backgroundColor: '#0972D3', color: 'white', padding: '2px 5px', borderRadius: '4px' };
-      case 'Active':
-        return { backgroundColor: 'green', color: 'white', padding: '2px 5px', borderRadius: '4px' };
-      case 'Stopped':
-        return { backgroundColor: 'red', color: 'white', padding: '2px 5px', borderRadius: '4px' };
-      default:
-        return {};
-    }
+  const handleInputChange = (id, field, value) => {
+    setEditedProducts(prev => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [field]: value
+      }
+    }));
   };
 
   const getStockAlertStyle = (stockAlert) => {
@@ -54,27 +61,101 @@ const Products = () => {
     }
   };
 
-  // Handle toggle change
   const handleToggleChange = (item) => {
     const newStatus = !item.active;
-    // Optimistically update the local state
-    // const updatedProducts = data.map((product) =>
-    //   product.id === item.id ? { ...product, active: newStatus } : product
-    // );
 
     dispatch(PutToggle({ id: item.id, active: newStatus })).then((response) => {
       if (response.meta.requestStatus === 'fulfilled' && response.payload.status === 200) {
-        // Update the local state and Redux store only if the request was successful
         dispatch(fetchProducts());
       } else {
-        // Revert back to the original state if the request fails
         dispatch(fetchProducts());
       }
     });
   };
 
-  // Filter products based on the active button
-  const filteredProducts = activeButton === 'All' ? data : data.filter(product => product.active === (activeButton === 'Active'));
+  const filteredProducts = data
+    ? data.filter((item) => {
+        const matchesStatus =
+          activeButton === 'All' ||
+          item.active === (activeButton === 'Active');
+        const matchesSearch =
+          item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
+          item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
+          (item.active ? 'active' : 'inactive').includes(filteringText.toLowerCase());
+        const matchesCategory =
+          selectedCategory === 'All' || item.category === selectedCategory;
+
+        return matchesStatus && matchesSearch && matchesCategory;
+      })
+    : [];
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+
+  const handlePageChange = (pageIndex) => {
+    setCurrentPage(pageIndex + 1);
+  };
+
+  const handleSelectChange = ({ detail }) => {
+    setSelectedCategory(detail.selectedOption.value);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e) => {
+    setFilteringText(e.detail.filteringText);
+    setCurrentPage(1);
+  };
+
+  const selectOptions = [
+    { label: "All", value: "All" },
+    { label: "Leafy", value: "Leafy" },
+    { label: "Fruit", value: "Fruit" },
+    { label: "Vegetable", value: "Vegetable" },
+    { label: "Bengali Vegetable", value: "Bengali Vegetable" },
+  ];
+
+  const handleSelectionChange = ({ detail }) => {
+    setSelectedItems(detail.selectedItems);
+  };
+
+  const handleBulkModifyPrice = () => {
+    setModalVisible(true);
+  };
+  const confirmBulkModifyPrice = () => {
+    let success = true;
+
+    selectedItems.forEach(item => {
+      const pricingData = {
+        onlineStorePrice: editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice,
+        compareAt: editedProducts[item.id]?.compareAt || item.compareAt
+      };
+
+      dispatch(putPricingById({ id: item.id, pricingData }))
+        .then(response => {
+          if (response.meta.requestStatus !== 'fulfilled' || response.payload.status !== 200) {
+            success = false;
+          }
+      
+        });
+      
+    });
+// after succesfully hitting put api after reload then  i want this  if
+    if (success) {
+      setBulkModifySuccess(true);
+    
+    }
+    
+    setModalVisible(false);
+  };
+
+  // Function to navigate to Google
+  const navigatetogoogle = () => {
+    window.open('https://promodeagro.com/', '_blank');
+  };
 
   return (
     <ContentLayout
@@ -104,7 +185,6 @@ const Products = () => {
       <SpaceBetween direction="vertical" size="s">
         <Container>
           <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
-            {/* Dashboard Metrics */}
             <div>
               <Box variant="awsui-key-label">
                 <p style={{ fontSize: 12 }}>Total Published Products</p>
@@ -139,87 +219,155 @@ const Products = () => {
         </Container>
 
         <div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span>
-              {['All', 'Inactive', 'Active'].map((button) => (
-                <button
-                  key={button}
-                  onClick={() => handleButtonClick(button)}
-                  style={{
-                    border: activeButton === button ? '2px solid black' : 'none',
-                    color: activeButton === button ? 'black' : 'gray',
-                    backgroundColor: 'white',
-                    fontWeight: activeButton === button ? 'bolder' : 'normal',
-                    padding: '8px 16px',
-                    cursor: 'pointer',
-                    borderRadius: "32px"
-                  }}
-                >
-                  {button}
-                </button>
-              ))}
-            </span>
-            <Button variant='normal'>Set Price</Button>
+        
+          <Table
+          header={
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", gap: "1rem" }}>
+            <div style={{ width:"390px" }}>
+              <TextFilter
+                filteringPlaceholder="Search"
+                filteringText={filteringText}
+                onChange={handleSearchChange}
+              />
+              </div>
+              <div style={{ width:"140px"}}>
+              <Select
+                options={selectOptions}
+                selectedOption={selectOptions.find(
+                  (option) => option.value === selectedCategory
+                )}
+                onChange={handleSelectChange}
+                placeholder="Select Category"
+              />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "1rem" }}>
+            {isBulkModifySuccess ? (
+              <Button 
+                variant='normal'
+                onClick={navigatetogoogle}
+              >
+                View Product Page
+              </Button>
+            ) : (
+              <Button 
+                disabled={selectedItems.length === 0} 
+                variant='normal'
+                onClick={handleBulkModifyPrice}
+              >
+                Bulk Modify Price
+              </Button>
+            )}
+            <Pagination currentPageIndex={currentPage - 1} onChange={handlePageChange} pagesCount={Math.ceil(filteredProducts.length / productsPerPage)} />
+            
+           </div>
           </div>
-          <Container variant='borderless' fitHeight={500}>
-            <Table
-              variant='borderless'
-              columnDefinitions={[
-                {
-                  id: 'code',
-                  header: 'Item Code',
-                  cell: item => <Link to={`/app/products/${item.id}`}>{item.itemCode}</Link>,
-                },
-                {
-                  id: 'name',
-                  header: 'Name',
-                  cell: item => (
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <img src={item?.images[0]} alt={item.name} height={35} width={35} style={{ borderRadius: '8px', marginRight: '10px' }} />
-                      {item.name}
-                    </div>
-                  ),
-                },
-                {
-                  id: 'Category',
-                  header: 'Category',
-                  cell: item => item.category,
-                  sortingField: "category"
-                },
-                {
-                  id: 'allocatedStock',
-                  header: 'Allocated Stock',
-                  cell: item => item.stockQuantity,
-                  sortingField: "allocatedStock"
-                },
-                {
-                  id: 'stockAlert',
-                  header: 'Stock Alert',
-                  cell: item => <span style={getStockAlertStyle(item.stockAlert)}>{item.stockAlert}</span>,
-                  sortingField: "stockAlert"
-                },
-                {
-                  id: 'active',
-                  header: 'Status',
-                  cell: item => (
-                    <span style={getStatusStyle(item.active)}>
-                      <Toggle
-                        onChange={() => handleToggleChange(item)}
-                        checked={item.active}
-                      >
-                        {item.active ? 'Active' : 'Inactive'}
-                      </Toggle>
-                    </span>
-                  ),
-                  sortingField: "status"
-                }
-              ]}
-              items={filteredProducts}
-              selectionType="multi"
-            />
-          </Container>
+            
+          }
+            variant='borderless'
+            columnDefinitions={[
+              {
+                id: 'code',
+                header: 'Item Code',
+                cell: item => <Link to={`/app/products/${item.id}`}>{item.itemCode}</Link>,
+              },
+              {
+                id: 'name',
+                header: 'Name',
+                cell: item => (
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <img src={item?.images[0]} alt={item.name} height={35} width={35} style={{ borderRadius: '8px', marginRight: '10px' }} />
+                    <p style={{ width:"50px"}}>{item.name}</p>
+                  </div>
+                ),
+              },
+              {
+                id: 'stock',
+                header: 'On Hand Stock',
+                cell: item => <Box textAlign='center'>{item?.stockQuantity}</Box>
+              },
+              {
+                id: 'alert',
+                header: 'Stock Alert',
+                cell: item => (
+                  <div style={getStockAlertStyle(item?.stockAlert)}>
+                    Available
+                  </div>
+                ),
+              },
+              {
+                id: 'onlineStorePrice',
+                header: 'OSP',
+                cell: item => (
+                  <div style={{width:"80px"}}>
+                  <Input
+                        type='text'               
+                    value={
+                      editedProducts[item.id]?.onlineStorePrice ?? item.onlineStorePrice
+                    }
+                    onChange={e => handleInputChange(item.id, 'onlineStorePrice', e.detail.value)}
+                  />
+                  </div>
+                )
+              },
+              {
+                id: 'compareAt',
+                header: 'CP',
+                cell: item => (
+                  <div style={{width:"80px"}}>
+                  <Input
+                   type='text'
+             
+                    value={
+                      editedProducts[item.id]?.compareAt ?? item.compareAt
+                    }
+                    onChange={e => handleInputChange(item.id, 'compareAt', e.detail.value)}
+                  />
+                  </div>
+                )
+              },
+              {
+                id: 'status',
+                header: 'Status',
+                cell: item => (
+                  <Toggle
+                    onChange={() => handleToggleChange(item)}
+                    checked={item.active}
+                  >
+                    {item.active ? 'Active' : 'Inactive'}
+                  </Toggle>
+                ),
+              },
+            ]}
+            items={currentProducts}
+            selectionType="multi"
+            selectedItems={selectedItems}
+            onSelectionChange={handleSelectionChange}
+           
+          />
         </div>
       </SpaceBetween>
+
+      {/* Modal for confirming bulk modify price */}
+      {isModalVisible && (
+        <Modal
+        size='medium'
+          onDismiss={() => setModalVisible(false)}
+          visible={isModalVisible}
+          header="Confirm Bulk Modify Price"
+          footer={
+            <Box float="right">
+              <SpaceBetween direction="horizontal" size="xs">
+                <Button variant="link" onClick={() => setModalVisible(false)}>Cancel</Button>
+                <Button variant="primary" onClick={confirmBulkModifyPrice}>Confirm</Button>
+              </SpaceBetween>
+            </Box>
+          }
+        >
+          Are you sure you want to update the prices ? This Changes will be reflect in the Online Store
+        </Modal>
+      )}
     </ContentLayout>
   );
 };

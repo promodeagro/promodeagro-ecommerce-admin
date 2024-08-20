@@ -152,7 +152,7 @@ const ProductDetail = () => {
           chargeTax: charge,
         }));
 
-        // Refresh the page after 2 seconds
+        // Refresh the page
         setTimeout(() => {
           window.location.reload();
         }, 5);
@@ -192,6 +192,7 @@ const ProductDetail = () => {
   return (
     <Box margin={{ top: "n" }}>
       <BreadcrumbGroup
+       className="bread"
         items={[
           { text: "Dashboard", href: "/app/dashboard" },
           { text: "Products", href: "/app/products" },
