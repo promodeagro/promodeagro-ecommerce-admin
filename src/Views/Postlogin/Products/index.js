@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  ColumnLayout,
   Container,
   Header,
   SpaceBetween,
@@ -14,14 +13,17 @@ import {
   Select,
   Pagination,
   Input,
-  Modal
+  Modal,
+  Flashbar
 } from '@cloudscape-design/components';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchProducts, PutToggle, putPricingById } from 'Redux-Store/Products/ProductThunk';
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
+import Numbers from './Numbers';
 
 const Products = () => {
+  
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const { data = [] } = products;
@@ -35,9 +37,14 @@ const Products = () => {
 
   const [editedProducts, setEditedProducts] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
-  const [isBulkModifySuccess, setBulkModifySuccess] = useState(false); 
+  const [isBulkModifySuccess, setBulkModifySuccess] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [priceError, setPriceError] = useState("");
+  const [compareAtError, setCompareAtError] = useState("");
   useEffect(() => {
     dispatch(fetchProducts());
+    setCurrentPage(1)
+    // setCurrentPage(1);
   }, [dispatch]);
 
   const handleInputChange = (id, field, value) => {
@@ -49,17 +56,17 @@ const Products = () => {
       }
     }));
   };
-
-  const getStockAlertStyle = (stockAlert) => {
-    switch (stockAlert) {
-      case 'Low':
-        return { color: 'red' };
-      case 'Available':
-        return { color: 'blue' };
-      default:
-        return {};
+  const getStockAlertStyle = (stockQuantity) => {
+    if (stockQuantity === 0) {
+      return { color: 'gray', textAlign: 'center' };
+    } else if (stockQuantity > 100) {
+      return { color: '#0972D3', textAlign: 'center' };
+    } else {
+      return { color: 'red', textAlign: 'center' };
     }
   };
+
+
 
   const handleToggleChange = (item) => {
     const newStatus = !item.active;
@@ -73,20 +80,43 @@ const Products = () => {
     });
   };
 
+  const validateInputs = () => {
+    let valid = true;
+    const errors = {};
+
+    selectedItems.forEach(item => {
+      const osp = editedProducts[item.id]?.onlineStorePrice ?? item.onlineStorePrice;
+      const cp = editedProducts[item.id]?.compareAt ?? item.compareAt;
+
+      if (!osp || !cp) {
+        valid = false;
+        errors[item.id] = 'Require!';
+      } else if (parseFloat(cp) < parseFloat(osp)) {
+        valid = false;
+        errors[item.id] = 'CP cannot be less than OSP';
+      }
+    });
+
+    setValidationErrors(errors);
+    return valid;
+  };
+  
+   
+
   const filteredProducts = data
     ? data.filter((item) => {
-        const matchesStatus =
-          activeButton === 'All' ||
-          item.active === (activeButton === 'Active');
-        const matchesSearch =
-          item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
-          item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
-          (item.active ? 'active' : 'inactive').includes(filteringText.toLowerCase());
-        const matchesCategory =
-          selectedCategory === 'All' || item.category === selectedCategory;
+      const matchesStatus =
+        activeButton === 'All' ||
+        item.active === (activeButton === 'Active');
+      const matchesSearch =
+        item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
+        item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
+        (item.active ? 'active' : 'inactive').includes(filteringText.toLowerCase());
+      const matchesCategory =
+        selectedCategory === 'All' || item.category === selectedCategory;
 
-        return matchesStatus && matchesSearch && matchesCategory;
-      })
+      return matchesStatus && matchesSearch && matchesCategory;
+    })
     : [];
 
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -97,8 +127,9 @@ const Products = () => {
   );
 
   const handlePageChange = (pageIndex) => {
-    setCurrentPage(pageIndex + 1);
+    setCurrentPage(pageIndex + 0); // Set `currentPage` to be 1-based
   };
+  
 
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
@@ -123,8 +154,11 @@ const Products = () => {
   };
 
   const handleBulkModifyPrice = () => {
-    setModalVisible(true);
+    if (validateInputs()) {
+      setModalVisible(true);
+    }
   };
+
   const confirmBulkModifyPrice = () => {
     let success = true;
 
@@ -139,26 +173,48 @@ const Products = () => {
           if (response.meta.requestStatus !== 'fulfilled' || response.payload.status !== 200) {
             success = false;
           }
-      
         });
-      
     });
-// after succesfully hitting put api after reload then  i want this  if
+
     if (success) {
       setBulkModifySuccess(true);
-    
     }
-    
+
     setModalVisible(false);
   };
 
-  // Function to navigate to Google
   const navigatetogoogle = () => {
     window.open('https://promodeagro.com/', '_blank');
   };
+  const [items, setItems] = React.useState([
+    {
+      type: "info",
+      dismissible: true,
+      dismissLabel: "Dismiss message",
+      onDismiss: () => setItems([]),
+      content: (
+        <>
+          <b>Price updated successfully! </b>
+          <p>The new price is now live on the online store</p>
+          
+        </>
+      ),
+      id: "message_1"
+    }
+  ]);
+
+  
 
   return (
     <ContentLayout
+     notifications={<>
+      {isBulkModifySuccess ? (
+      <Flashbar items={items} />
+      ) : (
+        <></>
+        )}
+        </>
+     }
       breadcrumbs={
         <BreadcrumbGroup
           items={[
@@ -184,87 +240,58 @@ const Products = () => {
     >
       <SpaceBetween direction="vertical" size="s">
         <Container>
-          <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12 }}>Total Published Products</p>
-              </Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>123</span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12 }}>Total Stock</p>
-              </Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>₹436K</span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12 }}>Total Orders</p>
-              </Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>123</span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12 }}>Net Profit</p>
-              </Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>1238K</span>
-            </div>
-            <div>
-              <Box variant="awsui-key-label">
-                <p style={{ fontSize: 12 }}>Stopped Products</p>
-              </Box>
-              <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>12</span>
-            </div>
-          </ColumnLayout>
+          <Numbers />
         </Container>
 
         <div>
-        
           <Table
-          header={
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", gap: "1rem" }}>
-            <div style={{ width:"390px" }}>
-              <TextFilter
-                filteringPlaceholder="Search"
-                filteringText={filteringText}
-                onChange={handleSearchChange}
-              />
+            header={
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  <div style={{ width: "390px" }}>
+                    <TextFilter
+                      filteringPlaceholder="Search"
+                      filteringText={filteringText}
+                      onChange={handleSearchChange}
+                    />
+                  </div>
+                  <div style={{ width: "140px" }}>
+                    <Select
+                      options={selectOptions}
+                      selectedOption={selectOptions.find(
+                        (option) => option.value === selectedCategory
+                      )}
+                      onChange={handleSelectChange}
+                      placeholder="Select Category"
+                    />
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  {isBulkModifySuccess ? (
+                    <Button
+                      variant='normal'
+                      onClick={navigatetogoogle}
+                    >
+                      View Product Page
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={selectedItems.length === 0}
+                      variant='normal'
+                      onClick={handleBulkModifyPrice}
+                    >
+                      Bulk Modify Price
+                    </Button>
+                  )}
+                 <Pagination
+  currentPageIndex={currentPage} // Set this to reflect the `currentPage` state
+  onChange={({ detail }) => handlePageChange(detail.currentPageIndex)}
+  pagesCount={Math.ceil(filteredProducts.length / productsPerPage)}
+/>
+
+                </div>
               </div>
-              <div style={{ width:"140px"}}>
-              <Select
-                options={selectOptions}
-                selectedOption={selectOptions.find(
-                  (option) => option.value === selectedCategory
-                )}
-                onChange={handleSelectChange}
-                placeholder="Select Category"
-              />
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: "1rem" }}>
-            {isBulkModifySuccess ? (
-              <Button 
-                variant='normal'
-                onClick={navigatetogoogle}
-              >
-                View Product Page
-              </Button>
-            ) : (
-              <Button 
-                disabled={selectedItems.length === 0} 
-                variant='normal'
-                onClick={handleBulkModifyPrice}
-              >
-                Bulk Modify Price
-              </Button>
-            )}
-            <Pagination currentPageIndex={currentPage - 1} onChange={handlePageChange} pagesCount={Math.ceil(filteredProducts.length / productsPerPage)} />
-            
-           </div>
-          </div>
-            
-          }
+            }
             variant='borderless'
             columnDefinitions={[
               {
@@ -278,96 +305,114 @@ const Products = () => {
                 cell: item => (
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <img src={item?.images[0]} alt={item.name} height={35} width={35} style={{ borderRadius: '8px', marginRight: '10px' }} />
-                    <p style={{ width:"50px"}}>{item.name}</p>
+                    <p style={{ width: "90px" }}>{item.name}</p>
                   </div>
                 ),
               },
               {
-                id: 'stock',
-                header: 'On Hand Stock',
-                cell: item => <Box textAlign='center'>{item?.stockQuantity}</Box>
+                id: 'category',
+                header: 'Category',
+                cell: item => <Box textAlign='center'>{item?.category}</Box>
               },
-              {
-                id: 'alert',
-                header: 'Stock Alert',
-                cell: item => (
-                  <div style={getStockAlertStyle(item?.stockAlert)}>
-                    Available
-                  </div>
-                ),
-              },
+          
+              
+          
+                {
+                  id: 'stock',
+                  header: 'On Hand Quantity',
+                  cell: item => <Box textAlign='center'>{item?.stockQuantity}</Box>,
+                },
+                {
+                  id: 'alert',
+                  header: 'Stock Alert',
+                  cell: item => (
+                    <div style={getStockAlertStyle(item?.stockQuantity)}>
+                      {item?.stockQuantity === 0 ? 'Not Available' : item?.stockQuantity > 100 ? 'Available' : 'Low Stock'}
+                    </div>
+                  ),
+                },
+            
+              
               {
                 id: 'onlineStorePrice',
-                header: 'OSP',
+                header: 'Online SP',
                 cell: item => (
-                  <div style={{width:"80px"}}>
-                  <Input
-                        type='text'               
-                    value={
-                      editedProducts[item.id]?.onlineStorePrice ?? item.onlineStorePrice
-                    }
-                    onChange={e => handleInputChange(item.id, 'onlineStorePrice', e.detail.value)}
-                  />
+                  <div style={{ width: "80px" }}>
+                    <Input
+                      type='text'
+                      value={
+                        editedProducts[item.id]?.onlineStorePrice !== undefined
+                          ? editedProducts[item.id].onlineStorePrice
+                          : item.onlineStorePrice
+                      }
+                      onChange={(e) => handleInputChange(item.id, 'onlineStorePrice', e.detail.value)}
+                      disabled={!selectedItems.some((selectedItem) => selectedItem.id === item.id)}
+                    />
+                    {validationErrors[item.id] && <p style={{color:"red"}}>{validationErrors[item.id]}</p>}
                   </div>
-                )
+                ),
               },
               {
                 id: 'compareAt',
-                header: 'CP',
+                header: 'Compare Price',
                 cell: item => (
-                  <div style={{width:"80px"}}>
-                  <Input
-                   type='text'
-             
-                    value={
-                      editedProducts[item.id]?.compareAt ?? item.compareAt
-                    }
-                    onChange={e => handleInputChange(item.id, 'compareAt', e.detail.value)}
-                  />
+                  <div style={{ width: "80px" }}>
+                    <Input
+                      type='text'
+                      value={
+                        editedProducts[item.id]?.compareAt !== undefined
+                          ? editedProducts[item.id].compareAt
+                          : item.compareAt
+                      }
+                      onChange={(e) => handleInputChange(item.id, 'compareAt', e.detail.value)}
+                      disabled={!selectedItems.some((selectedItem) => selectedItem.id === item.id)}
+                    />
+                    {validationErrors[item.id] && <p style={{color:"red"}}>{validationErrors[item.id]}</p>}
                   </div>
-                )
+                ),
               },
               {
                 id: 'status',
                 header: 'Status',
                 cell: item => (
+                  <div style={{width:"90px"}}>
                   <Toggle
                     onChange={() => handleToggleChange(item)}
                     checked={item.active}
                   >
-                    {item.active ? 'Active' : 'Inactive'}
+                   <p>{item.active ? 'Active' : 'Inactive'}</p> 
                   </Toggle>
+                  </div>
                 ),
               },
+             
+
             ]}
-            items={currentProducts}
-            selectionType="multi"
             selectedItems={selectedItems}
             onSelectionChange={handleSelectionChange}
-           
+            items={currentProducts}
+            selectionType='multi'
           />
         </div>
       </SpaceBetween>
 
-      {/* Modal for confirming bulk modify price */}
-      {isModalVisible && (
-        <Modal
-        size='medium'
-          onDismiss={() => setModalVisible(false)}
-          visible={isModalVisible}
-          header="Confirm Bulk Modify Price"
-          footer={
-            <Box float="right">
-              <SpaceBetween direction="horizontal" size="xs">
-                <Button variant="link" onClick={() => setModalVisible(false)}>Cancel</Button>
-                <Button variant="primary" onClick={confirmBulkModifyPrice}>Confirm</Button>
-              </SpaceBetween>
-            </Box>
-          }
-        >
-          Are you sure you want to update the prices ? This Changes will be reflect in the Online Store
-        </Modal>
-      )}
+      <Modal
+        visible={isModalVisible}
+        onDismiss={() => setModalVisible(false)}
+        header="Confirm Bulk Modify"
+        footer={
+          <SpaceBetween direction="horizontal" size="xs">
+            <Button variant="link" onClick={() => setModalVisible(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={confirmBulkModifyPrice}>
+              Confirm
+            </Button>
+          </SpaceBetween>
+        }
+      >
+        Are you sure you want to bulk modify the prices for the selected items?
+      </Modal>
     </ContentLayout>
   );
 };

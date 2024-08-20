@@ -15,7 +15,7 @@ function App() {
     <AppLayout
     headerSelector="#header"
  headerVariant="high-contrast"
- navigationWidth={250}
+ navigationWidth={155}
 //  disableContentPaddings
 
 
