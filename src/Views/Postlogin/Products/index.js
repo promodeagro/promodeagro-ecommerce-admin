@@ -255,7 +255,7 @@ const Products = () => {
     >
       <SpaceBetween direction="vertical" size="s">
         <Container>
-          <Numbers />
+          <Numbers products={products} />
         </Container>
 
         <div>
