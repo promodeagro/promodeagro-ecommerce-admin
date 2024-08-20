@@ -21,7 +21,8 @@ const Inventory = () => {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState(null);
   const [activeTabId, setActiveTabId] = React.useState("first");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageIndex, setCurrentPageIndex] = React.useState(1);
+  const [currentPage, setCurrentPage] = React.useState(1);
   const products = useSelector((state) => state.items.products);
 
   const dispatch = useDispatch();
@@ -34,16 +35,21 @@ const Inventory = () => {
    );
    }, [dispatch]);
   // Check if products is an array and has elements
-
-  const ordersPerPage = 10;
-
+  
   // Filter products based on the filteringText
   const filteredProducts = Array.isArray(data?.items)
   ? data.items.filter((product) =>
-      product.name.toLowerCase().includes(filteringText.toLowerCase())
-    )
-  : [];
-  const totalPages = Math.ceil(filteredProducts.length / ordersPerPage);
+    product.name.toLowerCase().includes(filteringText.toLowerCase())
+)
+: [];
+
+  const ITEMS_PER_PAGE = 10;
+  // Calculate the items for the current page
+  const startIndex = (currentPageIndex - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 
   // Determine the color based on the stock alert value
   const getStockAlertColor = (stockAlert) => {
@@ -60,10 +66,6 @@ const Inventory = () => {
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
     setSelectedProduct(null);
-  };
-
-  const handlePageChange = (pageIndex) => {
-    setCurrentPage(pageIndex + 1); // Pagination component uses 0-based index
   };
 
   const handleSearchChange = (e) => {
@@ -95,7 +97,7 @@ const Inventory = () => {
           }
         >
           <Container>
-            <ColumnLayout columns={5} variant="default" minColumnWidth={120}>
+            <ColumnLayout columns={5} variant="default" minColumnWidth={150}>
               <div>
                 <Box variant="awsui-key-label">
                   <p style={{ fontSize: 12 }}>All Products</p>
@@ -193,11 +195,12 @@ const Inventory = () => {
           </div>
 
           <Pagination
-            currentPageIndex={currentPage - 1}
-            pagesCount={totalPages}
-            openEnd
-            onChange={({ detail }) => handlePageChange(detail.currentPageIndex)}
-          />
+              currentPageIndex={currentPageIndex}
+              onChange={({ detail }) =>
+                setCurrentPageIndex(detail.currentPageIndex)
+              }
+              pagesCount={5}
+            />
         </div>
       </div>
       <div style={{ marginTop: "15px", padding: "0 25px 0 25px" }}>
@@ -282,7 +285,7 @@ const Inventory = () => {
             { id: "status", visible: true },
           ]}
           enableKeyboardNavigation
-          items={filteredProducts}
+          items={paginatedProducts}
           loadingText="Loading resources"
           trackBy="itemCode"
           empty={
