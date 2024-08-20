@@ -8,7 +8,7 @@ const ProductImages = ({product}) => {
   return (
 
     <Container fitHeight={600} variant='borderless'  className='container-box-shadow'>
-    <img width={700} height={500}src={product.data?.images[0]} alt="Upload Tomato" style={{borderRadius:"8px", border:"#E1E2E9"}} />
+    <img src={product.data?.images[0]} alt="Upload Tomato" style={{borderRadius:"8px", border:"#E1E2E9", height:"210px", width:"200px"}} />
     <span style={{ fontSize: "12px", fontWeight: "bold" }}>
       Additional Images
     </span>
@@ -19,8 +19,9 @@ const ProductImages = ({product}) => {
         gap: "6px",
       }}
     >
-      <img src={product.data?.images[0]} style={{borderRadius:"8px",borderColor:"#E1E2E9", borderWidth:"1px",}} alt="Upload Tomato 1" height={400} />
-      <img src={product.data?.images[0]}style={{borderRadius:"8px",borderColor:"#E1E2E9",borderWidth:"1px"}} alt="Upload Tomato 2" height={400} />
+      <img src={product?.data?.images[1]} style={{borderRadius:"8px",height:"110px", width:"110px"}} alt="Upload Tomato 1" />
+      <img src={product
+        ?.data?.images[2]}style={{borderRadius:"8px",height:"110px", width:"110px"}} alt="Upload Tomato 2" />
     </div>
   </Container>
   )

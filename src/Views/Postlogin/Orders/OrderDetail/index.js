@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { ordersDetails } from "Redux-Store/Orders/OrdersThunk";
+import { ordersDetails, fetchOrders } from "Redux-Store/Orders/OrdersThunk";
 import Header from "@cloudscape-design/components/header";
 import SpaceBetween from "@cloudscape-design/components/space-between";
 import Button from "@cloudscape-design/components/button";
@@ -20,17 +20,20 @@ const OrderDetail = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Get order details and all orders from Redux
-  const orderDetail = useSelector((state) => state.orders.order_details.data);
-  const allOrders = useSelector((state) => state.orders.ordersData.data.items); // Assuming this is where all orders are stored
+  const allOrders = useSelector((state) => state.orders.ordersData.data?.items || []);
+const orderDetail = useSelector((state) => state.orders.order_details.data || {});
 
   useEffect(() => {
     if (id) {
+      // Refetch the order details
       dispatch(ordersDetails(id));
     } else {
       console.error("No order ID provided");
     }
+    // Refetch all orders
+    dispatch(fetchOrders());
   }, [id, dispatch]);
+  
 
   const events = [
     { step: "Step 1", title: "Order Confirmed", status: "Order placed" },
