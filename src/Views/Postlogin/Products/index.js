@@ -90,7 +90,7 @@ const Products = () => {
 
       if (!osp || !cp) {
         valid = false;
-        errors[item.id] = 'Require!';
+        errors[item.id] = 'Required!!';
       } else if (parseFloat(cp) < parseFloat(osp)) {
         valid = false;
         errors[item.id] = 'CP cannot be less than OSP';
@@ -159,29 +159,31 @@ const Products = () => {
     }
   };
 
-  const confirmBulkModifyPrice = () => {
+const confirmBulkModifyPrice = () => {
     let success = true;
 
     selectedItems.forEach(item => {
-      const pricingData = {
-        onlineStorePrice: editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice,
-        compareAt: editedProducts[item.id]?.compareAt || item.compareAt
-      };
+        const pricingData = {
+            onlineStorePrice: editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice,
+            compareAt: editedProducts[item.id]?.compareAt || item.compareAt
+        };
 
-      dispatch(putPricingById({ id: item.id, pricingData }))
-        .then(response => {
-          if (response.meta.requestStatus !== 'fulfilled' || response.payload.status !== 200) {
-            success = false;
-          }
-        });
+        dispatch(putPricingById({ id: item.id, pricingData }))
+            .then(response => {
+                if (response.meta.requestStatus !== 'fulfilled' || response.payload.status !== 200) {
+                    success = false;
+                }
+            });
     });
 
     if (success) {
-      setBulkModifySuccess(true);
+        setBulkModifySuccess(true);
+        setSelectedItems([]); // Clear selected checkboxes
     }
 
     setModalVisible(false);
-  };
+};
+
 
   const navigatetogoogle = () => {
     window.open('https://promodeagro.com/', '_blank');
