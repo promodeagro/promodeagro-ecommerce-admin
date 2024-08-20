@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -14,21 +14,24 @@ import {
   Pagination,
   Input,
   Modal,
-  Flashbar
-} from '@cloudscape-design/components';
-import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { fetchProducts, PutToggle, putPricingById } from 'Redux-Store/Products/ProductThunk';
+  Flashbar,
+} from "@cloudscape-design/components";
+import { useSelector, useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import {
+  fetchProducts,
+  PutToggle,
+  putPricingById,
+} from "Redux-Store/Products/ProductThunk";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
-import Numbers from './Numbers';
+import Numbers from "./Numbers";
 
 const Products = () => {
-  
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const { data = [] } = products;
 
-  const [activeButton, setActiveButton] = useState('All');
+  const [activeButton, setActiveButton] = useState("All");
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
@@ -43,11 +46,12 @@ const Products = () => {
   const [compareAtError, setCompareAtError] = useState("");
   useEffect(() => {
     dispatch(fetchProducts());
-    setCurrentPage(1)
+    setCurrentPage(1);
     // setCurrentPage(1);
   }, [dispatch]);
 
   const handleInputChange = (id, field, value) => {
+    // Update the editedProducts state with the new value
     setEditedProducts(prev => ({
       ...prev,
       [id]: {
@@ -55,24 +59,33 @@ const Products = () => {
         [field]: value
       }
     }));
+
+    // Clear the validation error for this item
+    setValidationErrors(prevErrors => ({
+      ...prevErrors,
+      [id]: ""
+    }));
   };
+
+
   const getStockAlertStyle = (stockQuantity) => {
     if (stockQuantity === 0) {
-      return { color: 'gray', textAlign: 'center' };
+      return { color: "gray", textAlign: "center" };
     } else if (stockQuantity > 100) {
-      return { color: '#0972D3', textAlign: 'center' };
+      return { color: "#0972D3", textAlign: "center" };
     } else {
-      return { color: 'red', textAlign: 'center' };
+      return { color: "red", textAlign: "center" };
     }
   };
-
-
 
   const handleToggleChange = (item) => {
     const newStatus = !item.active;
 
     dispatch(PutToggle({ id: item.id, active: newStatus })).then((response) => {
-      if (response.meta.requestStatus === 'fulfilled' && response.payload.status === 200) {
+      if (
+        response.meta.requestStatus === "fulfilled" &&
+        response.payload.status === 200
+      ) {
         dispatch(fetchProducts());
       } else {
         dispatch(fetchProducts());
@@ -84,39 +97,44 @@ const Products = () => {
     let valid = true;
     const errors = {};
 
-    selectedItems.forEach(item => {
-      const osp = editedProducts[item.id]?.onlineStorePrice ?? item.onlineStorePrice;
+    selectedItems.forEach((item) => {
+      const osp =
+        editedProducts[item.id]?.onlineStorePrice ?? item.onlineStorePrice;
       const cp = editedProducts[item.id]?.compareAt ?? item.compareAt;
 
       if (!osp || !cp) {
         valid = false;
-        errors[item.id] = 'Required!!';
+        errors[item.id] = "Required!!";
       } else if (parseFloat(cp) < parseFloat(osp)) {
         valid = false;
-        errors[item.id] = 'CP cannot be less than OSP';
+        errors[item.id] = "CP cannot be less than OSP";
+      }
+      else if(parseFloat(cp) && parseFloat(osp)){
+        valid = true;
+
       }
     });
 
-    setValidationErrors(errors);
-    return valid;
+      setValidationErrors(errors);
+      return valid;
+ 
   };
-  
-   
 
   const filteredProducts = data
     ? data.filter((item) => {
-      const matchesStatus =
-        activeButton === 'All' ||
-        item.active === (activeButton === 'Active');
-      const matchesSearch =
-        item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
-        item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
-        (item.active ? 'active' : 'inactive').includes(filteringText.toLowerCase());
-      const matchesCategory =
-        selectedCategory === 'All' || item.category === selectedCategory;
+        const matchesStatus =
+          activeButton === "All" || item.active === (activeButton === "Active");
+        const matchesSearch =
+          item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
+          item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
+          (item.active ? "active" : "inactive").includes(
+            filteringText.toLowerCase()
+          );
+        const matchesCategory =
+          selectedCategory === "All" || item.category === selectedCategory;
 
-      return matchesStatus && matchesSearch && matchesCategory;
-    })
+        return matchesStatus && matchesSearch && matchesCategory;
+      })
     : [];
 
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -129,7 +147,6 @@ const Products = () => {
   const handlePageChange = (pageIndex) => {
     setCurrentPage(pageIndex + 0); // Set `currentPage` to be 1-based
   };
-  
 
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
@@ -159,34 +176,38 @@ const Products = () => {
     }
   };
 
-const confirmBulkModifyPrice = () => {
+  const confirmBulkModifyPrice = () => {
     let success = true;
 
-    selectedItems.forEach(item => {
-        const pricingData = {
-            onlineStorePrice: editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice,
-            compareAt: editedProducts[item.id]?.compareAt || item.compareAt
-        };
+    selectedItems.forEach((item) => {
+      const pricingData = {
+        onlineStorePrice:
+          editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice,
+        compareAt: editedProducts[item.id]?.compareAt || item.compareAt,
+      };
 
-        dispatch(putPricingById({ id: item.id, pricingData }))
-            .then(response => {
-                if (response.meta.requestStatus !== 'fulfilled' || response.payload.status !== 200) {
-                    success = false;
-                }
-            });
+      dispatch(putPricingById({ id: item.id, pricingData })).then(
+        (response) => {
+          if (
+            response.meta.requestStatus !== "fulfilled" ||
+            response.payload.status !== 200
+          ) {
+            success = false;
+          }
+        }
+      );
     });
 
     if (success) {
-        setBulkModifySuccess(true);
-        setSelectedItems([]); // Clear selected checkboxes
+      setBulkModifySuccess(true);
+      setSelectedItems([]); // Clear selected checkboxes
     }
 
     setModalVisible(false);
-};
-
+  };
 
   const navigatetogoogle = () => {
-    window.open('https://promodeagro.com/', '_blank');
+    window.open("https://promodeagro.com/", "_blank");
   };
   const [items, setItems] = React.useState([
     {
@@ -198,30 +219,22 @@ const confirmBulkModifyPrice = () => {
         <>
           <b>Price updated successfully! </b>
           <p>The new price is now live on the online store</p>
-          
         </>
       ),
-      id: "message_1"
-    }
+      id: "message_1",
+    },
   ]);
-
-  
 
   return (
     <ContentLayout
-     notifications={<>
-      {isBulkModifySuccess ? (
-      <Flashbar items={items} />
-      ) : (
-        <></>
-        )}
-        </>
-     }
+      notifications={
+        <>{isBulkModifySuccess ? <Flashbar items={items} /> : <></>}</>
+      }
       breadcrumbs={
         <BreadcrumbGroup
           items={[
             { text: "Dashboard", href: "/app/dashboard" },
-            { text: "Products", href: "/app/dashboard/products" }
+            { text: "Products", href: "/app/dashboard/products" },
           ]}
           ariaLabel="Breadcrumbs"
         />
@@ -270,130 +283,163 @@ const confirmBulkModifyPrice = () => {
                 </div>
                 <div style={{ display: "flex", gap: "1rem" }}>
                   {isBulkModifySuccess ? (
-                    <Button
-                      variant='normal'
-                      onClick={navigatetogoogle}
-                    >
+                    <Button variant="normal" onClick={navigatetogoogle}>
                       View Product Page
                     </Button>
                   ) : (
                     <Button
                       disabled={selectedItems.length === 0}
-                      variant='normal'
+                      variant="normal"
                       onClick={handleBulkModifyPrice}
                     >
                       Bulk Modify Price
                     </Button>
                   )}
-                 <Pagination
-  currentPageIndex={currentPage} // Set this to reflect the `currentPage` state
-  onChange={({ detail }) => handlePageChange(detail.currentPageIndex)}
-  pagesCount={Math.ceil(filteredProducts.length / productsPerPage)}
-/>
-
+                  <Pagination
+                    currentPageIndex={currentPage} // Set this to reflect the `currentPage` state
+                    onChange={({ detail }) =>
+                      handlePageChange(detail.currentPageIndex)
+                    }
+                    pagesCount={Math.ceil(
+                      filteredProducts.length / productsPerPage
+                    )}
+                  />
                 </div>
               </div>
             }
-            variant='borderless'
+            variant="borderless"
             columnDefinitions={[
               {
-                id: 'code',
-                header: 'Item Code',
-                cell: item => <Link to={`/app/products/${item.id}`}>{item.itemCode}</Link>,
+                id: "code",
+                header: "Item Code",
+                cell: (item) => (
+                  <Link to={`/app/products/${item.id}`}>{item.itemCode}</Link>
+                ),
               },
               {
-                id: 'name',
-                header: 'Name',
-                cell: item => (
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <img src={item?.images[0]} alt={item.name} height={35} width={35} style={{ borderRadius: '8px', marginRight: '10px' }} />
+                id: "name",
+                header: "Name",
+                cell: (item) => (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <img
+                      src={item?.images[0]}
+                      alt={item.name}
+                      height={35}
+                      width={35}
+                      style={{ borderRadius: "8px", marginRight: "10px" }}
+                    />
                     <p style={{ width: "90px" }}>{item.name}</p>
                   </div>
                 ),
               },
               {
-                id: 'category',
-                header: 'Category',
-                cell: item => <Box textAlign='center'>{item?.category}</Box>
+                id: "category",
+                header: "Category",
+                cell: (item) => <Box textAlign="center">{item?.category}</Box>,
               },
-          
-              
-          
-                {
-                  id: 'stock',
-                  header: 'On Hand Quantity',
-                  cell: item => <Box textAlign='center'>{item?.stockQuantity}</Box>,
-                },
-                {
-                  id: 'alert',
-                  header: 'Stock Alert',
-                  cell: item => (
-                    <div style={getStockAlertStyle(item?.stockQuantity)}>
-                      {item?.stockQuantity === 0 ? 'Not Available' : item?.stockQuantity > 100 ? 'Available' : 'Low Stock'}
-                    </div>
-                  ),
-                },
-            
-              
+
               {
-                id: 'onlineStorePrice',
-                header: 'Online SP',
-                cell: item => (
+                id: "stock",
+                header: "On Hand Quantity",
+                cell: (item) => (
+                  <Box textAlign="center">{item?.stockQuantity}</Box>
+                ),
+              },
+              {
+                id: "alert",
+                header: "Stock Alert",
+                cell: (item) => (
+                  <div style={getStockAlertStyle(item?.stockQuantity)}>
+                    {item?.stockQuantity === 0
+                      ? "Not Available"
+                      : item?.stockQuantity > 100
+                      ? "Available"
+                      : "Low Stock"}
+                  </div>
+                ),
+              },
+
+              {
+                id: "onlineStorePrice",
+                header: "Online SP",
+                cell: (item) => (
                   <div style={{ width: "80px" }}>
                     <Input
-                      type='text'
+                      type="text"
                       value={
                         editedProducts[item.id]?.onlineStorePrice !== undefined
                           ? editedProducts[item.id].onlineStorePrice
                           : item.onlineStorePrice
                       }
-                      onChange={(e) => handleInputChange(item.id, 'onlineStorePrice', e.detail.value)}
-                      disabled={!selectedItems.some((selectedItem) => selectedItem.id === item.id)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          item.id,
+                          "onlineStorePrice",
+                          e.detail.value
+                        )
+                      }
+                      disabled={
+                        !selectedItems.some(
+                          (selectedItem) => selectedItem.id === item.id
+                        )
+                      }
                     />
-                    {validationErrors[item.id] && <p style={{color:"red"}}>{validationErrors[item.id]}</p>}
+                    {validationErrors[item.id] && (
+                      <p style={{ color: "red" }}>
+                        {validationErrors[item.id]}
+                      </p>
+                    )}
                   </div>
                 ),
               },
               {
-                id: 'compareAt',
-                header: 'Compare Price',
-                cell: item => (
+                id: "compareAt",
+                header: "Compare Price",
+                cell: (item) => (
                   <div style={{ width: "80px" }}>
                     <Input
-                      type='text'
+                      type="text"
                       value={
                         editedProducts[item.id]?.compareAt !== undefined
                           ? editedProducts[item.id].compareAt
                           : item.compareAt
                       }
-                      onChange={(e) => handleInputChange(item.id, 'compareAt', e.detail.value)}
-                      disabled={!selectedItems.some((selectedItem) => selectedItem.id === item.id)}
+                      onChange={(e) =>
+                        handleInputChange(item.id, "compareAt", e.detail.value)
+                      }
+                      disabled={
+                        !selectedItems.some(
+                          (selectedItem) => selectedItem.id === item.id
+                        )
+                      }
                     />
-                    {validationErrors[item.id] && <p style={{color:"red"}}>{validationErrors[item.id]}</p>}
+                    {validationErrors[item.id] && (
+                      <p style={{ color: "red" }}>
+                        {validationErrors[item.id]}
+                      </p>
+                    )}
                   </div>
                 ),
               },
               {
-                id: 'status',
-                header: 'Status',
-                cell: item => (
-                  <div style={{width:"90px"}}>
-                  <Toggle
-                    onChange={() => handleToggleChange(item)}
-                    checked={item.active}
-                  >
-                   <p>{item.active ? 'Active' : 'Inactive'}</p> 
-                  </Toggle>
+                id: "status",
+                header: "Status",
+                cell: (item) => (
+                  <div style={{ width: "90px" }}>
+                    <Toggle
+                      onChange={() => handleToggleChange(item)}
+                      checked={item.active}
+                    >
+                      <p>{item.active ? "Active" : "Inactive"}</p>
+                    </Toggle>
                   </div>
                 ),
               },
-             
-
             ]}
             selectedItems={selectedItems}
             onSelectionChange={handleSelectionChange}
             items={currentProducts}
-            selectionType='multi'
+            selectionType="multi"
           />
         </div>
       </SpaceBetween>
@@ -420,3 +466,4 @@ const confirmBulkModifyPrice = () => {
 };
 
 export default Products;
+

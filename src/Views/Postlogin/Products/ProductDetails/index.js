@@ -23,7 +23,6 @@ import {
 import BasicDetails from "./Components/BasicDetails";
 import InventoryTracking from "./Components/InventoryTracking";
 import Attributes from "./Components/Attributes";
-import ProductImages from "./Components/ProductImages";
 import "../../../../assets/styles/CloudscapeGlobalstyle.css";
 
 const ProductDetail = () => {
