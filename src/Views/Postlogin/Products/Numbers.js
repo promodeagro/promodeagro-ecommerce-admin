@@ -2,7 +2,7 @@ import { Box } from '@cloudscape-design/components'
 import ColumnLayout from '@cloudscape-design/components/column-layout'
 import React, { act, useEffect, useState } from 'react'
 import { useSelector,useDispatch } from 'react-redux'
-// import Orders from '../../../Redux-Store/store'
+
 
 import { fetchOrders } from 'Redux-Store/Orders/OrdersThunk'
 
@@ -14,7 +14,7 @@ const Numbers = ({products}) => {
   useEffect(() => {
     dispatch(fetchOrders());
   }, [dispatch]);
-   console.log(data,"orderssss");
+  //  console.log(data,"orderssss");
   const [active, setActive] = useState([]);
   const [inactive, setInactive] = useState([]);
   

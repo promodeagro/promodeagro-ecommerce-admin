@@ -46,10 +46,10 @@ const InventoryTracking = ({product}) => {
 
                   <div style={{ display: "flex", gap: "15px" }}>
                     <FormField label="Minimum">
-                      <Input disabled size="3xs" placeholder="90" />
+                      <Input disabled size="3xs" placeholder="minimun" />
                     </FormField>
                     <FormField label="Maximum">
-                      <Input disabled size="3xs" placeholder="80" />
+                      <Input disabled size="3xs" placeholder="maximum" />
                     </FormField>
                   </div>
                 </SpaceBetween>

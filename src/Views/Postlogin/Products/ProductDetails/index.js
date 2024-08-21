@@ -356,11 +356,21 @@ const ProductDetail = () => {
                     />
                   </FormField>
                   <FormField label="Margin">
-                    <Input value={
-                      (pricingDetails.compareAt - pricingDetails.onlineStorePrice) / pricingDetails.compareAt *
-                      100
-
-                    +"%"} size="3xs" placeholder="Margin" />
+                    <Input
+                      value={
+                        pricingDetails.compareAt &&
+                        pricingDetails.onlineStorePrice
+                          ? `${(
+                              ((pricingDetails.compareAt -
+                                pricingDetails.onlineStorePrice) /
+                                pricingDetails.compareAt) *
+                              100
+                            ).toFixed(2)}%`
+                          : "%"
+                      }
+                      size="3xs"
+                      placeholder="Margin"
+                    />
                   </FormField>
                 </div>
               </SpaceBetween>

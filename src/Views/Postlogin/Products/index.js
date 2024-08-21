@@ -15,6 +15,7 @@ import {
   Input,
   Modal,
   Flashbar,
+  FormField,
 } from "@cloudscape-design/components";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -51,21 +52,38 @@ const Products = () => {
   }, [dispatch]);
 
   const handleInputChange = (id, field, value) => {
-    // Update the editedProducts state with the new value
-    setEditedProducts(prev => ({
+    setEditedProducts((prev) => ({
       ...prev,
       [id]: {
         ...prev[id],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
-
-    // Clear the validation error for this item
-    setValidationErrors(prevErrors => ({
+  
+    // Validate the current field and update errors
+    const osp = value; // Updated price value
+    const cp = field === "compareAt" ? value : editedProducts[id]?.compareAt ?? "";
+  
+    let errors = {};
+  
+    if (field === "onlineStorePrice" && !osp) {
+      errors.onlineStorePrice = "Required!";
+    }
+  
+    if (field === "compareAt") {
+      if (!cp) {
+        errors.compareAt = "Required!";
+      } else if (parseFloat(cp) < parseFloat(osp)) {
+        errors.compareAt = "CP must be greater than OSP";
+      }
+    }
+  
+    setValidationErrors((prevErrors) => ({
       ...prevErrors,
-      [id]: ""
+      [id]: errors,
     }));
   };
+  
 
 
   const getStockAlertStyle = (stockQuantity) => {
@@ -96,29 +114,37 @@ const Products = () => {
   const validateInputs = () => {
     let valid = true;
     const errors = {};
-
+  
     selectedItems.forEach((item) => {
-      const osp =
-        editedProducts[item.id]?.onlineStorePrice ?? item.onlineStorePrice;
-      const cp = editedProducts[item.id]?.compareAt ?? item.compareAt;
-
-      if (!osp || !cp) {
+      const editedProduct = editedProducts[item.id] || {};
+      const osp = editedProduct.onlineStorePrice !== undefined ? editedProduct.onlineStorePrice : item.onlineStorePrice;
+      const cp = editedProduct.compareAt !== undefined ? editedProduct.compareAt : item.compareAt;
+  
+      let itemErrors = {};
+  
+      if (editedProduct.onlineStorePrice !== undefined && osp === "") {
         valid = false;
-        errors[item.id] = "Required!!";
+        itemErrors.onlineStorePrice = "Required!";
+      }
+  
+      if (editedProduct.compareAt !== undefined && cp === "") {
+        valid = false;
+        itemErrors.compareAt = "Required!";
       } else if (parseFloat(cp) < parseFloat(osp)) {
         valid = false;
-        errors[item.id] = "CP cannot be less than OSP";
+        itemErrors.compareAt = "CP must be greater than OSP";
       }
-      else if(parseFloat(cp) && parseFloat(osp)){
-        valid = true;
-
+  
+      if (Object.keys(itemErrors).length > 0) {
+        errors[item.id] = itemErrors;
       }
     });
-
-      setValidationErrors(errors);
-      return valid;
- 
+  
+    setValidationErrors(errors);
+    return valid;
   };
+  
+
 
   const filteredProducts = data
     ? data.filter((item) => {
@@ -364,31 +390,20 @@ const Products = () => {
                 header: "Online Price",
                 cell: (item) => (
                   <div style={{ width: "80px" }}>
-                    <Input
-                      type="text"
-                      value={
-                        editedProducts[item.id]?.onlineStorePrice !== undefined
-                          ? editedProducts[item.id].onlineStorePrice
-                          : item.onlineStorePrice
-                      }
-                      onChange={(e) =>
-                        handleInputChange(
-                          item.id,
-                          "onlineStorePrice",
-                          e.detail.value
-                        )
-                      }
-                      disabled={
-                        !selectedItems.some(
-                          (selectedItem) => selectedItem.id === item.id
-                        )
-                      }
-                    />
-                    {validationErrors[item.id] && (
-                      <p style={{ color: "red" }}>
-                        {validationErrors[item.id]}
-                      </p>
-                    )}
+                  <FormField
+  errorText={
+    validationErrors[item.id]?.onlineStorePrice
+  }
+>
+  <Input
+    disabled={!selectedItems.some((selectedItem) => selectedItem.id === item.id)}
+    placeholder="Enter Price"
+    type="number"
+    value={editedProducts[item.id]?.onlineStorePrice ?? item.onlineStorePrice}
+    onChange={(e) => handleInputChange(item.id, "onlineStorePrice", e.detail.value)}
+    ariaLabel="online store price"
+  />
+</FormField>
                   </div>
                 ),
               },
@@ -397,27 +412,32 @@ const Products = () => {
                 header: "Compare Price",
                 cell: (item) => (
                   <div style={{ width: "80px" }}>
-                    <Input
-                      type="text"
-                      value={
-                        editedProducts[item.id]?.compareAt !== undefined
-                          ? editedProducts[item.id].compareAt
-                          : item.compareAt
-                    }
-                      onChange={(e) =>
-                        handleInputChange(item.id, "compareAt", e.detail.value)
-                      }
-                      disabled={
-                        !selectedItems.some(
-                          (selectedItem) => selectedItem.id === item.id
-                        )
-                      }
-                    />
-                    {validationErrors[item.id] && (
-                      <p style={{ color: "red" }}>
-                        {validationErrors[item.id]}
-                      </p>
-                    )}
+<FormField
+  errorText={
+    validationErrors[item.id]?.compareAt
+  }
+>
+  <Input
+    placeholder="Enter Price"
+    type="number"
+    value={editedProducts[item.id]?.compareAt ?? item.compareAt}
+    onChange={(e) => handleInputChange(item.id, "compareAt", e.detail.value)}
+    ariaLabel="compare at price"
+    disabled={!selectedItems.some((selectedItem) => selectedItem.id === item.id)}
+  />
+</FormField>
+
+
+
+
+
+
+
+
+
+
+                
+                 
                   </div>
                 ),
               },
