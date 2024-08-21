@@ -1,18 +1,20 @@
 import { Box } from '@cloudscape-design/components'
 import ColumnLayout from '@cloudscape-design/components/column-layout'
 import React, { act, useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector,useDispatch } from 'react-redux'
 // import Orders from '../../../Redux-Store/store'
 
-
+import { fetchOrders } from 'Redux-Store/Orders/OrdersThunk'
 
 
 const Numbers = ({products}) => {
+  const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
-    // You can access the status and data like this:
-    const { status, data } = ordersData;
-
-   console.log(data,"order");
+  const { data = [] } = ordersData;
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
+   console.log(data,"orderssss");
   const [active, setActive] = useState([]);
   const [inactive, setInactive] = useState([]);
   
@@ -63,13 +65,13 @@ const Numbers = ({products}) => {
       <Box variant="awsui-key-label">
         <p style={{ fontSize: 12 }}>Total Orders</p>
       </Box>
-      <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>123</span>
+      <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>{data.items?.length}</span>
     </div>
     <div>
       <Box variant="awsui-key-label">
         <p style={{ fontSize: 12 }}>Net Profit</p>
       </Box>
-      <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>1238K</span>
+      <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>123K</span>
     </div>
     <div>
       <Box variant="awsui-key-label">
