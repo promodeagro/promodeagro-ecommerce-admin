@@ -34,7 +34,7 @@ const Products = () => {
   const [activeButton, setActiveButton] = useState("All");
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 10;
+  const productsPerPage = 20;
   const [filteringText, setFilteringText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -71,7 +71,7 @@ const Products = () => {
   const getStockAlertStyle = (stockQuantity) => {
     if (stockQuantity === 0) {
       return { color: "gray", textAlign: "center" };
-    } else if (stockQuantity > 100) {
+    } else if (stockQuantity > 5) {
       return { color: "#0972D3", textAlign: "center" };
     } else {
       return { color: "red", textAlign: "center" };
@@ -342,7 +342,7 @@ const Products = () => {
                 id: "stock",
                 header: "On Hand Quantity",
                 cell: (item) => (
-                  <Box textAlign="center">{item?.stockQuantity}</Box>
+                  <Box textAlign="center">{item?.stockQuantity}/{item?.units}</Box>
                 ),
               },
               {
@@ -352,7 +352,7 @@ const Products = () => {
                   <div style={getStockAlertStyle(item?.stockQuantity)}>
                     {item?.stockQuantity === 0
                       ? "Not Available"
-                      : item?.stockQuantity > 100
+                      : item?.stockQuantity > 5
                       ? "Available"
                       : "Low Stock"}
                   </div>
@@ -361,7 +361,7 @@ const Products = () => {
 
               {
                 id: "onlineStorePrice",
-                header: "Online SP",
+                header: "Online Price",
                 cell: (item) => (
                   <div style={{ width: "80px" }}>
                     <Input
@@ -403,7 +403,7 @@ const Products = () => {
                         editedProducts[item.id]?.compareAt !== undefined
                           ? editedProducts[item.id].compareAt
                           : item.compareAt
-                      }
+                    }
                       onChange={(e) =>
                         handleInputChange(item.id, "compareAt", e.detail.value)
                       }
