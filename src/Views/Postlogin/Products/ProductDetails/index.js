@@ -11,6 +11,7 @@ import {
   FormField,
   Checkbox,
   Toggle,
+  Spinner,
 } from "@cloudscape-design/components";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,6 +31,7 @@ const ProductDetail = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loading, setLoading] = useState(false);
 
   const product = useSelector((state) => state.products.productDetail);
   const products = useSelector((state) => state.products.products);
@@ -46,7 +48,7 @@ const ProductDetail = () => {
   });
   const [productIds, setProductIds] = useState([]);
   const [currentProductId, setCurrentProductId] = useState(id);
-
+ 
   // New state for validation errors
   const [priceError, setPriceError] = useState("");
   const [compareAtError, setCompareAtError] = useState("");
@@ -54,9 +56,11 @@ const ProductDetail = () => {
   useEffect(() => {
     dispatch(fetchProducts());
     if (id) {
-      dispatch(fetchProductById(id));
+      setLoading(true);
+      dispatch(fetchProductById(id)).finally(() => setLoading(false));
     }
   }, [dispatch, id]);
+
 
   useEffect(() => {
     if (product.data) {
@@ -378,45 +382,78 @@ const ProductDetail = () => {
             <InventoryTracking product={product} />
             <Attributes product={product} />
           </SpaceBetween>
-
+        
           <Container
             fitHeight={600}
+            
             variant="borderless"
             className="container-box-shadow"
           >
-            <img
-              src={product.data?.images[0]}
-              alt={product.data?.name}
-              style={{ height: "200px", borderRadius: "8px", width: "100%" }}
-            />
-            <span
-              style={{
-                fontSize: "12px",
-                fontWeight: "bold",
-                marginBottom: "10px",
-              }}
-            >
-              Additional Images
-            </span>
-            <div
-              style={{
-                display: "flex",
+            {loading ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "200px",
+                  width:"200px"
+                }}
+              >
+               <Box textAlign="center" float="left"><Spinner size="large" /></Box> 
+              </div>
+            ) : (
+              <>
+                <img
+                  src={product.data?.images[0]}
+                  alt={product.data?.name}
+                  style={{
+                    height: "200px",
+                    borderRadius: "8px",
+                    width: "100%",
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Additional Images
+                </span>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "6px",
+                  }}
+                >
+                  <img
+                    src={product.data?.images[1]}
+                    style={{
+                      borderRadius: "8px",
+                      height: "110px",
+                      width: "50%",
+                    }}
+                    alt={product.data?.name}
+                  />
 
-                gap: "6px",
-              }}
-            >
-              <img
-                src={product?.data?.images[1]}
-                style={{ borderRadius: "8px", height: "110px", width: "50%" }}
-                alt={product.data?.name}
-              />
-              <img
-                src={product?.data?.images[2]}
-                style={{ borderRadius: "8px", height: "110px", width: "50%" }}
-                alt={product.data?.name}
-              />
-            </div>
+                  <img
+                    src={product.data?.images[2]}
+                    style={{
+                      borderRadius: "8px",
+                      height: "110px",
+                      width: "50%",
+                    }}
+                    alt={product.data?.name}
+                  />
+                </div>
+              </>
+            )}
           </Container>
+      
+
+
+
         </div>
       </SpaceBetween>
     </Box>
