@@ -395,7 +395,7 @@ const ProductDetail = () => {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  height: "200px",
+                  height: "320px",
                   width:"200px"
                 }}
               >
