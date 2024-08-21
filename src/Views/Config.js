@@ -8,6 +8,9 @@ const Config = {
   FINISH_PRODUCT_DETAILS: `${BASE_URL}/users`,
   FETCH_ORDERS: `${BASE_URL}/order`,
   ORDERS_DETAILS:`${BASE_URL}/order/{id}`,
+  UPDATE_ORDER_STATUS:`${BASE_URL}/order/proceed?ids=`,
+  ASSIGN_DELIVERY_BOY: `${BASE_URL}/order/proceed?ids=`, // Will append `&assignee={assignee}` dynamically
+
   ORDERS_STATUS:`${BASE_URL}/order/stats`,
   ORDERS_VIEWATTACHMENTS:`${BASE_URL}/users`,
    FETCH_BATCH_SHEET:`${BASE_URL}/users`,

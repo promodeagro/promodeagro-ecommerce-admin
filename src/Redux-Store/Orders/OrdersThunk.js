@@ -1,20 +1,22 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import config from "Views/Config";
 import { postLoginService } from "Services";
+
 export const fetchOrders = createAsyncThunk(
-  "orders",
-  async (params) => {
+  "orders/fetch",
+  async () => {
     try {
-      let url = config.FETCH_ORDERS;
-      const response = await postLoginService.get(url, params);
-      console.log('All orders:', response); 
-      return response.data;
+      const url = config.FETCH_ORDERS;
+      const response = await postLoginService.get(url);
+      console.log('All orders:', response);
+      return response.data; 
     } catch (error) {
-      console.error('API error:', error); 
+      console.error('API error:', error);
       return Promise.reject(error);
     }
   }
 );
+
 
 export const ordersDetails = createAsyncThunk(
   "orders/details",
@@ -23,7 +25,7 @@ export const ordersDetails = createAsyncThunk(
       if (!id) {
         throw new Error("Order ID is required");
       }
-      const url = `${config.ORDERS_DETAILS.replace("{id}", id)}`; // Replace placeholder with actual ID
+      const url = `${config.ORDERS_DETAILS.replace("{id}", id)}`; 
       const response = await postLoginService.get(url);
       console.log('Order detail:', response);
       return response.data;
@@ -49,4 +51,79 @@ export const fetchOrderStatus = createAsyncThunk(
   }
 );
 
-  
+export const updateOrderStatus = createAsyncThunk(
+  "orders/updateStatus",
+  async (payload, { dispatch, getState }) => {
+    const { ids, status } = payload;
+    const requestUrl = `${config.UPDATE_ORDER_STATUS}${ids.join(',')}`;
+    console.log('Request URL:', requestUrl); 
+
+    try {
+      const response = await fetch(requestUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      console.log('Response Status:', response);
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('API Response:', result);    
+
+      await dispatch(fetchOrders());
+
+      window.location.reload();
+
+      return result;
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      throw error;
+    }
+  }
+);
+
+export const assignDeliveryBoyAndMoveToOnTheWay = createAsyncThunk(
+  "orders/assignDeliveryBoy",
+  async (payload, { dispatch }) => {
+    const { orderIds, assignee, status } = payload; 
+    const requestUrl = `${config.ASSIGN_DELIVERY_BOY}${orderIds.join(',')}&assignee=${encodeURIComponent(assignee)}`;
+
+    // Include the assignee and status in the request body as well
+    const requestBody = JSON.stringify({ assignee, status });
+
+    console.log('Request URL:', requestUrl);
+    console.log('Request Body:', requestBody);
+
+    try {
+      const response = await fetch(requestUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: requestBody, 
+      });
+
+      console.log('Response Status:', response);
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('API Response:', result);
+
+      await dispatch(fetchOrders());
+
+      return result;
+    } catch (error) {
+      console.error('Error assigning delivery boy:', error);
+      throw error;
+    }
+  }
+);

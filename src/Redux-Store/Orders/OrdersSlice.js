@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchOrders, ordersDetails, fetchOrderStatus } from "Redux-Store/Orders/OrdersThunk";
+import { fetchOrders, ordersDetails, fetchOrderStatus, updateOrderStatus, assignDeliveryBoyAndMoveToOnTheWay } from "Redux-Store/Orders/OrdersThunk";
 import status from "Redux-Store/Constants";
 
 const OrderSlice = createSlice({
@@ -12,6 +12,12 @@ const OrderSlice = createSlice({
       status: null,
     },
     order_status: {
+      status: null,
+    },
+    updateOrderStatus: {
+      status: null,
+    },
+    assignDeliveryBoyAndMoveToOnTheWay: {
       status: null,
     },
   },
@@ -79,6 +85,30 @@ const OrderSlice = createSlice({
       })
       .addCase(fetchOrderStatus.rejected.toString(), (state) => {
         state.order_status.status = status.FAILURE;
+      })
+      .addCase(updateOrderStatus.pending.toString(), (state) => {
+        state.updateOrderStatus.status = status.IN_PROGRESS;
+      })
+      .addCase(updateOrderStatus.fulfilled.toString(), (state, { payload }) => {
+        state.updateOrderStatus = {
+          status: status.SUCCESS,
+          data: payload,
+        };
+      })
+      .addCase(updateOrderStatus.rejected.toString(), (state) => {
+        state.updateOrderStatus.status = status.FAILURE;
+      })
+      .addCase(assignDeliveryBoyAndMoveToOnTheWay.pending.toString(), (state) => {
+        state.assignDeliveryBoyAndMoveToOnTheWay.status = status.IN_PROGRESS;
+      })
+      .addCase(assignDeliveryBoyAndMoveToOnTheWay.fulfilled.toString(), (state, { payload }) => {
+        state.assignDeliveryBoyAndMoveToOnTheWay = {
+          status: status.SUCCESS,
+          data: payload,
+        };
+      })
+      .addCase(assignDeliveryBoyAndMoveToOnTheWay.rejected.toString(), (state) => {
+        state.assignDeliveryBoyAndMoveToOnTheWay.status = status.FAILURE;
       });
   },
 });

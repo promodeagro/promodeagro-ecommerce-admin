@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders, fetchOrderStatus } from "Redux-Store/Orders/OrdersThunk";
+import { fetchOrders, fetchOrderStatus, updateOrderStatus, assignDeliveryBoyAndMoveToOnTheWay } from "Redux-Store/Orders/OrdersThunk";
 import {
   Table,
   Pagination,
@@ -17,39 +17,49 @@ import {
   Select,
 } from "@cloudscape-design/components";
 import { Link } from "react-router-dom";
+import Modal from "@cloudscape-design/components/modal";
+
 
 const Orders = () => {
   const dispatch = useDispatch();
+  
   const ordersData = useSelector((state) => state.orders.ordersData);
   const orderStatus = useSelector((state) => state.orders.order_status);
 
-  const { data = [] } = ordersData;
+  // Ensure ordersData is correctly structured
+  const data = ordersData?.data || {};
+  const items = data.items || [];
+
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 10;
   const [activeButton, setActiveButton] = useState("All");
   const [filteringText, setFilteringText] = useState("");
+  const [selectedAssignee, setSelectedAssignee] = useState(null);
+  const [isAssignOrdersModalVisible, setIsAssignOrdersModalVisible] = useState(false);
+  const [isMoveToPackedModalVisible, setIsMoveToPackedModalVisible] = useState(false);
+  const [orderId, setOrderId] = useState(null); 
+  const [deliveryBoyId, setDeliveryBoyId] = useState(null);
+  const [isMoveToDeliveredModalVisible, setIsMoveToDeliveredModalVisible] = useState(false);
 
   useEffect(() => {
     dispatch(fetchOrders());
     dispatch(fetchOrderStatus());
   }, [dispatch]);
 
-  const filteredOrders = data.items
-    ? data.items.filter((item) => {
-        const matchesStatus =
-          activeButton === "All" ||
-          (activeButton === "Confirmed" &&
-            item.orderStatus === "order placed") ||
-          item.orderStatus === activeButton;
-        const matchesSearch = item.id
-          .toLowerCase()
-          .includes(filteringText.toLowerCase());
-        return matchesStatus && matchesSearch;
-      })
-    : [];
+  const filteredOrders = (data && data.items)
+  ? data.items.filter((item) => {
+      const matchesStatus =
+        activeButton === "All" ||
+        (activeButton === "Confirmed" && item.orderStatus === "order placed") ||
+        item.orderStatus === activeButton;
+      const matchesSearch = item.id
+        .toLowerCase()
+        .includes(filteringText.toLowerCase());
+      return matchesStatus && matchesSearch;
+    })
+  : [];
 
-  // const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
 
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
@@ -64,21 +74,143 @@ const Orders = () => {
 
   const handleSelectChange = ({ detail }) => {
     setActiveButton(detail.selectedOption.value);
-    setSelectedItems([]);  // Reset selected items when changing filters
+    setSelectedItems([]);  
     setCurrentPage(1);
   };
-  
+
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
   };
 
   const selectOptions = [
-    { label: "All", value: "All" }, //value is from the api
+    { label: "All", value: "All" }, 
     { label: "Order Confirmed", value: "order placed" },
-    { label: "Packed", value: "PLACED" },
+    { label: "Packed", value: "packed" },
     { label: "On the Way", value: "on the way" },
     { label: "Delivered", value: "delivered" },
   ];
+
+
+  const handleMoveToPackedClick = () => {
+    setIsMoveToPackedModalVisible(true);
+  };
+
+  const handleMoveToPackedModalCancel = () => {
+    setIsMoveToPackedModalVisible(false);
+  };
+  const handleAssignAndMove = () => {
+    if (orderId && deliveryBoyId) {
+      assignDeliveryBoyAndMoveToOnTheWay(orderId, deliveryBoyId);
+    } else {
+      console.error('Order ID or Delivery Boy ID is not defined.');
+    }
+  };
+
+
+  const handleMoveToPackedModalConfirm = async () => {
+    try {
+      if (!Array.isArray(selectedItems) || selectedItems.length === 0) {
+        throw new Error('No items selected or invalid selection.');
+      }
+
+      const orderIds = selectedItems.map(item => item.id); 
+      const result = await dispatch(updateOrderStatus({ ids: orderIds, status: 'packed' })).unwrap();
+
+      // Check if the success message is received
+      if (result.message === 'success') {
+        console.log('Order status updated successfully:', result);
+
+        // Refetch orders to update the UI
+        await dispatch(fetchOrders());
+      } else {
+        throw new Error('Failed to update order status');
+      }
+
+      setIsMoveToPackedModalVisible(false);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      // Optionally display an error message to the user
+    }
+  };
+
+  const handleAssignOrdersModalConfirm = async () => {
+    try {
+      if (!Array.isArray(selectedItems) || selectedItems.length === 0) {
+        throw new Error('No items selected or invalid selection.');
+      }
+
+      const orderIds = selectedItems.map(item => item.id); // Extract IDs
+      const assignee = selectedAssignee.value; // Extract selected assignee's value
+
+      if (!Array.isArray(orderIds) || orderIds.length === 0) {
+        throw new Error('Invalid order IDs.');
+      }
+
+      const result = await dispatch(assignDeliveryBoyAndMoveToOnTheWay({ orderIds, assignee, status: 'on the way'  })).unwrap();
+
+      if (result.message === 'success') {
+        console.log('Orders assigned and status updated successfully:', result);
+        await dispatch(fetchOrders());
+      } else {
+        throw new Error('Failed to assign delivery boy and update order status');
+      }
+
+      setIsAssignOrdersModalVisible(false);
+    } catch (error) {
+      console.error('Error assigning delivery boy and updating order status:', error);
+    }
+  };
+
+  const handleSelectAssigneeChange = ({ detail }) => {
+    setSelectedAssignee(detail.selectedOption);
+  };
+  const handleAssignOrdersModalCancel = () => {
+    setIsAssignOrdersModalVisible(false);
+  };
+  const handleAssignOrdersClick = () => {
+    setIsAssignOrdersModalVisible(true);
+  };
+
+  
+  const randomNames = [
+    { label: "sohail", value: "sohail" },
+    { label: "Jane Smith", value: "jane_smith" },
+    { label: "Alice Johnson", value: "alice_johnson" },
+  ];
+
+  
+  const handleMoveToDeliveredClick = () => {
+    setIsMoveToDeliveredModalVisible(true);
+  };
+  
+  const handleMoveToDeliveredModalCancel = () => {
+    setIsMoveToDeliveredModalVisible(false);
+  };
+  
+  const handleMoveToDeliveredModalConfirm = async () => {
+    try {
+      if (!Array.isArray(selectedItems) || selectedItems.length === 0) {
+        throw new Error('No items selected or invalid selection.');
+      }
+  
+      const orderIds = selectedItems.map(item => item.id); 
+  
+      // Call the thunk or function to move orders to "Delivered" status
+      const result = await dispatch(updateOrderStatus({ ids: orderIds, status: 'delivered' })).unwrap();
+  
+      if (result.message === 'success') {
+        console.log('Order status updated to delivered successfully:', result);
+        await dispatch(fetchOrders());
+      } else {
+        throw new Error('Failed to update order status');
+      }
+  
+      setIsMoveToDeliveredModalVisible(false);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  };
+  
 
   return (
     <ContentLayout
@@ -95,12 +227,12 @@ const Orders = () => {
       header={
         <Header
           variant="h1"
-          actions={
-            <SpaceBetween direction="horizontal" size="xs">
-              <Button>Export</Button>
-              <Button iconName="calendar">Today</Button>
-            </SpaceBetween>
-          }
+          // actions={
+          //   <SpaceBetween direction="horizontal" size="xs">
+          //     <Button>Export</Button>
+          //     <Button iconName="calendar">Today</Button>
+          //   </SpaceBetween>
+          // }
         >
           Orders
         </Header>
@@ -220,35 +352,35 @@ const Orders = () => {
     />
   </div>
   <div style={{ display: "flex", gap: "0.5rem", justifyContent:'flex-end' }}>
-    {/* Conditionally render the Move to Packed button */}
     {activeButton === "order placed" && (
-      <Button 
-        disabled={selectedItems.length === 0}
-        onClick={() => {/* Your logic to move to packed */}}
-      >
-        Move to Packed
-      </Button>
+     <Button
+     disabled={selectedItems.length === 0}
+     onClick={handleMoveToPackedClick}
+   >
+     Move to Packed
+   </Button>
     )}
     
     {/* Conditionally render the Assign Orders button */}
-    {activeButton === "PLACED" && (
-      <Button 
-        disabled={selectedItems.length === 0}
-        onClick={() => {/* Your logic to assign orders */}}
-      >
-        Assign Orders
-      </Button>
-    )}
+    {activeButton === "packed" && (
+                  <Button
+                  disabled={selectedItems.length === 0}
+                  onClick={handleAssignOrdersClick}
+                >
+                  Assign Orders
+                </Button>
+  )}
 
     {/* Conditionally render the Move to Delivery button */}
     {activeButton === "on the way" && (
-      <Button 
-        disabled={selectedItems.length === 0}
-        onClick={() => {/* Your logic to move to delivery */}}
-      >
-        Move to Delivered
-      </Button>
-    )}
+  <Button 
+    disabled={selectedItems.length === 0}
+    onClick={handleMoveToDeliveredClick}
+  >
+    Move to Delivered
+  </Button>
+)}
+
 
     <Pagination
       currentPageIndex={currentPage - 1}
@@ -261,6 +393,61 @@ const Orders = () => {
   </div>
 </Grid>
           </Box>
+
+            {/* Modal definition */}
+            <Modal
+            onDismiss={handleMoveToPackedModalCancel}
+            visible={isMoveToPackedModalVisible}
+            footer={
+              <Box float="right">
+                <SpaceBetween direction="horizontal" size="xs">
+                  <Button variant="link" onClick={handleMoveToPackedModalCancel}>Cancel</Button>
+                  <Button variant="primary" onClick={handleMoveToPackedModalConfirm}>Confirm</Button>
+                </SpaceBetween>
+              </Box>
+            }
+            header="Move to Packed Orders"
+          >
+            Are you sure you want to move the selected orders to the 'Packed Orders' stage?
+          </Modal>
+
+          {/* Assign Orders Modal */}
+          <Modal
+            onDismiss={handleAssignOrdersModalCancel}
+            visible={isAssignOrdersModalVisible}
+            footer={
+              <Box float="right">
+                <SpaceBetween direction="horizontal" size="xs">
+                  <Button variant="link" onClick={handleAssignOrdersModalCancel}>Cancel</Button>
+                  <Button variant="primary" onClick={handleAssignOrdersModalConfirm}>Confirm</Button>
+                </SpaceBetween>
+              </Box>
+            }
+            header="Assign Orders"
+          >
+            <Select
+              options={randomNames}
+              selectedOption={selectedAssignee}
+              onChange={handleSelectAssigneeChange}
+              placeholder="Select an assignee"
+            />
+          </Modal>
+          <Modal
+  onDismiss={handleMoveToDeliveredModalCancel}
+  visible={isMoveToDeliveredModalVisible}
+  footer={
+    <Box float="right">
+      <SpaceBetween direction="horizontal" size="xs">
+        <Button variant="link" onClick={handleMoveToDeliveredModalCancel}>Cancel</Button>
+        <Button variant="primary" onClick={handleMoveToDeliveredModalConfirm}>Confirm</Button>
+      </SpaceBetween>
+    </Box>
+  }
+  header="Move to Delivered"
+>
+  Are you sure you want to move the selected orders to the Delivered Orders stage?
+</Modal>
+
           <Table
             renderAriaLive={({ firstIndex, lastIndex, totalItemsCount }) =>
               `Displaying items ${

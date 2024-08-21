@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ordersDetails, fetchOrders } from "Redux-Store/Orders/OrdersThunk";
 import Header from "@cloudscape-design/components/header";
 import SpaceBetween from "@cloudscape-design/components/space-between";
-import Button from "@cloudscape-design/components/button";
 import BreadcrumbGroup from "@cloudscape-design/components/breadcrumb-group";
 import {
   Container,
@@ -14,30 +13,31 @@ import {
   ColumnLayout,
   Table,
 } from "@cloudscape-design/components";
+import ButtonDropdown from "@cloudscape-design/components/button-dropdown";
+import Button from "@cloudscape-design/components/button";
+import Modal from "@cloudscape-design/components/modal";
+import { useLocation } from "react-router-dom";
+
 
 const OrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const allOrders = useSelector((state) => state.orders.ordersData.data?.items || []);
-const orderDetail = useSelector((state) => state.orders.order_details.data || {});
+  const orderDetail = useSelector(
+    (state) => state.orders.order_details.data || {}
+  );
 
   useEffect(() => {
     if (id) {
-      // Refetch the order details
       dispatch(ordersDetails(id));
-    } else {
-      console.error("No order ID provided");
     }
-    // Refetch all orders
-    dispatch(fetchOrders());
-  }, [id, dispatch]);
+  }, [id]);
   
 
   const events = [
-    { step: "Step 1", title: "Order Confirmed", status: "Order placed" },
-    { step: "Step 2", title: "Packed", status: "PLACED" },
+    { step: "Step 1", title: "Order Confirmed", status: "order placed" },
+    { step: "Step 2", title: "Packed", status: "Packed" },
     { step: "Step 3", title: "On the Way", status: "Out for Delivery" },
     { step: "Step 4", title: "Delivered", status: "delivered" },
   ];
@@ -101,19 +101,57 @@ const orderDetail = useSelector((state) => state.orders.order_details.data || {}
   const items = orderDetail?.items || [];
   const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
 
-  const currentIndex = allOrders.findIndex((order) => order.id === id);
+  const [orderIds, setOrderIds] = useState([]);
+  const [currentOrderId, setCurrentOrderId] = useState(id);
+  const location = useLocation();
 
-  const handleNextOrder = () => {
-    const nextIndex = (currentIndex + 1) % allOrders.length;
-    const nextOrderId = allOrders[nextIndex].id;
-    navigate(`/app/order/orderdetail/${nextOrderId}`);
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
+  
+  useEffect(() => {
+    if (allOrders.length > 0) {
+      const ids = allOrders.map((order) => order.id);
+      setOrderIds(ids);
+    }
+  }, [allOrders, location.pathname]);
+  
+  
+  
+
+  const goToNextOrder = () => {
+    const currentIndex = orderIds.indexOf(currentOrderId); 
+    if (currentIndex < orderIds.length - 1) {
+      const nextId = orderIds[currentIndex + 1];
+      setCurrentOrderId(nextId);
+  
+      navigate(`/app/order/orderdetail/${nextId}`);
+    }
+  };
+  
+  const goToPreviousOrder = () => {
+    const currentIndex = orderIds.indexOf(currentOrderId); // use currentOrderId instead of setCurrentOrderId
+    if (currentIndex > 0) {
+      const prevId = orderIds[currentIndex - 1];
+      setCurrentOrderId(prevId);
+      navigate(`/app/order/orderdetail/${prevId}`);
+    }
+  };
+  
+ 
+
+  const handleItemClick = (event) => {
+    if (event.detail.id === "refund") {
+      navigate("/app/order/orderdetail/refund");
+    }
   };
 
-  const handlePreviousOrder = () => {
-    const prevIndex = (currentIndex - 1 + allOrders.length) % allOrders.length;
-    const prevOrderId = allOrders[prevIndex].id;
-    navigate(`/app/order/orderdetail/${prevOrderId}`);
-  };
+  const [visible, setVisible] = React.useState(false);
+  const openModal = () => setVisible(true);
+  
+  const isAtFirstProduct = orderIds.indexOf(currentOrderId) === 0;
+  const isAtLastProduct = orderIds.indexOf(currentOrderId) ===
+  orderIds.length - 1;
 
   return (
     <div>
@@ -127,87 +165,110 @@ const orderDetail = useSelector((state) => state.orders.order_details.data || {}
           ariaLabel="Breadcrumbs"
         />
         <Header
-          actions={
+  actions={
+    <SpaceBetween direction="horizontal" size="xs">
+      <Button onClick={openModal} iconName="angle-right-double" iconAlign="right">
+        Move to Packed
+      </Button>
+      <Modal
+        onDismiss={() => setVisible(false)}
+        visible={visible}
+        footer={
+          <Box float="right">
             <SpaceBetween direction="horizontal" size="xs">
-              <Button
-                iconName="external"
-                onClick={() => navigate("/app/order/orderdetail/refund")}
-              >
-                Refund
+              <Button variant="link" onClick={() => setVisible(false)}>
+                Cancel
               </Button>
-              <Button iconAlign="right" iconName="angle-down">
-                Actions
+              <Button variant="primary" onClick={() => setVisible(false)}>
+                Confirm
               </Button>
-              <button
-                style={{
-                  cursor: currentIndex === 0 ? "not-allowed" : "pointer",
-                  borderRadius: "1rem",
-                  width: "46px",
-                  height: "30px",
-                  backgroundColor: "black",
-                  color: "white",
-                }}
-                onClick={handlePreviousOrder}
-                disabled={currentIndex === 0} 
-              >
-                <Icon name="angle-left" />
-              </button>
-              <button
-                style={{
-                  cursor:
-                    currentIndex === allOrders.length - 1
-                      ? "not-allowed"
-                      : "pointer",
-                  borderRadius: "1rem",
-                  width: "46px",
-                  height: "30px",
-                  backgroundColor: "black",
-                  color: "white",
-                }}
-                onClick={handleNextOrder}
-                disabled={currentIndex === allOrders.length - 1} 
-              >
-                <Icon name="angle-right" />
-              </button>
             </SpaceBetween>
-          }
+          </Box>
+        }
+        header="Move to Packed Stage"
+      >
+        Are you sure you want to move this order to the 'Packed Orders' stage?
+      </Modal>
+      <ButtonDropdown
+        items={[
+          { text: "Cancel Order", id: "cancel", href: "/cancel-order" },
+          { text: "Refund Order", id: "refund" },
+          { text: "View Invoice", id: "invoice", href: "/view-invoice" },
+        ]}
+        onItemClick={handleItemClick}
+      >
+        Actions
+      </ButtonDropdown>
+      <button
+        style={{
+          cursor: isAtFirstProduct ? "not-allowed" : "pointer",
+          borderRadius: "1rem",
+          width: "46px",
+          height: "30px",
+          backgroundColor: "black",
+          color: "white",
+        }}
+        onClick={goToPreviousOrder}
+        disabled={isAtFirstProduct}
         >
-          <SpaceBetween direction="horizontal" size="xs">
-            <Header variant="h1">#{id}</Header>
+        <Icon name="angle-left" />
+      </button>
+      <button
+        style={{
+          cursor: isAtLastProduct ? "not-allowed" : "pointer",
+          borderRadius: "1rem",
+          width: "46px",
+          height: "30px",
+          backgroundColor: "black",
+          color: "white",
+        }}
+        onClick={goToNextOrder}
+        disabled={isAtLastProduct}
+        >
+        <Icon name="angle-right" />
+      </button>
+    </SpaceBetween>
+  }
+>
+  <SpaceBetween direction="horizontal" size="xs">
+    <Header variant="h1">#{id}</Header>
+    <div
+      style={{
+        display: "inline-block",
+        backgroundColor: "#414D5C",
+        padding: "0 0.5rem",
+        borderRadius: "4px",
+        textAlign: "center",
+        fontSize: "12px",
+        fontWeight: "bold",
+        color: "white",
+      }}
+    >
+      {orderDetail?.status || "N/A"}
+    </div>
+    <div
+      style={{
+        display: "inline-block",
+        backgroundColor: "red",
+        padding: "0 0.5rem",
+        borderRadius: "4px",
+        textAlign: "center",
+        fontSize: "12px",
+        fontWeight: "bold",
+        color: "white",
+      }}
+    >
+      {orderDetail?.paymentDetails?.paymentStatus || "N/A"}
+    </div>
+  </SpaceBetween>
+</Header>
 
-            <div
-              style={{
-                display: "inline-block",
-                backgroundColor: "#414D5C",
-                padding: "0 0.5rem",
-                borderRadius: "4px",
-                textAlign: "center",
-                fontSize: "12px",
-                fontWeight: "bold",
-                color: "white",
-              }}
-            >
-              {orderDetail?.status || "N/A"}
-            </div>
-            <div
-              style={{
-                display: "inline-block",
-                backgroundColor: "red",
-                padding: "0 0.5rem",
-                borderRadius: "4px",
-                textAlign: "center",
-                fontSize: "12px",
-                fontWeight: "bold",
-                color: "white",
-              }}
-            >
-              {orderDetail?.paymentDetails?.paymentStatus || "N/A"}
-            </div>
-          </SpaceBetween>
-        </Header>
 
         <Grid gridDefinition={[{ colspan: 3 }, { colspan: 9 }]}>
-          <Container>
+          <Container
+          variant="borderless"
+                        className="container-box-shadow"
+>
             <Box padding={{ top: 0, bottom: 0 }}>
               <div style={timelineContainerStyle}>
                 {events.map((event, index) => (
@@ -238,7 +299,10 @@ const orderDetail = useSelector((state) => state.orders.order_details.data || {}
             </Box>
           </Container>
 
-          <Container>
+          <Container
+          variant="borderless"
+          className="container-box-shadow"
+          >
             <SpaceBetween size="m">
               <SpaceBetween size="m" direction="horizontal">
                 <Header variant="h2">Order Overview</Header>
@@ -307,7 +371,8 @@ const orderDetail = useSelector((state) => state.orders.order_details.data || {}
           </Container>
         </Grid>
 
-        <Container header={<Header variant="h2">Items</Header>}>
+        <Container header={<Header variant="h2">Items</Header>} variant="borderless"
+                        className="container-box-shadow">
           <SpaceBetween size="s">
             <Table
               columnDefinitions={columnDefinitions}
