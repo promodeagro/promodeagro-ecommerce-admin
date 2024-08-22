@@ -404,8 +404,8 @@ const ProductDetail = () => {
             ) : (
               <>
                 <img
-                  src={product.data?.images[0]}
-                  alt={product.data?.name}
+                  src={product?.data?.images[0]}
+                  alt={product?.data?.name}
                   style={{
                     height: "200px",
                     borderRadius: "8px",

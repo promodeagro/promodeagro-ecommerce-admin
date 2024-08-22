@@ -35,20 +35,18 @@ const Products = () => {
   const [activeButton, setActiveButton] = useState("All");
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 20;
+  const productsPerPage = 25;
   const [filteringText, setFilteringText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-
   const [editedProducts, setEditedProducts] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
   const [isBulkModifySuccess, setBulkModifySuccess] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-  const [priceError, setPriceError] = useState("");
-  const [compareAtError, setCompareAtError] = useState("");
+  //fetching products data
   useEffect(() => {
     dispatch(fetchProducts());
     setCurrentPage(1);
-    // setCurrentPage(1);
+ 
   }, [dispatch]);
 
   const handleInputChange = (id, field, value) => {
@@ -59,17 +57,18 @@ const Products = () => {
         [field]: value,
       },
     }));
-  
+
     // Validate the current field and update errors
     const osp = value; // Updated price value
-    const cp = field === "compareAt" ? value : editedProducts[id]?.compareAt ?? "";
-  
+    const cp =
+      field === "compareAt" ? value : editedProducts[id]?.compareAt ?? "";
+
     let errors = {};
-  
+
     if (field === "onlineStorePrice" && !osp) {
       errors.onlineStorePrice = "Required!";
     }
-  
+
     if (field === "compareAt") {
       if (!cp) {
         errors.compareAt = "Required!";
@@ -77,25 +76,13 @@ const Products = () => {
         errors.compareAt = "CP must be greater than OSP";
       }
     }
-  
+
     setValidationErrors((prevErrors) => ({
       ...prevErrors,
       [id]: errors,
     }));
   };
-  
-
-
-  const getStockAlertStyle = (stockQuantity) => {
-    if (stockQuantity === 0) {
-      return { color: "gray", textAlign: "center" };
-    } else if (stockQuantity > 5) {
-      return { color: "#0972D3", textAlign: "center" };
-    } else {
-      return { color: "red", textAlign: "center" };
-    }
-  };
-
+// hitting put api for toggle 
   const handleToggleChange = (item) => {
     const newStatus = !item.active;
 
@@ -114,19 +101,25 @@ const Products = () => {
   const validateInputs = () => {
     let valid = true;
     const errors = {};
-  
+
     selectedItems.forEach((item) => {
       const editedProduct = editedProducts[item.id] || {};
-      const osp = editedProduct.onlineStorePrice !== undefined ? editedProduct.onlineStorePrice : item.onlineStorePrice;
-      const cp = editedProduct.compareAt !== undefined ? editedProduct.compareAt : item.compareAt;
-  
+      const osp =
+        editedProduct.onlineStorePrice !== undefined
+          ? editedProduct.onlineStorePrice
+          : item.onlineStorePrice;
+      const cp =
+        editedProduct.compareAt !== undefined
+          ? editedProduct.compareAt
+          : item.compareAt;
+
       let itemErrors = {};
-  
+
       if (editedProduct.onlineStorePrice !== undefined && osp === "") {
         valid = false;
         itemErrors.onlineStorePrice = "Required!";
       }
-  
+
       if (editedProduct.compareAt !== undefined && cp === "") {
         valid = false;
         itemErrors.compareAt = "Required!";
@@ -134,17 +127,15 @@ const Products = () => {
         valid = false;
         itemErrors.compareAt = "CP must be greater than OSP";
       }
-  
+
       if (Object.keys(itemErrors).length > 0) {
         errors[item.id] = itemErrors;
       }
     });
-  
+
     setValidationErrors(errors);
     return valid;
   };
-  
-
 
   const filteredProducts = data
     ? data.filter((item) => {
@@ -288,15 +279,15 @@ const Products = () => {
           <Table
             header={
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", gap: "1rem" }}>
-                  <div style={{ width: "390px" }}>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <div style={{ width: "360px" }}>
                     <TextFilter
                       filteringPlaceholder="Search"
                       filteringText={filteringText}
                       onChange={handleSearchChange}
                     />
                   </div>
-                  <div style={{ width: "140px" }}>
+                  <div style={{ width: "120px" }}>
                     <Select
                       options={selectOptions}
                       selectedOption={selectOptions.find(
@@ -307,12 +298,12 @@ const Products = () => {
                     />
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: "1rem" }}>
-                  {isBulkModifySuccess ? (
+                <div style={{ display: "flex", gap: "5px" }}>
+                  {isBulkModifySuccess && (
                     <Button variant="normal" onClick={navigatetogoogle}>
-                      View Product Page
+                      View On Store
                     </Button>
-                  ) : (
+                  )}
                     <Button
                       disabled={selectedItems.length === 0}
                       variant="normal"
@@ -320,7 +311,7 @@ const Products = () => {
                     >
                       Bulk Modify Price
                     </Button>
-                  )}
+                  
                   <Pagination
                     currentPageIndex={currentPage} // Set this to reflect the `currentPage` state
                     onChange={({ detail }) =>
@@ -368,20 +359,18 @@ const Products = () => {
                 id: "stock",
                 header: "On Hand Quantity",
                 cell: (item) => (
-                  <Box textAlign="center">{item?.stockQuantity}/{item?.units}</Box>
+                  <Box textAlign="center">
+                    {item?.stockQuantity}/{item?.units}
+                  </Box>
                 ),
               },
               {
                 id: "alert",
                 header: "Stock Alert",
                 cell: (item) => (
-                  <div style={getStockAlertStyle(item?.stockQuantity)}>
-                    {item?.stockQuantity === 0
-                      ? "Not Available"
-                      : item?.stockQuantity > 5
-                      ? "Available"
-                      : "Low Stock"}
-                  </div>
+                  <p style={{color: "#0972D3", textAlign: "center"}}>
+                  Active
+                  </p>
                 ),
               },
 
@@ -390,20 +379,31 @@ const Products = () => {
                 header: "Online Price",
                 cell: (item) => (
                   <div style={{ width: "80px" }}>
-                  <FormField
-  errorText={
-    validationErrors[item.id]?.onlineStorePrice
-  }
->
-  <Input
-    disabled={!selectedItems.some((selectedItem) => selectedItem.id === item.id)}
-    placeholder="Enter Price"
-    type="number"
-    value={editedProducts[item.id]?.onlineStorePrice ?? item.onlineStorePrice}
-    onChange={(e) => handleInputChange(item.id, "onlineStorePrice", e.detail.value)}
-    ariaLabel="online store price"
-  />
-</FormField>
+                    <FormField
+                      errorText={validationErrors[item.id]?.onlineStorePrice}
+                    >
+                      <Input
+                        disabled={
+                          !selectedItems.some(
+                            (selectedItem) => selectedItem.id === item.id
+                          )
+                        }
+                        placeholder="Enter Price"
+                        type="number"
+                        value={
+                          editedProducts[item.id]?.onlineStorePrice ??
+                          item.onlineStorePrice
+                        }
+                        onChange={(e) =>
+                          handleInputChange(
+                            item.id,
+                            "onlineStorePrice",
+                            e.detail.value
+                          )
+                        }
+                        ariaLabel="online store price"
+                      />
+                    </FormField>
                   </div>
                 ),
               },
@@ -412,32 +412,28 @@ const Products = () => {
                 header: "Compare Price",
                 cell: (item) => (
                   <div style={{ width: "80px" }}>
-<FormField
-  errorText={
-    validationErrors[item.id]?.compareAt
-  }
->
-  <Input
-    placeholder="Enter Price"
-    type="number"
-    value={editedProducts[item.id]?.compareAt ?? item.compareAt}
-    onChange={(e) => handleInputChange(item.id, "compareAt", e.detail.value)}
-    ariaLabel="compare at price"
-    disabled={!selectedItems.some((selectedItem) => selectedItem.id === item.id)}
-  />
-</FormField>
-
-
-
-
-
-
-
-
-
-
-                
-                 
+                    <FormField errorText={validationErrors[item.id]?.compareAt}>
+                      <Input
+                        placeholder="Enter Price"
+                        type="number"
+                        value={
+                          editedProducts[item.id]?.compareAt ?? item.compareAt
+                        }
+                        onChange={(e) =>
+                          handleInputChange(
+                            item.id,
+                            "compareAt",
+                            e.detail.value
+                          )
+                        }
+                        ariaLabel="compare at price"
+                        disabled={
+                          !selectedItems.some(
+                            (selectedItem) => selectedItem.id === item.id
+                          )
+                        }
+                      />
+                    </FormField>
                   </div>
                 ),
               },
@@ -465,6 +461,7 @@ const Products = () => {
       </SpaceBetween>
 
       <Modal
+     
         visible={isModalVisible}
         onDismiss={() => setModalVisible(false)}
         header="Confirm Bulk Modify"
