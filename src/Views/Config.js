@@ -10,6 +10,8 @@ const Config = {
   ORDERS_DETAILS:`${BASE_URL}/order/{id}`,
   UPDATE_ORDER_STATUS:`${BASE_URL}/order/proceed?ids=`,
   ASSIGN_DELIVERY_BOY: `${BASE_URL}/order/proceed?ids=`, // Will append `&assignee={assignee}` dynamically
+  UPDATE_SINGLE_ORDER_STATUS:`${BASE_URL}/order/proceed?ids=`,
+  ASSIGN_DELIVERY_BOY_SINGLEORDER: `${BASE_URL}/order/proceed?ids=`, // Will append `&assignee={assignee}` dynamically
 
   ORDERS_STATUS:`${BASE_URL}/order/stats`,
   ORDERS_VIEWATTACHMENTS:`${BASE_URL}/users`,

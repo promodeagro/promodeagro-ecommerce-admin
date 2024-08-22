@@ -1,7 +1,7 @@
 import React, { useEffect, useState} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { ordersDetails, fetchOrders } from "Redux-Store/Orders/OrdersThunk";
+import { ordersDetails, fetchOrders, updateSingleOrderStatus, assignDeliveryBoyAndMoveToOnTheWayforsingleorder } from "Redux-Store/Orders/OrdersThunk";
 import Header from "@cloudscape-design/components/header";
 import SpaceBetween from "@cloudscape-design/components/space-between";
 import BreadcrumbGroup from "@cloudscape-design/components/breadcrumb-group";
@@ -12,11 +12,13 @@ import {
   Grid,
   ColumnLayout,
   Table,
+  Select
 } from "@cloudscape-design/components";
 import ButtonDropdown from "@cloudscape-design/components/button-dropdown";
 import Button from "@cloudscape-design/components/button";
 import Modal from "@cloudscape-design/components/modal";
 import { useLocation } from "react-router-dom";
+import Flashbar from "@cloudscape-design/components/flashbar";
 
 
 const OrderDetail = () => {
@@ -24,9 +26,11 @@ const OrderDetail = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const allOrders = useSelector((state) => state.orders.ordersData.data?.items || []);
-  const orderDetail = useSelector(
-    (state) => state.orders.order_details.data || {}
-  );
+  const orderDetail = useSelector((state) => state.orders.order_details.data || {});
+  const [isMoveToPackedModalVisible, setIsMoveToPackedModalVisible] = useState(false);
+  const [isDeliveredModalVisible, setIsDeliveredModalVisible] = useState(false);
+  const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
+  const [selectedAssignee, setSelectedAssignee] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -37,8 +41,8 @@ const OrderDetail = () => {
 
   const events = [
     { step: "Step 1", title: "Order Confirmed", status: "order placed" },
-    { step: "Step 2", title: "Packed", status: "Packed" },
-    { step: "Step 3", title: "On the Way", status: "Out for Delivery" },
+    { step: "Step 2", title: "Packed", status: "packed" },
+    { step: "Step 3", title: "On the Way", status: "on the way" },
     { step: "Step 4", title: "Delivered", status: "delivered" },
   ];
 
@@ -153,6 +157,112 @@ const OrderDetail = () => {
   const isAtLastProduct = orderIds.indexOf(currentOrderId) ===
   orderIds.length - 1;
 
+  const handleMoveToPackedModalConfirm = async () => {
+    try {
+      if (!currentOrderId) {
+        throw new Error('No order ID available.');
+      }
+  
+      // Update the status of the current order
+      const result = await dispatch(updateSingleOrderStatus({ ids: [currentOrderId], status: 'packed' })).unwrap();
+  
+      // Check if the success message is received
+      if (result.message === 'success') {
+        console.log('Order status updated successfully:', result);
+  
+        // Refetch orders to update the UI
+        await dispatch(fetchOrders());
+      } else {
+        throw new Error('Failed to update order status');
+      }
+  
+      setIsMoveToPackedModalVisible(false);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      // Optionally display an error message to the user
+    }
+  };
+  
+  
+  const handleDeliveredModalConfirm = async () => {
+    try {
+      if (!currentOrderId) {
+        throw new Error('No order ID available.');
+      }
+  
+      // Update the status of the current order
+      const result = await dispatch(updateSingleOrderStatus({ ids: [currentOrderId], status: 'delivered' })).unwrap();
+  
+      // Check if the success message is received
+      if (result.message === 'success') {
+        console.log('Order status updated successfully:', result);
+  
+        // Refetch orders to update the UI
+        await dispatch(fetchOrders());
+      } else {
+        throw new Error('Failed to update order status');
+      }
+  
+      setIsDeliveredModalVisible(false);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      // Optionally display an error message to the user
+    }
+  };
+  
+  const handleAssignModalConfirm = async () => {
+    try {
+      if (!currentOrderId || !selectedAssignee) {
+        throw new Error('No order ID or assignee available.');
+      }
+  
+      // Log the id and assignee being passed to the thunk
+      console.log('Assigning delivery boy to order ID:', currentOrderId);
+      console.log('Selected assignee:', selectedAssignee);
+  
+      // Log the payload to be sent to the thunk
+      const payload = { ids: [currentOrderId], assignee: selectedAssignee, status: 'on the way' };
+      console.log('Payload:', payload);
+  
+      // Assign delivery boy and update the status of the current order
+      const result = await dispatch(assignDeliveryBoyAndMoveToOnTheWayforsingleorder(payload)).unwrap();
+  
+      // Check if the success message is received
+      if (result.message === 'success') {
+        console.log('Order assigned and status updated successfully:', result);
+  
+        // Refetch orders to update the UI
+        await dispatch(fetchOrders());
+      } else {
+        throw new Error('Failed to assign delivery boy and update order status');
+      }
+  
+      setIsAssignModalVisible(false);
+    } catch (error) {
+      console.error('Error assigning delivery boy and updating order status:', error);
+      // Optionally display an error message to the user
+    }
+  };
+  
+
+  const randomNames = [
+    { label: "sohail", value: "sohail" },
+    { label: "Jane Smith", value: "jane_smith" },
+    { label: "Alice Johnson", value: "alice_johnson" },
+  ];
+
+  const [flashMessages, setFlashMessages] = React.useState([
+    {
+      type: "success",
+      header: "Order Status Updated",
+      content: "Your order has been successfully moved to the Packed Stage.",
+      dismissible: true,
+      dismissLabel: "Dismiss message",
+      onDismiss: () => setFlashMessages([]),
+      id: "message_1"
+    }
+  ]);
+
   return (
     <div>
       <SpaceBetween size="m">
@@ -164,31 +274,89 @@ const OrderDetail = () => {
           ]}
           ariaLabel="Breadcrumbs"
         />
-        <Header
-  actions={
-    <SpaceBetween direction="horizontal" size="xs">
-      <Button onClick={openModal} iconName="angle-right-double" iconAlign="right">
-        Move to Packed
-      </Button>
-      <Modal
-        onDismiss={() => setVisible(false)}
-        visible={visible}
-        footer={
-          <Box float="right">
+<Flashbar items={flashMessages} />
+         <Header
+          actions={
             <SpaceBetween direction="horizontal" size="xs">
-              <Button variant="link" onClick={() => setVisible(false)}>
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={() => setVisible(false)}>
-                Confirm
-              </Button>
-            </SpaceBetween>
-          </Box>
-        }
-        header="Move to Packed Stage"
-      >
-        Are you sure you want to move this order to the 'Packed Orders' stage?
-      </Modal>
+              {orderDetail?.status === "order placed" && (
+                <Button onClick={() => setIsMoveToPackedModalVisible(true)} iconName="angle-right-double" iconAlign="right">
+                  Move to Packed
+                </Button>
+              )}
+              {orderDetail?.status === "packed" && (
+                <Button onClick={() => setIsAssignModalVisible(true)} iconName="add-plus" iconAlign="left">
+                  Assign Order
+                </Button>
+              )}
+              {orderDetail?.status === "on the way" && (
+                <Button onClick={() => setIsDeliveredModalVisible(true)} iconName="angle-right-double" iconAlign="right">
+                  Mark as Delivered
+                </Button>
+              )}
+              <Modal
+                onDismiss={() => setIsMoveToPackedModalVisible(false)}
+                visible={isMoveToPackedModalVisible}
+                footer={
+                  <Box float="right">
+                    <SpaceBetween direction="horizontal" size="xs">
+                      <Button variant="link" onClick={() => setIsMoveToPackedModalVisible(false)}>
+                        Cancel
+                      </Button>
+                      <Button variant="primary" onClick={handleMoveToPackedModalConfirm}>
+                        Confirm
+                      </Button>
+                    </SpaceBetween>
+                  </Box>
+                }
+                header="Move to Packed Stage"
+              >
+                Are you sure you want to move this order to the 'Packed Orders' stage?
+              </Modal>
+              <Modal
+                onDismiss={() => setIsDeliveredModalVisible(false)}
+                visible={isDeliveredModalVisible}
+                footer={
+                  <Box float="right">
+                    <SpaceBetween direction="horizontal" size="xs">
+                      <Button variant="link" onClick={() => setIsDeliveredModalVisible(false)}>
+                        Cancel
+                      </Button>
+                      <Button variant="primary" onClick={handleDeliveredModalConfirm}>
+                        Confirm
+                      </Button>
+                    </SpaceBetween>
+                  </Box>
+                }
+                header="Mark as Delivered"
+              >
+                Are you sure you want to mark this order as 'Delivered'?
+              </Modal>
+              <Modal
+  onDismiss={() => setIsAssignModalVisible(false)}
+  visible={isAssignModalVisible}
+  footer={
+    <Box float="right">
+      <SpaceBetween direction="horizontal" size="xs">
+        <Button variant="link" onClick={() => setIsAssignModalVisible(false)}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleAssignModalConfirm}>
+          Confirm
+        </Button>
+      </SpaceBetween>
+    </Box>
+  }
+  header="Assign Order"
+>
+  <Select
+    options={randomNames}
+    selectedOption={randomNames.find(name => name.value === selectedAssignee)}
+    onChange={({ detail }) => setSelectedAssignee(detail.selectedOption.value)}
+    placeholder="Select an assignee"
+  />
+</Modal>
+
+          
       <ButtonDropdown
         items={[
           { text: "Cancel Order", id: "cancel", href: "/cancel-order" },
@@ -235,31 +403,44 @@ const OrderDetail = () => {
     <div
       style={{
         display: "inline-block",
-        backgroundColor: "#414D5C",
-        padding: "0 0.5rem",
-        borderRadius: "4px",
-        textAlign: "center",
-        fontSize: "12px",
-        fontWeight: "bold",
-        color: "white",
-      }}
-    >
-      {orderDetail?.status || "N/A"}
-    </div>
-    <div
-      style={{
-        display: "inline-block",
         backgroundColor: "red",
         padding: "0 0.5rem",
         borderRadius: "4px",
         textAlign: "center",
         fontSize: "12px",
-        fontWeight: "bold",
+        fontWeight: "bold", 
         color: "white",
       }}
     >
       {orderDetail?.paymentDetails?.paymentStatus || "N/A"}
     </div>
+    <div
+  style={{
+    display: "inline-block",
+    backgroundColor: 
+      orderDetail?.status === 'order placed' ? '#414D5C' : // Dark grey color for 'Order Confirmed'
+      orderDetail?.status === 'packed' ? '#0972D3' : // Blue color for 'Packed'
+      orderDetail?.status === 'on the way' ? '#0972D3' : // Teal color for 'On The Way'
+      orderDetail?.status === 'delivered' ? '#0972D3' : // Green color for 'Delivered'
+      '#6C757D', // Default color for unknown statuses
+    padding: "0 0.5rem",
+    borderRadius: "4px",
+    textAlign: "center",
+    fontSize: "12px",
+    fontWeight: "bold",
+    color: "white",
+  }}
+>
+  {orderDetail?.status === 'order placed' ? 'Order Confirmed' :
+   orderDetail?.status === 'packed' ? 'Packed' :
+   orderDetail?.status === 'on the way' ? 'On The Way' :
+   orderDetail?.status === 'delivered' ? 'Delivered' :
+   orderDetail?.status || "N/A"}
+</div>
+
+
+
+    
   </SpaceBetween>
 </Header>
 
@@ -323,6 +504,28 @@ const OrderDetail = () => {
                     - {orderDetail?.deliverySlot?.endTime}
                   </p>
                 </div>
+                <div
+  style={{
+    display: (orderDetail?.status === "on the way" || orderDetail?.status === "delivered") ? "inline-block" : "none",
+    backgroundColor: "#004d00",
+    padding: "0 0.5rem",
+    borderRadius: "4px",
+    textAlign: "center",
+    fontSize: "12px",
+    fontWeight: "bold",
+    marginTop: "4px",
+    color: "white",
+  }}
+>
+  <p>
+    {orderDetail?.status === "on the way"
+      ? `Order Delivery By ${orderDetail?.assignedTo}`
+      : orderDetail?.status === "delivered"
+      ? `Order Delivered By ${orderDetail?.assignedTo}`
+      : ""}
+  </p>
+</div>
+
               </SpaceBetween>
 
               <ColumnLayout columns={4} variant="text-grid">
