@@ -11,6 +11,7 @@ import {
   FormField,
   Checkbox,
   Toggle,
+  Spinner,
 } from "@cloudscape-design/components";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,7 +24,6 @@ import {
 import BasicDetails from "./Components/BasicDetails";
 import InventoryTracking from "./Components/InventoryTracking";
 import Attributes from "./Components/Attributes";
-import ProductImages from "./Components/ProductImages";
 import "../../../../assets/styles/CloudscapeGlobalstyle.css";
 
 const ProductDetail = () => {
@@ -31,6 +31,7 @@ const ProductDetail = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loading, setLoading] = useState(false);
 
   const product = useSelector((state) => state.products.productDetail);
   const products = useSelector((state) => state.products.products);
@@ -47,7 +48,7 @@ const ProductDetail = () => {
   });
   const [productIds, setProductIds] = useState([]);
   const [currentProductId, setCurrentProductId] = useState(id);
-
+ 
   // New state for validation errors
   const [priceError, setPriceError] = useState("");
   const [compareAtError, setCompareAtError] = useState("");
@@ -55,9 +56,11 @@ const ProductDetail = () => {
   useEffect(() => {
     dispatch(fetchProducts());
     if (id) {
-      dispatch(fetchProductById(id));
+      setLoading(true);
+      dispatch(fetchProductById(id)).finally(() => setLoading(false));
     }
   }, [dispatch, id]);
+
 
   useEffect(() => {
     if (product.data) {
@@ -116,9 +119,7 @@ const ProductDetail = () => {
       parseFloat(pricingDetails.onlineStorePrice) >=
       parseFloat(pricingDetails.compareAt)
     ) {
-      setPriceError(
-        "Online Store Price must be less than Compare At Price"
-      );
+      setPriceError("Online Store Price must be less than Compare At Price");
       return;
     }
 
@@ -152,7 +153,7 @@ const ProductDetail = () => {
           chargeTax: charge,
         }));
 
-        // Refresh the page after 2 seconds
+        // Refresh the page
         setTimeout(() => {
           window.location.reload();
         }, 5);
@@ -186,12 +187,13 @@ const ProductDetail = () => {
   }
 
   const isAtFirstProduct = productIds.indexOf(currentProductId) === 0;
-  const isAtLastProduct = productIds.indexOf(currentProductId) ===
-    productIds.length - 1;
+  const isAtLastProduct =
+    productIds.indexOf(currentProductId) === productIds.length - 1;
 
   return (
     <Box margin={{ top: "n" }}>
       <BreadcrumbGroup
+        className="bread"
         items={[
           { text: "Dashboard", href: "/app/dashboard" },
           { text: "Products", href: "/app/products" },
@@ -264,7 +266,7 @@ const ProductDetail = () => {
         </Header>
       </div>
       <SpaceBetween direction="vertical" size="l">
-        <div style={{ display: "flex", gap: "15px" }}>
+        <div style={{ display: "flex", gap: "20px" }}>
           <SpaceBetween direction="vertical" size="l">
             <BasicDetails product={product} />
             <Container
@@ -273,14 +275,12 @@ const ProductDetail = () => {
               header={<Header variant="h3">Pricing</Header>}
             >
               <SpaceBetween size="l">
-              <div style={{ display: "flex", gap: "15px" }}>
+                <div style={{ display: "flex", gap: "15px" }}>
                   <FormField label="Purchasing Price">
                     <Input
                       value={purchasePrice}
                       size="3xs"
-                      onChange={({ detail }) =>
-                        setPurchasePrice(detail.value)
-                      }
+                      onChange={({ detail }) => setPurchasePrice(detail.value)}
                       placeholder="Input Purchasing Price"
                       disabled
                     />
@@ -289,17 +289,13 @@ const ProductDetail = () => {
                     <Input
                       value={msp}
                       size="3xs"
-                      onChange={({ detail }) =>
-                        setmsp(detail.value)
-                      }
-                    
+                      onChange={({ detail }) => setmsp(detail.value)}
                       placeholder="Min Selling Price"
                       disabled
                     />
                   </FormField>
                   <FormField
                     label="Compare At Price"
-                    
                     errorText={compareAtError}
                   >
                     <Input
@@ -322,7 +318,6 @@ const ProductDetail = () => {
                       }}
                     />
                   </FormField>
-                 
                 </div>
                 <Checkbox
                   onChange={({ detail }) => setCharge(detail.checked)}
@@ -332,11 +327,7 @@ const ProductDetail = () => {
                 </Checkbox>
                 <hr />
                 <div style={{ display: "flex", gap: "15px" }}>
-                <FormField
-                    label="Online Store Price"
-                   
-                    errorText={priceError}
-                  >
+                  <FormField label="Online Store Price" errorText={priceError}>
                     <Input
                       value={pricingDetails.onlineStorePrice}
                       // type="number"
@@ -357,33 +348,111 @@ const ProductDetail = () => {
                       }}
                     />
                   </FormField>
-                  
-                        <FormField label="Profit">
-                          <Input
-                            size="3xs"
-                            placeholder="Profit"
-                            value={
-                              pricingDetails.compareAt -
-                                pricingDetails.onlineStorePrice || 0
-                            }
-                            
-                          />
-                        </FormField>
-                        <FormField label="Margin">
-                          <Input size="3xs" placeholder="Margin"  />
-                        </FormField>
-                </div>
 
-              
-               
+                  <FormField label="Profit">
+                    <Input
+                      size="3xs"
+                      placeholder="Profit"
+                      value={
+                        pricingDetails.compareAt -
+                          pricingDetails.onlineStorePrice || 0
+                      }
+                    />
+                  </FormField>
+                  <FormField label="Margin">
+                    <Input
+                      value={
+                        pricingDetails.compareAt &&
+                        pricingDetails.onlineStorePrice
+                          ? `${(
+                              ((pricingDetails.compareAt -
+                                pricingDetails.onlineStorePrice) /
+                                pricingDetails.compareAt) *
+                              100
+                            ).toFixed(2)}%`
+                          : "%"
+                      }
+                      size="3xs"
+                      placeholder="Margin"
+                    />
+                  </FormField>
+                </div>
               </SpaceBetween>
             </Container>
             <InventoryTracking product={product} />
             <Attributes product={product} />
           </SpaceBetween>
         
-            <ProductImages product={product} />
+          <Container
+            fitHeight={600}
             
+            variant="borderless"
+            className="container-box-shadow"
+          >
+            {loading ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "320px",
+                  width:"200px"
+                }}
+              >
+               <Box textAlign="center" float="left"><Spinner size="large" /></Box> 
+              </div>
+            ) : (
+              <>
+                <img
+                  src={product?.data?.images[0]}
+                  alt={product?.data?.name}
+                  style={{
+                    height: "200px",
+                    borderRadius: "8px",
+                    width: "100%",
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Additional Images
+                </span>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "6px",
+                  }}
+                >
+                  <img
+                    src={product?.data?.images[1]}
+                    style={{
+                      borderRadius: "8px",
+                      height: "110px",
+                      width: "50%",
+                    }}
+                    alt={product?.data?.name}
+                  />
+
+                  <img
+                    src={product?.data?.images[2]}
+                    style={{
+                      borderRadius: "8px",
+                      height: "110px",
+                      width: "50%",
+                    }}
+                    alt={product?.data?.name}
+                  />
+                </div>
+              </>
+            )}
+          </Container>
+      
+
+
 
         </div>
       </SpaceBetween>

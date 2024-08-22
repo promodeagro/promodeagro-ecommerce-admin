@@ -1,27 +1,25 @@
 import { Container } from '@cloudscape-design/components'
 import React from 'react'
-import UploadImage from "../../../../../assets/img/Upload Image.png";
-import "../../../../../assets/styles/CloudscapeGlobalstyle.css"
-import UploadImageTomato from "../../../../../assets/img/finish-product/Upload Image.png";
+
 
 const ProductImages = ({product}) => {
   return (
 
     <Container fitHeight={600} variant='borderless'  className='container-box-shadow'>
-    <img width={700} height={500}src={product.data?.images[0]} alt="Upload Tomato" style={{borderRadius:"8px", border:"#E1E2E9"}} />
-    <span style={{ fontSize: "12px", fontWeight: "bold" }}>
+    <img src={product.data?.images[0]} alt={product.data?.name} style={{height:"200px",borderRadius:"8px", width:"100%"}} />
+    <span style={{ fontSize: "12px", fontWeight: "bold",marginBottom:"10px" }}>
       Additional Images
     </span>
     <div
       style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
+        display: "flex",
+     
         gap: "6px",
       }}
     >
-      <img src={product?.data?.images[1]} style={{borderRadius:"8px",borderColor:"#E1E2E9", borderWidth:"1px",}} alt="Upload Tomato 1" height={400} />
+      <img src={product?.data?.images[1]} style={{borderRadius:"8px",height:"110px", width:"50%"}} alt={product.data?.name}  />
       <img src={product
-        ?.data?.images[2]}style={{borderRadius:"8px",borderColor:"#E1E2E9",borderWidth:"1px"}} alt="Upload Tomato 2" height={400} />
+        ?.data?.images[2]}style={{borderRadius:"8px",height:"110px", width:"50%"}} alt={product.data?.name}  />
     </div>
   </Container>
   )
