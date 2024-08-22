@@ -428,23 +428,23 @@ const ProductDetail = () => {
                   }}
                 >
                   <img
-                    src={product.data?.images[1]}
+                    src={product?.data?.images[1]}
                     style={{
                       borderRadius: "8px",
                       height: "110px",
                       width: "50%",
                     }}
-                    alt={product.data?.name}
+                    alt={product?.data?.name}
                   />
 
                   <img
-                    src={product.data?.images[2]}
+                    src={product?.data?.images[2]}
                     style={{
                       borderRadius: "8px",
                       height: "110px",
                       width: "50%",
                     }}
-                    alt={product.data?.name}
+                    alt={product?.data?.name}
                   />
                 </div>
               </>

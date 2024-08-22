@@ -223,7 +223,7 @@ const Products = () => {
     setModalVisible(false);
   };
 
-  const navigatetogoogle = () => {
+  const navigatestore = () => {
     window.open("https://promodeagro.com/", "_blank");
   };
   const [items, setItems] = React.useState([
@@ -300,7 +300,7 @@ const Products = () => {
                 </div>
                 <div style={{ display: "flex", gap: "5px" }}>
                   {isBulkModifySuccess && (
-                    <Button variant="normal" onClick={navigatetogoogle}>
+                    <Button variant="normal" onClick={navigatestore}>
                       View On Store
                     </Button>
                   )}
