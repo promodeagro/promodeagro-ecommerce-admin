@@ -22,7 +22,6 @@ import Modal from "@cloudscape-design/components/modal";
 
 const Orders = () => {
   const dispatch = useDispatch();
-  
   const ordersData = useSelector((state) => state.orders.ordersData);
   const orderStatus = useSelector((state) => state.orders.order_status);
 
@@ -41,9 +40,6 @@ const Orders = () => {
   const [orderId, setOrderId] = useState(null); 
   const [deliveryBoyId, setDeliveryBoyId] = useState(null);
   const [isMoveToDeliveredModalVisible, setIsMoveToDeliveredModalVisible] = useState(false);
-
-
-
 
   useEffect(() => {
     dispatch(fetchOrders());

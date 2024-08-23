@@ -31,6 +31,8 @@ const OrderDetail = () => {
   const [isDeliveredModalVisible, setIsDeliveredModalVisible] = useState(false);
   const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
   const [selectedAssignee, setSelectedAssignee] = useState("");
+  const [flashMessages, setFlashMessages] = useState([]);
+
 
   useEffect(() => {
     if (id) {
@@ -119,8 +121,42 @@ const OrderDetail = () => {
       setOrderIds(ids);
     }
   }, [allOrders, location.pathname]);
+
+  const assigneeName = orderDetail?.assignedTo || "the assigned person";
+
   
-  
+  useEffect(() => {
+    if (orderDetail?.status === "packed") {
+      displayFlashMessage("success", "Order Status Updated", "Your order has been successfully moved to the Packed Stage.", "packed_message");
+    } else if (orderDetail?.status === "on the way") {
+      displayFlashMessage(
+        "success", 
+        "Order Status Updated", 
+        `Order Assigned to ${assigneeName} for Delivery.`, 
+        "ontheway_message"
+    );    } else if (orderDetail?.status === "delivered") {
+      displayFlashMessage("success", "Order Status Updated", "Your order has been Delivered to the Customer.", "delivered_message");
+    }
+  }, [orderDetail?.status]);
+
+  const displayFlashMessage = (type, header, content, id) => {
+    const message = {
+      type,
+      header,
+      content,
+      dismissible: true,
+      dismissLabel: "Dismiss message",
+      onDismiss: () => setFlashMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id)),
+      id,
+    };
+    setFlashMessages([message]);
+
+    // Automatically dismiss the message after 3 seconds
+    setTimeout(() => {
+      setFlashMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id));
+    }, 3000);
+  };
+
   
 
   const goToNextOrder = () => {
@@ -251,17 +287,6 @@ const OrderDetail = () => {
     { label: "Alice Johnson", value: "alice_johnson" },
   ];
 
-  const [flashMessages, setFlashMessages] = React.useState([
-    {
-      type: "success",
-      header: "Order Status Updated",
-      content: "Your order has been successfully moved to the Packed Stage.",
-      dismissible: true,
-      dismissLabel: "Dismiss message",
-      onDismiss: () => setFlashMessages([]),
-      id: "message_1"
-    }
-  ]);
 
   return (
     <div>
@@ -274,7 +299,7 @@ const OrderDetail = () => {
           ]}
           ariaLabel="Breadcrumbs"
         />
-<Flashbar items={flashMessages} />
+        <Flashbar items={flashMessages} />
          <Header
           actions={
             <SpaceBetween direction="horizontal" size="xs">
@@ -361,7 +386,7 @@ const OrderDetail = () => {
         items={[
           { text: "Cancel Order", id: "cancel", href: "/cancel-order" },
           { text: "Refund Order", id: "refund" },
-          { text: "View Invoice", id: "invoice", href: "/view-invoice" },
+          { text: "View Invoice", id: "invoice", href: "/app/order/orderdetail/invoice" },
         ]}
         onItemClick={handleItemClick}
       >
