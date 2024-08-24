@@ -7,6 +7,7 @@ import ContentManagement from "./Postlogin/ContentManagement";
 import OrderDetail from "./Postlogin/Orders/OrderDetail";
 import Refund from "./Postlogin/Orders/OrderDetail/Refund";
 import ProductDetail from "./Postlogin/Products/ProductDetails";
+import Invoice from "./Postlogin/Orders/OrderDetail/Invoice";
 const Dashboards = lazy(() => import("./Postlogin/Dashboard"));
 const Customers = lazy(() => import("./Postlogin/Customers"));
 const AddNewCustomer = lazy(() =>
@@ -91,6 +92,12 @@ const Views = () => {
             path={`${PREFIX_APP_PATH}/order/orderdetail/refund`}
             element={<Refund />}
           />
+                    <Route
+            exact
+            path={`${PREFIX_APP_PATH}/order/orderdetail/invoice`}
+            element={<Invoice />}
+          />
+
 
           <Route path="*" element={<PathNotFOund />} />
         </Routes>
