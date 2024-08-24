@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchProducts, fetchProductById, putProductById, PutToggle,putPricingById } from "Redux-Store/Products/ProductThunk";
+import { fetchProducts, fetchProductById, PutToggle,putPricingById } from "Redux-Store/Products/ProductThunk";
 import status from "Redux-Store/Constants";
 
 const ProductsSlice = createSlice({
@@ -47,20 +47,20 @@ const ProductsSlice = createSlice({
         state.productDetail.status = status.FAILURE;
       })
       // Put Product by ID
-      .addCase(putProductById.pending, (state) => {
-        state.productDetail.status = status.IN_PROGRESS;
-      })
-      .addCase(putProductById.fulfilled, (state, { payload }) => {
-        state.productDetail.status = status.SUCCESS;
-        // Update the specific product in the `products.data` array
-        state.products.data = state.products.data.map((product) =>
-          product.id === payload.id ? payload : product
-        );
-        state.productDetail.data = payload; // Update product detail
-      })
-      .addCase(putProductById.rejected, (state) => {
-        state.productDetail.status = status.FAILURE;
-      })
+      // .addCase(putProductById.pending, (state) => {
+      //   state.productDetail.status = status.IN_PROGRESS;
+      // })
+      // .addCase(putProductById.fulfilled, (state, { payload }) => {
+      //   state.productDetail.status = status.SUCCESS;
+      //   // Update the specific product in the `products.data` array
+      //   state.products.data = state.products.data.map((product) =>
+      //     product.id === payload.id ? payload : product
+      //   );
+      //   state.productDetail.data = payload; // Update product detail
+      // })
+      // .addCase(putProductById.rejected, (state) => {
+      //   state.productDetail.status = status.FAILURE;
+      // })
       // Put Pricing by ID
       .addCase(putPricingById.pending, (state) => {
         state.productDetail.status = status.IN_PROGRESS;

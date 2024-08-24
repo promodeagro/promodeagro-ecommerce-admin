@@ -13,7 +13,7 @@ import {
   Toggle,
   Spinner,
 } from "@cloudscape-design/components";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchProducts,
@@ -24,17 +24,15 @@ import {
 import BasicDetails from "./Components/BasicDetails";
 import InventoryTracking from "./Components/InventoryTracking";
 import Attributes from "./Components/Attributes";
+import useProductNavigation from "../../Hooks/useProductNavigation";
 import "../../../../assets/styles/CloudscapeGlobalstyle.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
   const [loading, setLoading] = useState(false);
 
   const product = useSelector((state) => state.products.productDetail);
-  const products = useSelector((state) => state.products.products);
 
   const [specificProduct, setSpecificProduct] = useState({});
   const [active, setActive] = useState(false);
@@ -46,12 +44,12 @@ const ProductDetail = () => {
     compareAt: "",
     onlineStorePrice: "",
   });
-  const [productIds, setProductIds] = useState([]);
-  const [currentProductId, setCurrentProductId] = useState(id);
- 
-  // New state for validation errors
+
+  // Validation errors
   const [priceError, setPriceError] = useState("");
   const [compareAtError, setCompareAtError] = useState("");
+
+  const { goToNextProduct, goToPreviousProduct, isAtFirstProduct, isAtLastProduct } = useProductNavigation();
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -60,7 +58,6 @@ const ProductDetail = () => {
       dispatch(fetchProductById(id)).finally(() => setLoading(false));
     }
   }, [dispatch, id]);
-
 
   useEffect(() => {
     if (product.data) {
@@ -76,45 +73,16 @@ const ProductDetail = () => {
     }
   }, [product]);
 
-  useEffect(() => {
-    const ids = products.data?.map((product) => product.id);
-    setProductIds(ids);
-
-    const currentId = location.pathname.split("/").pop();
-    setCurrentProductId(currentId);
-  }, [products, location.pathname]);
-
-  const goToNextProduct = () => {
-    const currentIndex = productIds.indexOf(currentProductId);
-    if (currentIndex < productIds.length - 1) {
-      const nextId = productIds[currentIndex + 1];
-      setCurrentProductId(nextId);
-      navigate(`/app/products/${nextId}`);
-    }
-  };
-
-  const goToPreviousProduct = () => {
-    const currentIndex = productIds.indexOf(currentProductId);
-    if (currentIndex > 0) {
-      const prevId = productIds[currentIndex - 1];
-      setCurrentProductId(prevId);
-      navigate(`/app/products/${prevId}`);
-    }
-  };
-
   const handleToggleChange = () => {
     const newStatus = !active;
     setActive(newStatus);
     dispatch(PutToggle({ id: specificProduct.id, active: newStatus }));
     setSpecificProduct((prev) => ({ ...prev, active: newStatus }));
   };
-
   const handlePublish = async () => {
-    // Reset errors
     setPriceError("");
     setCompareAtError("");
-
-    // Validation
+  
     if (
       parseFloat(pricingDetails.onlineStorePrice) >=
       parseFloat(pricingDetails.compareAt)
@@ -122,7 +90,7 @@ const ProductDetail = () => {
       setPriceError("Online Store Price must be less than Compare At Price");
       return;
     }
-
+  
     if (!pricingDetails.compareAt || !pricingDetails.onlineStorePrice) {
       if (!pricingDetails.compareAt) {
         setCompareAtError("Compare At Price is required");
@@ -132,28 +100,34 @@ const ProductDetail = () => {
       }
       return;
     }
-
+  
     setIsPublishing(true);
     try {
-      const pricingData = {
-        compareAt: parseFloat(pricingDetails.compareAt) || 0,
-        onlineStorePrice: parseFloat(pricingDetails.onlineStorePrice) || 0,
-      };
-
-      // Dispatch the action to update the pricing details
-      const response = await dispatch(putPricingById({ id, pricingData }));
-
-      // Check if the update was successful (status 200)
+      // Create the pricing data array
+      const pricingDataArray = [
+        {
+          id, // Include the id in the object
+          compareAt: parseFloat(pricingDetails.compareAt) || 0,
+          onlineStorePrice: parseFloat(pricingDetails.onlineStorePrice) || 0,
+        },
+      ];
+      console.log(pricingDataArray,"particular");
+  
+      // Dispatch the action with the pricing data array
+      const response = await dispatch(putPricingById(pricingDataArray));
+  
       if (response.meta.requestStatus === "fulfilled") {
-        // Optionally update the local state here if needed
         setSpecificProduct((prev) => ({
           ...prev,
           compareAt: pricingDetails.compareAt,
           onlineStorePrice: pricingDetails.onlineStorePrice,
           chargeTax: charge,
         }));
-
-        // Refresh the page
+       
+        
+       
+        
+  
         setTimeout(() => {
           window.location.reload();
         }, 5);
@@ -166,14 +140,13 @@ const ProductDetail = () => {
       setIsPublishing(false);
     }
   };
-
+  
   const handleInputChange = (field, value) => {
     setPricingDetails((prev) => ({
       ...prev,
       [field]: value,
     }));
 
-    // Clear errors when user starts typing
     if (field === "onlineStorePrice" && priceError) {
       setPriceError("");
     }
@@ -185,10 +158,6 @@ const ProductDetail = () => {
   if (!product.data) {
     return <div>Loading...</div>;
   }
-
-  const isAtFirstProduct = productIds.indexOf(currentProductId) === 0;
-  const isAtLastProduct =
-    productIds.indexOf(currentProductId) === productIds.length - 1;
 
   return (
     <Box margin={{ top: "n" }}>
@@ -450,14 +419,9 @@ const ProductDetail = () => {
               </>
             )}
           </Container>
-      
-
-
-
         </div>
       </SpaceBetween>
     </Box>
   );
 };
-
 export default ProductDetail;

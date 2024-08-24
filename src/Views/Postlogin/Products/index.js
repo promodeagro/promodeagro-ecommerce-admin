@@ -26,12 +26,10 @@ import {
 } from "Redux-Store/Products/ProductThunk";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
 import Numbers from "./Numbers";
-
 const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const { data = [] } = products;
-
   const [activeButton, setActiveButton] = useState("All");
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,7 +55,6 @@ const Products = () => {
         [field]: value,
       },
     }));
-
     // Validate the current field and update errors
     const osp = value; // Updated price value
     const cp =
@@ -193,35 +190,44 @@ const Products = () => {
     }
   };
 
-  const confirmBulkModifyPrice = () => {
+  const confirmBulkModifyPrice = async () => {
     let success = true;
-
-    selectedItems.forEach((item) => {
-      const pricingData = {
-        onlineStorePrice:
-          editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice,
-        compareAt: editedProducts[item.id]?.compareAt || item.compareAt,
-      };
-
-      dispatch(putPricingById({ id: item.id, pricingData })).then(
-        (response) => {
-          if (
-            response.meta.requestStatus !== "fulfilled" ||
-            response.payload.status !== 200
-          ) {
-            success = false;
-          }
-        }
-      );
-    });
-
+  
+    // Create the array of pricing data based on selected items
+    const pricingDataArray = selectedItems.map((item) => ({
+      id: item.id,
+      compareAt: parseFloat(editedProducts[item.id]?.compareAt || item.compareAt),
+      onlineStorePrice: parseFloat(editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice),
+    }));
+  
+    console.log(pricingDataArray, "products.js");
+  
+    // Send the pricing data array to the API using the putPricingById thunk
+    try {
+      const response = await dispatch(putPricingById(pricingDataArray));
+  
+      if (
+        response.meta.requestStatus === "fulfilled" &&
+        response.payload.status === 200
+      ) {
+        setBulkModifySuccess(true);
+        setSelectedItems([]); // Clear selected checkboxes
+        setModalVisible(false);
+        success = false;
+      }
+    } catch (err) {
+      console.error("Failed to update product pricing:", err);
+      success = false; // If there is an error, success should be set to false
+    }
+  
     if (success) {
       setBulkModifySuccess(true);
       setSelectedItems([]); // Clear selected checkboxes
     }
-
+  
     setModalVisible(false);
   };
+  
 
   const navigatestore = () => {
     window.open("https://promodeagro.com/", "_blank");
@@ -481,6 +487,4 @@ const Products = () => {
     </ContentLayout>
   );
 };
-
 export default Products;
-

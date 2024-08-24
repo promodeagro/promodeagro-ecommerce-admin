@@ -37,55 +37,24 @@ export const fetchProductById = createAsyncThunk(
   }
 );
 
-// Put product details by ID
-export const putProductById = createAsyncThunk(
-  "products/putProductById",
-  async ({ id, productData }, { rejectWithValue }) => {
-    try {
-      const url = `${config.PUT_PRODUCTS_DETAIL}/${id}`;
 
-      const response = await postLoginService.put(url, productData);
-      console.log(response.data, "async put successful");
-      return response.data;
-    } catch (error) {
-      console.error("API error:", error); // Log API error
-      return rejectWithValue(
-        error.response ? error.response.data : error.message
-      );
-    }
-  }
-);
 
-// Put pricing details by ID
 export const putPricingById = createAsyncThunk(
   "products/putPricingById",
-  async ({ id, pricingData }, { rejectWithValue }) => {
+  async (pricingDataArray, { rejectWithValue }) => {
     try {
-      const url = `${config.PUT_PRICING}/${id}/price`;
-
-      // Convert string values to numbers
-      const formattedPricingData = {
-        compareAt: parseFloat(pricingData.compareAt) || 0, // Default to 0 if conversion fails
-        onlineStorePrice: parseFloat(pricingData.onlineStorePrice) || 0 // Default to 0 if conversion fails
-      };
-
-      // Log the request data to ensure correctness
-      console.log('Sending PUT request to:', url);
-      console.log('Payload:', formattedPricingData);
-
-      // Make the PUT request with the formatted pricing data
-      const response = await postLoginService.put(url, formattedPricingData);
-
-      console.log(response.data, "Pricing details updated successfully");
+    
+      const url = `${config.PUT_PRICING}/price`;
+      const response = await postLoginService.put(url, pricingDataArray);
+      console.log(response,"pricing array ");
       return response.data;
+     
     } catch (error) {
-      console.error("API error:", error); // Log API error
-      return rejectWithValue(
-        error.response ? error.response.data : error.message
-      );
+      return rejectWithValue(error.response.data);
     }
   }
 );
+
 
 
 // Put Active/Inactive Status
