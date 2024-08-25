@@ -11,7 +11,6 @@ import {
   Toggle,
   TextFilter,
   Select,
-  Pagination,
   Input,
   Modal,
   Flashbar,
@@ -32,8 +31,6 @@ const Products = () => {
   const { data = [] } = products;
   const [activeButton, setActiveButton] = useState("All");
   const [selectedItems, setSelectedItems] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 25;
   const [filteringText, setFilteringText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [editedProducts, setEditedProducts] = useState({});
@@ -43,8 +40,6 @@ const Products = () => {
   //fetching products data
   useEffect(() => {
     dispatch(fetchProducts());
-    setCurrentPage(1);
- 
   }, [dispatch]);
 
   const handleInputChange = (id, field, value) => {
@@ -95,44 +90,7 @@ const Products = () => {
     });
   };
 
-  const validateInputs = () => {
-    let valid = true;
-    const errors = {};
 
-    selectedItems.forEach((item) => {
-      const editedProduct = editedProducts[item.id] || {};
-      const osp =
-        editedProduct.onlineStorePrice !== undefined
-          ? editedProduct.onlineStorePrice
-          : item.onlineStorePrice;
-      const cp =
-        editedProduct.compareAt !== undefined
-          ? editedProduct.compareAt
-          : item.compareAt;
-
-      let itemErrors = {};
-
-      if (editedProduct.onlineStorePrice !== undefined && osp === "") {
-        valid = false;
-        itemErrors.onlineStorePrice = "Required!";
-      }
-
-      if (editedProduct.compareAt !== undefined && cp === "") {
-        valid = false;
-        itemErrors.compareAt = "Required!";
-      } else if (parseFloat(cp) < parseFloat(osp)) {
-        valid = false;
-        itemErrors.compareAt = "CP must be greater than OSP";
-      }
-
-      if (Object.keys(itemErrors).length > 0) {
-        errors[item.id] = itemErrors;
-      }
-    });
-
-    setValidationErrors(errors);
-    return valid;
-  };
 
   const filteredProducts = data
     ? data.filter((item) => {
@@ -151,25 +109,14 @@ const Products = () => {
       })
     : [];
 
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-
-  const handlePageChange = (pageIndex) => {
-    setCurrentPage(pageIndex + 0); // Set `currentPage` to be 1-based
-  };
-
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
-    setCurrentPage(1);
+
   };
 
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
-    setCurrentPage(1);
+
   };
 
   const selectOptions = [
@@ -190,7 +137,46 @@ const Products = () => {
     }
   };
 
-  const confirmBulkModifyPrice = async () => {
+  const validateInputs = () => {
+    let valid = true;
+    const errors = {};
+  
+    selectedItems.forEach((item) => {
+      const editedProduct = editedProducts[item.id] || {};
+      const osp =
+        editedProduct.onlineStorePrice !== undefined
+          ? editedProduct.onlineStorePrice
+          : item.onlineStorePrice;
+      const cp =
+        editedProduct.compareAt !== undefined
+          ? editedProduct.compareAt
+          : item.compareAt;
+  
+      let itemErrors = {};
+  
+      if (osp === "" || osp === undefined) {
+        valid = false;
+        itemErrors.onlineStorePrice = "Required!";
+      }
+  
+      if (cp === "" || cp === undefined) {
+        valid = false;
+        itemErrors.compareAt = "Required!";
+      } else if (parseFloat(cp) < parseFloat(osp)) {
+        valid = false;
+        itemErrors.compareAt = "CP must be greater than OSP";
+      }
+  
+      if (Object.keys(itemErrors).length > 0) {
+        errors[item.id] = itemErrors;
+      }
+    });
+  
+    setValidationErrors(errors);
+    return valid;
+  };
+  
+  const handleModalConfirm = async () => {
     let success = true;
   
     // Create the array of pricing data based on selected items
@@ -227,6 +213,7 @@ const Products = () => {
   
     setModalVisible(false);
   };
+  
   
 
   const navigatestore = () => {
@@ -317,16 +304,7 @@ const Products = () => {
                     >
                       Bulk Modify Price
                     </Button>
-                  
-                  <Pagination
-                    currentPageIndex={currentPage} // Set this to reflect the `currentPage` state
-                    onChange={({ detail }) =>
-                      handlePageChange(detail.currentPageIndex)
-                    }
-                    pagesCount={Math.ceil(
-                      filteredProducts.length / productsPerPage
-                    )}
-                  />
+              
                 </div>
               </div>
             }
@@ -460,7 +438,7 @@ const Products = () => {
             ]}
             selectedItems={selectedItems}
             onSelectionChange={handleSelectionChange}
-            items={currentProducts}
+            items={filteredProducts}
             selectionType="multi"
           />
         </div>
@@ -476,7 +454,7 @@ const Products = () => {
             <Button variant="link" onClick={() => setModalVisible(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={confirmBulkModifyPrice}>
+            <Button variant="primary" onClick={handleModalConfirm}>
               Confirm
             </Button>
           </SpaceBetween>
