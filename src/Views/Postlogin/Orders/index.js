@@ -84,9 +84,9 @@ const Orders = () => {
   const selectOptions = [
     { label: "All", value: "All" }, 
     { label: "Order Confirmed", value: "order placed" },
-    { label: "Packed", value: "packed" },
-    { label: "On the Way", value: "on the way" },
-    { label: "Delivered", value: "delivered" },
+    { label: "Packed", value: "Packed" },
+    { label: "On the Way", value: "On The Way" },
+    { label: "Delivered", value: "Delivered" },
   ];
 
 
@@ -113,7 +113,7 @@ const Orders = () => {
       }
 
       const orderIds = selectedItems.map(item => item.id); 
-      const result = await dispatch(updateOrderStatus({ ids: orderIds, status: 'packed' })).unwrap();
+      const result = await dispatch(updateOrderStatus({ ids: orderIds, status: 'Packed' })).unwrap();
 
       // Check if the success message is received
       if (result.message === 'success') {
@@ -145,7 +145,7 @@ const Orders = () => {
         throw new Error('Invalid order IDs.');
       }
 
-      const result = await dispatch(assignDeliveryBoyAndMoveToOnTheWay({ orderIds, assignee, status: 'on the way'  })).unwrap();
+      const result = await dispatch(assignDeliveryBoyAndMoveToOnTheWay({ orderIds, assignee, status: 'On The Way'  })).unwrap();
 
       if (result.message === 'success') {
         console.log('Orders assigned and status updated successfully:', result);
@@ -195,7 +195,7 @@ const Orders = () => {
       const orderIds = selectedItems.map(item => item.id); 
   
       // Call the thunk or function to move orders to "Delivered" status
-      const result = await dispatch(updateOrderStatus({ ids: orderIds, status: 'delivered' })).unwrap();
+      const result = await dispatch(updateOrderStatus({ ids: orderIds, status: 'Delivered' })).unwrap();
   
       if (result.message === 'success') {
         console.log('Order status updated to delivered successfully:', result);
