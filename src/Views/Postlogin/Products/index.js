@@ -11,7 +11,6 @@ import {
   Toggle,
   TextFilter,
   Select,
-  Pagination,
   Input,
   Modal,
   Flashbar,
@@ -26,25 +25,29 @@ import {
 } from "Redux-Store/Products/ProductThunk";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
 import Numbers from "./Numbers";
+
 const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const { data = [] } = products;
   const [activeButton, setActiveButton] = useState("All");
   const [selectedItems, setSelectedItems] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 25;
   const [filteringText, setFilteringText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [editedProducts, setEditedProducts] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisible1, setModalVisible1] = useState(false);
   const [isBulkModifySuccess, setBulkModifySuccess] = useState(false);
+    const [isBulkModifySuccessflash, setBulkModifySuccessflash] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-  //fetching products data
+  
+  // New state variables
+  const [isToggle, setIsToggle] = useState(false);
+  const [toggleItem, setToggleItem] = useState(null); // Store the item to be toggled
+
+
   useEffect(() => {
     dispatch(fetchProducts());
-    setCurrentPage(1);
- 
   }, [dispatch]);
 
   const handleInputChange = (id, field, value) => {
@@ -79,11 +82,15 @@ const Products = () => {
       [id]: errors,
     }));
   };
-// hitting put api for toggle 
   const handleToggleChange = (item) => {
-    const newStatus = !item.active;
+    setToggleItem(item); // Set the item to be toggled
+    setModalVisible(true); // Show confirmation modal
+  };
 
-    dispatch(PutToggle({ id: item.id, active: newStatus })).then((response) => {
+  const confirmToggleChange = () => {
+    const newStatus = !toggleItem.active;
+
+    dispatch(PutToggle({ id: toggleItem.id, active: newStatus })).then((response) => {
       if (
         response.meta.requestStatus === "fulfilled" &&
         response.payload.status === 200
@@ -92,48 +99,14 @@ const Products = () => {
       } else {
         dispatch(fetchProducts());
       }
-    });
+      });
+    setIsToggle(true)
+    setModalVisible(false);
+
+    setTimeout(() => {
+      setIsToggle(false);
+    }, 5000); // Hide the modal 
   };
-
-  const validateInputs = () => {
-    let valid = true;
-    const errors = {};
-
-    selectedItems.forEach((item) => {
-      const editedProduct = editedProducts[item.id] || {};
-      const osp =
-        editedProduct.onlineStorePrice !== undefined
-          ? editedProduct.onlineStorePrice
-          : item.onlineStorePrice;
-      const cp =
-        editedProduct.compareAt !== undefined
-          ? editedProduct.compareAt
-          : item.compareAt;
-
-      let itemErrors = {};
-
-      if (editedProduct.onlineStorePrice !== undefined && osp === "") {
-        valid = false;
-        itemErrors.onlineStorePrice = "Required!";
-      }
-
-      if (editedProduct.compareAt !== undefined && cp === "") {
-        valid = false;
-        itemErrors.compareAt = "Required!";
-      } else if (parseFloat(cp) < parseFloat(osp)) {
-        valid = false;
-        itemErrors.compareAt = "CP must be greater than OSP";
-      }
-
-      if (Object.keys(itemErrors).length > 0) {
-        errors[item.id] = itemErrors;
-      }
-    });
-
-    setValidationErrors(errors);
-    return valid;
-  };
-
   const filteredProducts = data
     ? data.filter((item) => {
         const matchesStatus =
@@ -151,25 +124,14 @@ const Products = () => {
       })
     : [];
 
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-
-  const handlePageChange = (pageIndex) => {
-    setCurrentPage(pageIndex + 0); // Set `currentPage` to be 1-based
-  };
-
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
-    setCurrentPage(1);
+
   };
 
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
-    setCurrentPage(1);
+
   };
 
   const selectOptions = [
@@ -186,11 +148,50 @@ const Products = () => {
 
   const handleBulkModifyPrice = () => {
     if (validateInputs()) {
-      setModalVisible(true);
+      setModalVisible1(true);
     }
   };
 
-  const confirmBulkModifyPrice = async () => {
+  const validateInputs = () => {
+    let valid = true;
+    const errors = {};
+  
+    selectedItems.forEach((item) => {
+      const editedProduct = editedProducts[item.id] || {};
+      const osp =
+        editedProduct.onlineStorePrice !== undefined
+          ? editedProduct.onlineStorePrice
+          : item.onlineStorePrice;
+      const cp =
+        editedProduct.compareAt !== undefined
+          ? editedProduct.compareAt
+          : item.compareAt;
+  
+      let itemErrors = {};
+  
+      if (osp === "" || osp === undefined) {
+        valid = false;
+        itemErrors.onlineStorePrice = "Required!";
+      }
+  
+      if (cp === "" || cp === undefined) {
+        valid = false;
+        itemErrors.compareAt = "Required!";
+      } else if (parseFloat(cp) < parseFloat(osp)) {
+        valid = false;
+        itemErrors.compareAt = "CP must be greater than OSP";
+      }
+  
+      if (Object.keys(itemErrors).length > 0) {
+        errors[item.id] = itemErrors;
+      }
+    });
+  
+    setValidationErrors(errors);
+    return valid;
+  };
+  
+  const handleModalConfirm = async () => {
     let success = true;
   
     // Create the array of pricing data based on selected items
@@ -210,29 +211,37 @@ const Products = () => {
         response.meta.requestStatus === "fulfilled" &&
         response.payload.status === 200
       ) {
+        setBulkModifySuccessflash(true);
         setBulkModifySuccess(true);
         setSelectedItems([]); // Clear selected checkboxes
-        setModalVisible(false);
+        setModalVisible1(false);
         success = false;
       }
+      setTimeout(() => {
+        setBulkModifySuccessflash(false);
+      }, 5000); // 5000ms = 5 seconds
     } catch (err) {
       console.error("Failed to update product pricing:", err);
       success = false; // If there is an error, success should be set to false
     }
   
     if (success) {
+      setBulkModifySuccessflash(true)
       setBulkModifySuccess(true);
       setSelectedItems([]); // Clear selected checkboxes
     }
   
-    setModalVisible(false);
+    setModalVisible1(false);
   };
+  
   
 
   const navigatestore = () => {
     window.open("https://promodeagro.com/", "_blank");
   };
-  const [items, setItems] = React.useState([
+  const [items1, setItems] = 
+  
+  useState([
     {
       type: "info",
       dismissible: true,
@@ -247,12 +256,35 @@ const Products = () => {
       id: "message_1",
     },
   ]);
+  const [flashbarItems, setFlashbarItems] = useState([
+    {
+      type: "info",
+      dismissible: true,
+      dismissLabel: "Dismiss message",
+      onDismiss: () => setFlashbarItems([]),
+      content: (
+        <>
+          <b>Status Updated successfully </b>
+          <p>Toggle status have been updated successfully</p>
+        </>
+      ),
+      id: "message_1",
+    },
+  ]);
 
   return (
     <ContentLayout
-      notifications={
-        <>{isBulkModifySuccess ? <Flashbar items={items} /> : <></>}</>
-      }
+    notifications={
+      <>
+        {/* Always render Flashbar with flashbarItems */}
+        {isToggle && <Flashbar items={flashbarItems} />}
+    
+        {/* Conditionally render Flashbar based on isBulkModifySuccess */}
+        {isBulkModifySuccessflash && <Flashbar items={items1} />}
+      </>
+    }
+    
+
       breadcrumbs={
         <BreadcrumbGroup
           items={[
@@ -317,16 +349,7 @@ const Products = () => {
                     >
                       Bulk Modify Price
                     </Button>
-                  
-                  <Pagination
-                    currentPageIndex={currentPage} // Set this to reflect the `currentPage` state
-                    onChange={({ detail }) =>
-                      handlePageChange(detail.currentPageIndex)
-                    }
-                    pagesCount={Math.ceil(
-                      filteredProducts.length / productsPerPage
-                    )}
-                  />
+              
                 </div>
               </div>
             }
@@ -460,7 +483,7 @@ const Products = () => {
             ]}
             selectedItems={selectedItems}
             onSelectionChange={handleSelectionChange}
-            items={currentProducts}
+            items={filteredProducts}
             selectionType="multi"
           />
         </div>
@@ -468,15 +491,15 @@ const Products = () => {
 
       <Modal
      
-        visible={isModalVisible}
-        onDismiss={() => setModalVisible(false)}
+        visible={isModalVisible1}
+        onDismiss={() => setModalVisible1(false)}
         header="Confirm Bulk Modify"
         footer={
           <SpaceBetween direction="horizontal" size="xs">
-            <Button variant="link" onClick={() => setModalVisible(false)}>
+            <Button variant="link" onClick={() => setModalVisible1(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={confirmBulkModifyPrice}>
+            <Button variant="primary" onClick={handleModalConfirm}>
               Confirm
             </Button>
           </SpaceBetween>
@@ -484,6 +507,29 @@ const Products = () => {
       >
         Are you sure you want to bulk modify the prices for the selected items?
       </Modal>
+      {/* Modal for confirmation */}
+      <Modal
+        // onDismiss={handleModalCancel}
+        visible={isModalVisible}
+        closeAriaLabel="Close modal"
+        header="Confirm Status Change"
+        footer={
+          <Box float="right">
+            <SpaceBetween direction="horizontal" size="xs">
+              {/* <Button onClick={handleModalCancel} variant="link">
+                Cancel
+              </Button> */}
+              <Button onClick={confirmToggleChange} variant="primary">
+                Confirm
+              </Button>
+            </SpaceBetween>
+          </Box>
+        }
+      >
+        Are you sure you want to {toggleItem?.active ? "deactivate" : "activate"} this product?
+      </Modal>
+
+      
     </ContentLayout>
   );
 };

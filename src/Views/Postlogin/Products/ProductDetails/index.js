@@ -12,6 +12,8 @@ import {
   Checkbox,
   Toggle,
   Spinner,
+  Flashbar,
+  Modal,
 } from "@cloudscape-design/components";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,81 +29,80 @@ import Attributes from "./Components/Attributes";
 import useProductNavigation from "../../Hooks/useProductNavigation";
 import "../../../../assets/styles/CloudscapeGlobalstyle.css";
 
+
 const ProductDetail = () => {
-  const { id } = useParams();
-  const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
-
-  const product = useSelector((state) => state.products.productDetail);
-
-  const [specificProduct, setSpecificProduct] = useState({});
-  const [active, setActive] = useState(false);
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [charge, setCharge] = useState(false);
-  const [purchasePrice, setPurchasePrice] = useState("");
-  const [msp, setmsp] = useState("");
-  const [pricingDetails, setPricingDetails] = useState({
-    compareAt: "",
-    onlineStorePrice: "",
-  });
-
-  // Validation errors
-  const [priceError, setPriceError] = useState("");
-  const [compareAtError, setCompareAtError] = useState("");
-
-  const { goToNextProduct, goToPreviousProduct, isAtFirstProduct, isAtLastProduct } = useProductNavigation();
-
-  useEffect(() => {
-    dispatch(fetchProducts());
-    if (id) {
-      setLoading(true);
-      dispatch(fetchProductById(id)).finally(() => setLoading(false));
-    }
-  }, [dispatch, id]);
-
-  useEffect(() => {
-    if (product.data) {
-      setSpecificProduct(product.data);
-      setActive(product.data.active);
-      setPricingDetails({
-        compareAt: product.data.compareAt || "",
-        onlineStorePrice: product.data.onlineStorePrice || "",
-      });
-      setPurchasePrice(product.data.purchasingPrice || "");
-      setmsp(product.data.msp || "");
-      setCharge(product.data.chargeTax || false);
-    }
-  }, [product]);
-
-  const handleToggleChange = () => {
-    const newStatus = !active;
-    setActive(newStatus);
-    dispatch(PutToggle({ id: specificProduct.id, active: newStatus }));
-    setSpecificProduct((prev) => ({ ...prev, active: newStatus }));
-  };
+    const { id } = useParams();
+    const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false);
+  
+    const product = useSelector((state) => state.products.productDetail);
+    const [specificProduct, setSpecificProduct] = useState({});
+    const [active, setActive] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [showFlashbar, setShowFlashbar] = useState(false);
+      // State for modal and flashbar
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [flashMessages, setFlashMessages] = useState([]);
+    const [isPublishing, setIsPublishing] = useState(false);
+    const [charge, setCharge] = useState(false);
+    const [purchasePrice, setPurchasePrice] = useState("");
+    const [msp, setmsp] = useState("");
+    const [pricingDetails, setPricingDetails] = useState({
+      compareAt: "",
+      onlineStorePrice: "",
+    });
+  
+    // Validation errors
+    const [priceError, setPriceError] = useState("");
+    const [compareAtError, setCompareAtError] = useState("");
+  
+    const { goToNextProduct, goToPreviousProduct, isAtFirstProduct, isAtLastProduct } = useProductNavigation();
+  
+    useEffect(() => {
+      dispatch(fetchProducts());
+      if (id) {
+        setLoading(true);
+        dispatch(fetchProductById(id)).finally(() => setLoading(false));
+      }
+    }, [dispatch, id]);
+  
+    useEffect(() => {
+      if (product.data) {
+        setSpecificProduct(product.data);
+        setActive(product.data.active);
+        setPricingDetails({
+          compareAt: product.data.compareAt || "",
+          onlineStorePrice: product.data.onlineStorePrice || "",
+        });
+        setPurchasePrice(product.data.purchasingPrice || "");
+        setmsp(product.data.msp || "");
+        setCharge(product.data.chargeTax || false);
+      }
+    }, [product]);
+    const handleToggleChange = () => {
+      setShowModal(true);
+    };
+  
+    const handleConfirm = () => {
+      const newStatus = !active;
+      setActive(newStatus);
+      dispatch(PutToggle({ id: product?.data?.id, active: newStatus }))
+        .then(() => {
+          setSpecificProduct((prev) => ({ ...prev, active: newStatus }));
+          setShowFlashbar(true);
+          setTimeout(() => setShowFlashbar(false), 5000); // Auto-hide flashbar after 3 seconds
+        });
+      setShowModal(false);
+    };
+  
+    const handleCancel = () => {
+      setShowModal(false);
+    };
   const handlePublish = async () => {
+    setIsModalVisible(false);
+    setIsPublishing(true);
     setPriceError("");
     setCompareAtError("");
-  
-    if (
-      parseFloat(pricingDetails.onlineStorePrice) >=
-      parseFloat(pricingDetails.compareAt)
-    ) {
-      setPriceError("Online Store Price must be less than Compare At Price");
-      return;
-    }
-  
-    if (!pricingDetails.compareAt || !pricingDetails.onlineStorePrice) {
-      if (!pricingDetails.compareAt) {
-        setCompareAtError("Compare At Price is required");
-      }
-      if (!pricingDetails.onlineStorePrice) {
-        setPriceError("Online Store Price is required");
-      }
-      return;
-    }
-  
-    setIsPublishing(true);
     try {
       // Create the pricing data array
       const pricingDataArray = [
@@ -111,26 +112,36 @@ const ProductDetail = () => {
           onlineStorePrice: parseFloat(pricingDetails.onlineStorePrice) || 0,
         },
       ];
-      console.log(pricingDataArray,"particular");
-  
+
       // Dispatch the action with the pricing data array
       const response = await dispatch(putPricingById(pricingDataArray));
-  
+
       if (response.meta.requestStatus === "fulfilled") {
+        if (id) {
+          setLoading(true);
+          dispatch(fetchProductById(id)).finally(() => setLoading(false));
+        }
+        // If the request is successful, update the state with the new pricing details
         setSpecificProduct((prev) => ({
           ...prev,
           compareAt: pricingDetails.compareAt,
           onlineStorePrice: pricingDetails.onlineStorePrice,
           chargeTax: charge,
-        }));
-       
-        
-       
-        
-  
-        setTimeout(() => {
-          window.location.reload();
-        }, 5);
+        })
+      
+      );
+
+        // Show success flashbar
+        setFlashMessages([
+          {
+            type: "success",
+            content: "Product pricing updated successfully.",
+            dismissible: true,
+            onDismiss: () => setFlashMessages([]),
+          },
+        ]);
+
+    
       } else {
         console.error("Failed to update product pricing.");
       }
@@ -140,7 +151,7 @@ const ProductDetail = () => {
       setIsPublishing(false);
     }
   };
-  
+
   const handleInputChange = (field, value) => {
     setPricingDetails((prev) => ({
       ...prev,
@@ -155,12 +166,74 @@ const ProductDetail = () => {
     }
   };
 
+  const handleSaveChanges = () => {
+    if (
+      parseFloat(pricingDetails.onlineStorePrice) >=
+      parseFloat(pricingDetails.compareAt)
+    ) {
+      setPriceError("Online Store Price must be less than Compare At Price");
+      setIsPublishing(false);
+      return;
+    }
+
+    if (!pricingDetails.compareAt || !pricingDetails.onlineStorePrice) {
+      if (!pricingDetails.compareAt) {
+        setCompareAtError("Compare At Price is required");
+      }
+      if (!pricingDetails.onlineStorePrice) {
+        setPriceError("Online Store Price is required");
+      }
+      setIsPublishing(false);
+      return;
+    }
+    setIsModalVisible(true);
+  };
+
   if (!product.data) {
     return <div>Loading...</div>;
   }
 
   return (
     <Box margin={{ top: "n" }}>
+       {/* Flashbar for success or error messages */}
+       {flashMessages.length > 0 && (
+        <Flashbar items={flashMessages} />
+      )}
+      {/* Confirmation Modal */}
+      <Modal
+        onDismiss={handleCancel}
+        visible={showModal}
+        closeAriaLabel="Close modal"
+        header="Confirm Change"
+        footer={
+          <SpaceBetween direction="horizontal" size="xs">
+            <Button onClick={handleCancel} variant="link">
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} variant="primary">
+              Confirm
+            </Button>
+          </SpaceBetween>
+        }
+      >
+        Are you sure you want to change the product status?
+      </Modal>
+
+      {/* Flashbar for Success Message */}
+      {showFlashbar && (
+        <Flashbar
+          items={[
+            {
+              type: "success",
+              message: "Updated successfully",
+              content: "Product Status Changed Successfully",
+              dismissible: true,
+              onDismiss: () => setShowFlashbar(false),
+            },
+          ]}
+        />
+      )}
+    
       <BreadcrumbGroup
         className="bread"
         items={[
@@ -183,7 +256,7 @@ const ProductDetail = () => {
               </Toggle>
               <Button
                 variant="primary"
-                onClick={handlePublish}
+                onClick={handleSaveChanges}
                 disabled={isPublishing}
               >
                 {isPublishing ? "Saving..." : "Save Changes"}
@@ -373,8 +446,8 @@ const ProductDetail = () => {
             ) : (
               <>
                 <img
-                  src={product?.data?.images[0]}
-                  alt={product?.data?.name}
+                    src={specificProduct?.images?.[0]}
+                  alt={specificProduct.name}
                   style={{
                     height: "200px",
                     borderRadius: "8px",
@@ -397,7 +470,7 @@ const ProductDetail = () => {
                   }}
                 >
                   <img
-                    src={product?.data?.images[1]}
+                     src={specificProduct?.images?.[1]}
                     style={{
                       borderRadius: "8px",
                       height: "110px",
@@ -407,7 +480,7 @@ const ProductDetail = () => {
                   />
 
                   <img
-                    src={product?.data?.images[2]}
+                     src={specificProduct?.images?.[2]}
                     style={{
                       borderRadius: "8px",
                       height: "110px",
@@ -421,7 +494,36 @@ const ProductDetail = () => {
           </Container>
         </div>
       </SpaceBetween>
+
+      {/* Confirmation Modal */}
+      <Modal
+        onDismiss={() => setIsModalVisible(false)}
+        visible={isModalVisible}
+        closeAriaLabel="Close modal"
+        header="Confirm Changes"
+        footer={
+          <Box float="right">
+            <Button
+              onClick={() => setIsModalVisible(false)}
+              variant="link"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePublish}
+              variant="primary"
+            >
+              Confirm
+            </Button>
+          </Box>
+        }
+      >
+        Are you sure you want to save these changes?
+      </Modal>
+
+     
     </Box>
   );
 };
+
 export default ProductDetail;
