@@ -25,6 +25,7 @@ import {
 } from "Redux-Store/Products/ProductThunk";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
 import Numbers from "./Numbers";
+
 const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
@@ -35,9 +36,15 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [editedProducts, setEditedProducts] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisible1, setModalVisible1] = useState(false);
   const [isBulkModifySuccess, setBulkModifySuccess] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-  //fetching products data
+  
+  // New state variables
+  const [isToggle, setIsToggle] = useState(false);
+  const [toggleItem, setToggleItem] = useState(null); // Store the item to be toggled
+
+
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
@@ -74,24 +81,32 @@ const Products = () => {
       [id]: errors,
     }));
   };
-// hitting put api for toggle 
   const handleToggleChange = (item) => {
-    const newStatus = !item.active;
-
-    dispatch(PutToggle({ id: item.id, active: newStatus })).then((response) => {
-      if (
-        response.meta.requestStatus === "fulfilled" &&
-        response.payload.status === 200
-      ) {
-        dispatch(fetchProducts());
-      } else {
-        dispatch(fetchProducts());
-      }
-    });
+    setToggleItem(item); // Set the item to be toggled
+    setModalVisible(true); // Show confirmation modal
   };
 
+  const confirmToggleChange = () => {
+    const newStatus = !toggleItem.active;
 
+    dispatch(PutToggle({ id: toggleItem.id, active: newStatus })).then(
+      (response) => {
+        if (
+          response.meta.requestStatus === "fulfilled" &&
+          response.payload.status === 200
+        ) {
+         
+        dispatch(fetchProducts()); 
+        // Refresh products list
+      }
+      });
+    setIsToggle(true)
+    setModalVisible(false);
 
+    setTimeout(() => {
+      setIsToggle(false);
+    }, 5000); // Hide the modal
+  };
   const filteredProducts = data
     ? data.filter((item) => {
         const matchesStatus =
@@ -133,7 +148,7 @@ const Products = () => {
 
   const handleBulkModifyPrice = () => {
     if (validateInputs()) {
-      setModalVisible(true);
+      setModalVisible1(true);
     }
   };
 
@@ -198,9 +213,12 @@ const Products = () => {
       ) {
         setBulkModifySuccess(true);
         setSelectedItems([]); // Clear selected checkboxes
-        setModalVisible(false);
+        setModalVisible1(false);
         success = false;
       }
+      setTimeout(() => {
+        setBulkModifySuccess(false);
+      }, 5000); // 5000ms = 5 seconds
     } catch (err) {
       console.error("Failed to update product pricing:", err);
       success = false; // If there is an error, success should be set to false
@@ -211,7 +229,7 @@ const Products = () => {
       setSelectedItems([]); // Clear selected checkboxes
     }
   
-    setModalVisible(false);
+    setModalVisible1(false);
   };
   
   
@@ -219,7 +237,9 @@ const Products = () => {
   const navigatestore = () => {
     window.open("https://promodeagro.com/", "_blank");
   };
-  const [items, setItems] = React.useState([
+  const [items1, setItems] = 
+  
+  useState([
     {
       type: "info",
       dismissible: true,
@@ -234,12 +254,35 @@ const Products = () => {
       id: "message_1",
     },
   ]);
+  const [flashbarItems, setFlashbarItems] = useState([
+    {
+      type: "info",
+      dismissible: true,
+      dismissLabel: "Dismiss message",
+      onDismiss: () => setFlashbarItems([]),
+      content: (
+        <>
+          <b>Status Updated successfully </b>
+          <p>Toggle status have been updated successfully</p>
+        </>
+      ),
+      id: "message_1",
+    },
+  ]);
 
   return (
     <ContentLayout
-      notifications={
-        <>{isBulkModifySuccess ? <Flashbar items={items} /> : <></>}</>
-      }
+    notifications={
+      <>
+        {/* Always render Flashbar with flashbarItems */}
+        {isToggle && <Flashbar items={flashbarItems} />}
+    
+        {/* Conditionally render Flashbar based on isBulkModifySuccess */}
+        {isBulkModifySuccess && <Flashbar items={items1} />}
+      </>
+    }
+    
+
       breadcrumbs={
         <BreadcrumbGroup
           items={[
@@ -446,12 +489,12 @@ const Products = () => {
 
       <Modal
      
-        visible={isModalVisible}
-        onDismiss={() => setModalVisible(false)}
+        visible={isModalVisible1}
+        onDismiss={() => setModalVisible1(false)}
         header="Confirm Bulk Modify"
         footer={
           <SpaceBetween direction="horizontal" size="xs">
-            <Button variant="link" onClick={() => setModalVisible(false)}>
+            <Button variant="link" onClick={() => setModalVisible1(false)}>
               Cancel
             </Button>
             <Button variant="primary" onClick={handleModalConfirm}>
@@ -462,6 +505,29 @@ const Products = () => {
       >
         Are you sure you want to bulk modify the prices for the selected items?
       </Modal>
+      {/* Modal for confirmation */}
+      <Modal
+        // onDismiss={handleModalCancel}
+        visible={isModalVisible}
+        closeAriaLabel="Close modal"
+        header="Confirm Status Change"
+        footer={
+          <Box float="right">
+            <SpaceBetween direction="horizontal" size="xs">
+              {/* <Button onClick={handleModalCancel} variant="link">
+                Cancel
+              </Button> */}
+              <Button onClick={confirmToggleChange} variant="primary">
+                Confirm
+              </Button>
+            </SpaceBetween>
+          </Box>
+        }
+      >
+        Are you sure you want to {toggleItem?.active ? "deactivate" : "activate"} this product?
+      </Modal>
+
+      
     </ContentLayout>
   );
 };

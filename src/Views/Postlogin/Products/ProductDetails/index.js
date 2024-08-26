@@ -12,6 +12,8 @@ import {
   Checkbox,
   Toggle,
   Spinner,
+  Flashbar,
+  Modal,
 } from "@cloudscape-design/components";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -36,6 +38,8 @@ const ProductDetail = () => {
 
   const [specificProduct, setSpecificProduct] = useState({});
   const [active, setActive] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showFlashbar, setShowFlashbar] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [charge, setCharge] = useState(false);
   const [purchasePrice, setPurchasePrice] = useState("");
@@ -72,13 +76,27 @@ const ProductDetail = () => {
       setCharge(product.data.chargeTax || false);
     }
   }, [product]);
-
   const handleToggleChange = () => {
+    setShowModal(true);
+  };
+
+  const handleConfirm = () => {
     const newStatus = !active;
     setActive(newStatus);
-    dispatch(PutToggle({ id: specificProduct.id, active: newStatus }));
-    setSpecificProduct((prev) => ({ ...prev, active: newStatus }));
+    dispatch(PutToggle({ id: product?.data?.id, active: newStatus }))
+      .then(() => {
+        setSpecificProduct((prev) => ({ ...prev, active: newStatus }));
+        setShowFlashbar(true);
+        setTimeout(() => setShowFlashbar(false), 5000); // Auto-hide flashbar after 3 seconds
+      });
+    setShowModal(false);
   };
+
+  const handleCancel = () => {
+    setShowModal(false);
+  };
+
+
   const handlePublish = async () => {
     setPriceError("");
     setCompareAtError("");
@@ -161,6 +179,41 @@ const ProductDetail = () => {
 
   return (
     <Box margin={{ top: "n" }}>
+            {/* Confirmation Modal */}
+            <Modal
+        onDismiss={handleCancel}
+        visible={showModal}
+        closeAriaLabel="Close modal"
+        header="Confirm Change"
+        footer={
+          <SpaceBetween direction="horizontal" size="xs">
+            <Button onClick={handleCancel} variant="link">
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} variant="primary">
+              Confirm
+            </Button>
+          </SpaceBetween>
+        }
+      >
+        Are you sure you want to change the product status?
+      </Modal>
+
+      {/* Flashbar for Success Message */}
+      {showFlashbar && (
+        <Flashbar
+          items={[
+            {
+              type: "success",
+              message: "Updated successfully",
+              content: "Product Status Changed Successfully",
+              dismissible: true,
+              onDismiss: () => setShowFlashbar(false),
+            },
+          ]}
+        />
+      )}
+    
       <BreadcrumbGroup
         className="bread"
         items={[
