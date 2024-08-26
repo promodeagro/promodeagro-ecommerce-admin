@@ -89,15 +89,14 @@ const Products = () => {
   const confirmToggleChange = () => {
     const newStatus = !toggleItem.active;
 
-    dispatch(PutToggle({ id: toggleItem.id, active: newStatus })).then(
-      (response) => {
-        if (
-          response.meta.requestStatus === "fulfilled" &&
-          response.payload.status === 200
-        ) {
-         
-        dispatch(fetchProducts()); 
-        // Refresh products list
+    dispatch(PutToggle({ id: toggleItem.id, active: newStatus })).then((response) => {
+      if (
+        response.meta.requestStatus === "fulfilled" &&
+        response.payload.status === 200
+      ) {
+        dispatch(fetchProducts());
+      } else {
+        dispatch(fetchProducts());
       }
       });
     setIsToggle(true)
@@ -105,7 +104,7 @@ const Products = () => {
 
     setTimeout(() => {
       setIsToggle(false);
-    }, 5000); // Hide the modal
+    }, 5000); // Hide the modal 
   };
   const filteredProducts = data
     ? data.filter((item) => {
