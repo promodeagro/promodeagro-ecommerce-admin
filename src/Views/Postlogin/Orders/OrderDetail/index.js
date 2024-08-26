@@ -636,7 +636,7 @@ const OrderDetail = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  ₹{orderDetail?.paymentDetails?.totalAmount || 0}
+                  ₹{orderDetail?.paymentDetails?.totalAmount || "N/A"}
                 </div>
               </ColumnLayout>
             </Grid>
