@@ -183,8 +183,11 @@ const OrderDetail = () => {
   const handleItemClick = (event) => {
     if (event.detail.id === "refund") {
       navigate("/app/order/orderdetail/refund");
+    } else if (event.detail.id === "invoice") {
+      navigate(`/app/order/invoice/${id}`); // Navigate to the invoice page with the Order ID
     }
   };
+  
 
   const [visible, setVisible] = React.useState(false);
   const openModal = () => setVisible(true);
@@ -386,7 +389,7 @@ const OrderDetail = () => {
         items={[
           { text: "Cancel Order", id: "cancel", href: "/cancel-order" },
           { text: "Refund Order", id: "refund" },
-          { text: "View Invoice", id: "invoice", href: "/app/order/orderdetail/invoice" },
+          { text: "View Invoice", id: "invoice", href: `/app/order/orderdetail/invoice/${id}` },
         ]}
         onItemClick={handleItemClick}
       >
@@ -633,7 +636,7 @@ const OrderDetail = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  ₹{orderDetail?.paymentDetails?.totalAmount || 0}
+                  ₹{orderDetail?.paymentDetails?.totalAmount || "N/A"}
                 </div>
               </ColumnLayout>
             </Grid>

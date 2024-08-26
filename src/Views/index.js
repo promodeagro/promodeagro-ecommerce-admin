@@ -114,7 +114,7 @@ const Views = () => {
           />
                     <Route
             exact
-            path={`${PREFIX_APP_PATH}/order/orderdetail/invoice`}
+            path={`${PREFIX_APP_PATH}/order/orderdetail/invoice/:id`}
             element={<Invoice />}
           />
 
