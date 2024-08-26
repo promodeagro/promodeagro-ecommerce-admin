@@ -38,6 +38,7 @@ const Products = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isModalVisible1, setModalVisible1] = useState(false);
   const [isBulkModifySuccess, setBulkModifySuccess] = useState(false);
+    const [isBulkModifySuccessflash, setBulkModifySuccessflash] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   
   // New state variables
@@ -210,13 +211,14 @@ const Products = () => {
         response.meta.requestStatus === "fulfilled" &&
         response.payload.status === 200
       ) {
+        setBulkModifySuccessflash(true);
         setBulkModifySuccess(true);
         setSelectedItems([]); // Clear selected checkboxes
         setModalVisible1(false);
         success = false;
       }
       setTimeout(() => {
-        setBulkModifySuccess(false);
+        setBulkModifySuccessflash(false);
       }, 5000); // 5000ms = 5 seconds
     } catch (err) {
       console.error("Failed to update product pricing:", err);
@@ -224,6 +226,7 @@ const Products = () => {
     }
   
     if (success) {
+      setBulkModifySuccessflash(true)
       setBulkModifySuccess(true);
       setSelectedItems([]); // Clear selected checkboxes
     }
@@ -277,7 +280,7 @@ const Products = () => {
         {isToggle && <Flashbar items={flashbarItems} />}
     
         {/* Conditionally render Flashbar based on isBulkModifySuccess */}
-        {isBulkModifySuccess && <Flashbar items={items1} />}
+        {isBulkModifySuccessflash && <Flashbar items={items1} />}
       </>
     }
     

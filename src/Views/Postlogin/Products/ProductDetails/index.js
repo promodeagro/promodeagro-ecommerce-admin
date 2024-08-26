@@ -36,7 +36,6 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(false);
   
     const product = useSelector((state) => state.products.productDetail);
-  
     const [specificProduct, setSpecificProduct] = useState({});
     const [active, setActive] = useState(false);
     const [showModal, setShowModal] = useState(false);
