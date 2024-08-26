@@ -99,18 +99,11 @@ const ProductDetail = () => {
     const handleCancel = () => {
       setShowModal(false);
     };
-  
-  
-  
-
   const handlePublish = async () => {
     setIsModalVisible(false);
     setIsPublishing(true);
     setPriceError("");
     setCompareAtError("");
-
-  
-
     try {
       // Create the pricing data array
       const pricingDataArray = [
@@ -125,12 +118,19 @@ const ProductDetail = () => {
       const response = await dispatch(putPricingById(pricingDataArray));
 
       if (response.meta.requestStatus === "fulfilled") {
+        if (id) {
+          setLoading(true);
+          dispatch(fetchProductById(id)).finally(() => setLoading(false));
+        }
+        // If the request is successful, update the state with the new pricing details
         setSpecificProduct((prev) => ({
           ...prev,
           compareAt: pricingDetails.compareAt,
           onlineStorePrice: pricingDetails.onlineStorePrice,
           chargeTax: charge,
-        }));
+        })
+      
+      );
 
         // Show success flashbar
         setFlashMessages([
@@ -142,9 +142,7 @@ const ProductDetail = () => {
           },
         ]);
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 5);
+    
       } else {
         console.error("Failed to update product pricing.");
       }
@@ -449,8 +447,8 @@ const ProductDetail = () => {
             ) : (
               <>
                 <img
-                  src={product?.data?.images[0]}
-                  alt={product?.data?.name}
+                    src={specificProduct?.images?.[0]}
+                  alt={specificProduct.name}
                   style={{
                     height: "200px",
                     borderRadius: "8px",
@@ -473,7 +471,7 @@ const ProductDetail = () => {
                   }}
                 >
                   <img
-                    src={product?.data?.images[1]}
+                     src={specificProduct?.images?.[1]}
                     style={{
                       borderRadius: "8px",
                       height: "110px",
@@ -483,7 +481,7 @@ const ProductDetail = () => {
                   />
 
                   <img
-                    src={product?.data?.images[2]}
+                     src={specificProduct?.images?.[2]}
                     style={{
                       borderRadius: "8px",
                       height: "110px",
