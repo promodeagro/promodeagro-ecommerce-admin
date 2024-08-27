@@ -30,6 +30,7 @@ const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const { data = [] } = products;
+  
   const [activeButton, setActiveButton] = useState("All");
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteringText, setFilteringText] = useState("");
@@ -38,31 +39,30 @@ const Products = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isModalVisible1, setModalVisible1] = useState(false);
   const [isBulkModifySuccess, setBulkModifySuccess] = useState(false);
-    const [isBulkModifySuccessflash, setBulkModifySuccessflash] = useState(false);
+  const [isBulkModifySuccessflash, setBulkModifySuccessflash] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-  
-  // New state variables
   const [isToggle, setIsToggle] = useState(false);
-  const [toggleItem, setToggleItem] = useState(null); // Store the item to be toggled
-
+  const [toggleItem, setToggleItem] = useState(null);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
   const handleInputChange = (id, field, value) => {
-    setEditedProducts((prev) => ({
+    setEditedProducts(prev => ({
       ...prev,
       [id]: {
         ...prev[id],
         [field]: value,
       },
     }));
-    // Validate the current field and update errors
-    const osp = value; // Updated price value
-    const cp =
-      field === "compareAt" ? value : editedProducts[id]?.compareAt ?? "";
+    
+    validateField(id, field, value);
+  };
 
+  const validateField = (id, field, value) => {
+    const osp = value;
+    const cp = field === "compareAt" ? value : editedProducts[id]?.compareAt || "";
     let errors = {};
 
     if (field === "onlineStorePrice" && !osp) {
@@ -77,61 +77,52 @@ const Products = () => {
       }
     }
 
-    setValidationErrors((prevErrors) => ({
+    setValidationErrors(prevErrors => ({
       ...prevErrors,
       [id]: errors,
     }));
   };
+
   const handleToggleChange = (item) => {
-    setToggleItem(item); // Set the item to be toggled
-    setModalVisible(true); // Show confirmation modal
+    setToggleItem(item);
+    setModalVisible(true);
   };
 
   const confirmToggleChange = () => {
     const newStatus = !toggleItem.active;
 
-    dispatch(PutToggle({ id: toggleItem.id, active: newStatus })).then((response) => {
-      if (
-        response.meta.requestStatus === "fulfilled" &&
-        response.payload.status === 200
-      ) {
+    dispatch(PutToggle({ id: toggleItem.id, active: newStatus })).then(response => {
+      if (response.meta.requestStatus === "fulfilled" && response.payload.status === 200) {
         dispatch(fetchProducts());
       } else {
         dispatch(fetchProducts());
       }
-      });
-    setIsToggle(true)
+    });
+
+    setIsToggle(true);
     setModalVisible(false);
 
     setTimeout(() => {
       setIsToggle(false);
-    }, 5000); // Hide the modal 
+    }, 5000);
   };
-  const filteredProducts = data
-    ? data.filter((item) => {
-        const matchesStatus =
-          activeButton === "All" || item.active === (activeButton === "Active");
-        const matchesSearch =
-          item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
-          item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
-          (item.active ? "active" : "inactive").includes(
-            filteringText.toLowerCase()
-          );
-        const matchesCategory =
-          selectedCategory === "All" || item.category === selectedCategory;
 
-        return matchesStatus && matchesSearch && matchesCategory;
-      })
-    : [];
+  const filteredProducts = data.filter(item => {
+    const matchesStatus = activeButton === "All" || item.active === (activeButton === "Active");
+    const matchesSearch = item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
+      item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
+      (item.active ? "active" : "inactive").includes(filteringText.toLowerCase());
+    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+
+    return matchesStatus && matchesSearch && matchesCategory;
+  });
 
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
-
   };
 
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
-
   };
 
   const selectOptions = [
@@ -155,114 +146,78 @@ const Products = () => {
   const validateInputs = () => {
     let valid = true;
     const errors = {};
-  
-    selectedItems.forEach((item) => {
+
+    selectedItems.forEach(item => {
       const editedProduct = editedProducts[item.id] || {};
-      const osp =
-        editedProduct.onlineStorePrice !== undefined
-          ? editedProduct.onlineStorePrice
-          : item.onlineStorePrice;
-      const cp =
-        editedProduct.compareAt !== undefined
-          ? editedProduct.compareAt
-          : item.compareAt;
-  
+      const osp = editedProduct.onlineStorePrice || item.onlineStorePrice;
+      const cp = editedProduct.compareAt || item.compareAt;
       let itemErrors = {};
-  
-      if (osp === "" || osp === undefined) {
+
+      if (!osp) {
         valid = false;
         itemErrors.onlineStorePrice = "Required!";
       }
-  
-      if (cp === "" || cp === undefined) {
+
+      if (!cp) {
         valid = false;
         itemErrors.compareAt = "Required!";
       } else if (parseFloat(cp) < parseFloat(osp)) {
         valid = false;
         itemErrors.compareAt = "CP must be greater than OSP";
       }
-  
+
       if (Object.keys(itemErrors).length > 0) {
         errors[item.id] = itemErrors;
       }
     });
-  
+
     setValidationErrors(errors);
     return valid;
   };
-  
+
   const handleModalConfirm = async () => {
-    let success = true;
-  
-    // Create the array of pricing data based on selected items
-    const pricingDataArray = selectedItems.map((item) => ({
+    const pricingDataArray = selectedItems.map(item => ({
       id: item.id,
       compareAt: parseFloat(editedProducts[item.id]?.compareAt || item.compareAt),
       onlineStorePrice: parseFloat(editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice),
     }));
-  
-    console.log(pricingDataArray, "products.js");
-  
-    // Send the pricing data array to the API using the putPricingById thunk
+
     try {
       const response = await dispatch(putPricingById(pricingDataArray));
-  
-      if (
-        response.meta.requestStatus === "fulfilled" &&
-        response.payload.status === 200
-      ) {
+
+      if (response.meta.requestStatus === "fulfilled" && response.payload.status === 200) {
         setBulkModifySuccessflash(true);
         setBulkModifySuccess(true);
-        setSelectedItems([]); // Clear selected checkboxes
+        setSelectedItems([]);
         setModalVisible1(false);
-        success = false;
+      } else {
+        setBulkModifySuccessflash(true);
+        setBulkModifySuccess(true);
+        setSelectedItems([]);
+        setModalVisible1(false);
       }
+
       setTimeout(() => {
         setBulkModifySuccessflash(false);
-      }, 5000); // 5000ms = 5 seconds
+      }, 5000);
     } catch (err) {
       console.error("Failed to update product pricing:", err);
-      success = false; // If there is an error, success should be set to false
+      setBulkModifySuccess(false);
     }
-  
-    if (success) {
-      setBulkModifySuccessflash(true)
-      setBulkModifySuccess(true);
-      setSelectedItems([]); // Clear selected checkboxes
-    }
-  
-    setModalVisible1(false);
   };
-  
-  
-  const navigatestore = () => {
+
+  const navigateToStore = () => {
     const baseCategoryUrl = "https://promodeagro.com";
-    let categoryUrlPart;
-  
-    switch (selectedCategory) {
-      case "Leafy Vegetables":
-        categoryUrlPart = "/category/VEGETABLES/Leafy%20Vegetables";
-        break;
-      case "Fruit":
-        categoryUrlPart = "/category/Fruits/Fresh%20Fruits";
-        break;
-      case "Vegetable":
-        categoryUrlPart = "/category/VEGETABLES/Fresh%20Vegetables";
-        break;
-      case "Bengali Vegetable":
-        categoryUrlPart = "/category/VEGETABLES/Bengali%20Vegetables";
-        break;
-      default:
-        categoryUrlPart = "";
-    }
-  
-    if (categoryUrlPart) {
-      window.open(`${baseCategoryUrl}${categoryUrlPart}`, "_blank");
-    } else {
-      window.open(`${baseCategoryUrl}`, "_blank");
-      
-    }
+    const categoryUrlPart = {
+      "Leafy Vegetables": "/category/VEGETABLES/Leafy%20Vegetables",
+      "Fruit": "/category/Fruits/Fresh%20Fruits",
+      "Vegetable": "/category/VEGETABLES/Fresh%20Vegetables",
+      "Bengali Vegetable": "/category/VEGETABLES/Bengali%20Vegetables",
+    }[selectedCategory] || "";
+
+    window.open(`${baseCategoryUrl}${categoryUrlPart}`, "_blank");
   };
+
   
   const [items1, setItems] = 
   
@@ -363,7 +318,7 @@ const Products = () => {
                 </div>
                 <div style={{ display: "flex", gap: "5px" }}>
                   {isBulkModifySuccess && (
-                    <Button variant="normal" onClick={navigatestore}>
+                    <Button variant="normal" onClick={navigateToStore}>
                       View On Store
                     </Button>
                   )}
