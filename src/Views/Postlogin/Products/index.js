@@ -136,7 +136,7 @@ const Products = () => {
 
   const selectOptions = [
     { label: "All", value: "All" },
-    { label: "Leafy", value: "Leafy" },
+    { label: "Leafy Vegetables", value: "Leafy Vegetables" },
     { label: "Fruit", value: "Fruit" },
     { label: "Vegetable", value: "Vegetable" },
     { label: "Bengali Vegetable", value: "Bengali Vegetable" },
@@ -235,10 +235,35 @@ const Products = () => {
   };
   
   
-
   const navigatestore = () => {
-    window.open("https://promodeagro.com/", "_blank");
+    const baseCategoryUrl = "https://promodeagro.com";
+    let categoryUrlPart;
+  
+    switch (selectedCategory) {
+      case "Leafy Vegetables":
+        categoryUrlPart = "/category/VEGETABLES/Leafy%20Vegetables";
+        break;
+      case "Fruit":
+        categoryUrlPart = "/category/Fruits/Fresh%20Fruits";
+        break;
+      case "Vegetable":
+        categoryUrlPart = "/category/VEGETABLES/Fresh%20Vegetables";
+        break;
+      case "Bengali Vegetable":
+        categoryUrlPart = "/category/VEGETABLES/Bengali%20Vegetables";
+        break;
+      default:
+        categoryUrlPart = "";
+    }
+  
+    if (categoryUrlPart) {
+      window.open(`${baseCategoryUrl}${categoryUrlPart}`, "_blank");
+    } else {
+      window.open(`${baseCategoryUrl}`, "_blank");
+      
+    }
   };
+  
   const [items1, setItems] = 
   
   useState([
