@@ -458,7 +458,7 @@ const Invoice = () => {
 </div>
 
 <div style={{ width: "26rem"}}>
-  <p style={{fontWeight: '600'}}>Policy Return</p>
+  <p style={{fontWeight: '600'}}>Return Policy</p>
   <p style={{ fontSize: "12px", marginTop :'4px'}}>
     If the item is defective or not as described, you may return it during
     delivery directly or you may request for return within 01 hour of

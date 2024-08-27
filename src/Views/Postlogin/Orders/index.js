@@ -19,19 +19,17 @@ import {
 import { Link } from "react-router-dom";
 import Modal from "@cloudscape-design/components/modal";
 
-
 const Orders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
   const orderStatus = useSelector((state) => state.orders.order_status);
-
   // Ensure ordersData is correctly structured
   const data = ordersData?.data || {};
   const items = data.items || [];
 
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 10;
+  const ordersPerPage =50;
   const [activeButton, setActiveButton] = useState("All");
   const [filteringText, setFilteringText] = useState("");
   const [selectedAssignee, setSelectedAssignee] = useState(null);
@@ -59,7 +57,6 @@ const Orders = () => {
     })
   : [];
 
-
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
   const currentOrders = filteredOrders.slice(
@@ -84,9 +81,9 @@ const Orders = () => {
   const selectOptions = [
     { label: "All", value: "All" }, 
     { label: "Order Confirmed", value: "order placed" },
-    { label: "Packed", value: "Packed" },
-    { label: "On the Way", value: "On The Way" },
-    { label: "Delivered", value: "Delivered" },
+    { label: "Packed", value: "packed" },
+    { label: "On the Way", value: "on the way" },
+    { label: "Delivered", value: "delivered" },
   ];
 
 
@@ -104,7 +101,6 @@ const Orders = () => {
       console.error('Order ID or Delivery Boy ID is not defined.');
     }
   };
-
 
   const handleMoveToPackedModalConfirm = async () => {
     try {
@@ -170,13 +166,11 @@ const Orders = () => {
     setIsAssignOrdersModalVisible(true);
   };
 
-  
   const randomNames = [
     { label: "sohail", value: "sohail" },
     { label: "Jane Smith", value: "jane_smith" },
     { label: "Alice Johnson", value: "alice_johnson" },
   ];
-
   
   const handleMoveToDeliveredClick = () => {
     setIsMoveToDeliveredModalVisible(true);
@@ -191,7 +185,7 @@ const Orders = () => {
       if (!Array.isArray(selectedItems) || selectedItems.length === 0) {
         throw new Error('No items selected or invalid selection.');
       }
-  
+      
       const orderIds = selectedItems.map(item => item.id); 
   
       // Call the thunk or function to move orders to "Delivered" status
@@ -210,7 +204,6 @@ const Orders = () => {
     }
   };
   
-
   return (
     <ContentLayout
       headerVariant="high-contrast"

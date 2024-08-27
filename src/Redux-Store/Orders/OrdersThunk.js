@@ -77,7 +77,7 @@ export const updateOrderStatus = createAsyncThunk(
 
       await dispatch(fetchOrders());
 
-      // window.location.reload();
+       window.location.reload();
 
       return result;
     } catch (error) {
@@ -119,6 +119,9 @@ export const assignDeliveryBoyAndMoveToOnTheWay = createAsyncThunk(
 
       await dispatch(fetchOrders());
 
+      window.location.reload();
+
+
       return result;
     } catch (error) {
       console.error('Error assigning delivery boy:', error);
@@ -154,7 +157,7 @@ export const updateSingleOrderStatus = createAsyncThunk(
 
       await dispatch(ordersDetails(ids));
 
-        window.location.reload();
+        // window.location.reload();
 
       return result;
     } catch (error) {
@@ -185,7 +188,7 @@ export const assignDeliveryBoyAndMoveToOnTheWayforsingleorder = createAsyncThunk
 
       await dispatch(ordersDetails(ids));
 
-      //  window.location.reload();
+        // window.location.reload();  
 
       if (!response.ok) {
         throw new Error(data.message || 'Failed to assign delivery boy');
