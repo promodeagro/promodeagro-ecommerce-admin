@@ -1,37 +1,16 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Views from "./Views/index";
 import Sidebar from "components/Sidebar";
 import { AppLayout } from "@cloudscape-design/components";
 import PTRLogo from "../src/assets/img/PTRLogo.png";
-import Signin from "Views/PreLogin/Signin";
-import { Navigate } from "react-router-dom";
+
 function App() {
   return (
     <Router>
-<<<<<<< HEAD
-  <Header/>
-    <AppLayout
-    headerSelector="#header"
- headerVariant="high-contrast"
- navigationWidth={250}
-//  disableContentPaddings
-    navigation={
-      
-      <Sidebar/>
-    
-    }
-    toolsHide={true}
-    content={
-<MainContent/>
-    }
-  />
-     </Router>
-=======
       <MainLayout />
     </Router>
->>>>>>> f378310c52947ac381d38250c3dd1c693a1d0a40
   );
 }
 
@@ -99,7 +78,7 @@ function MainLayout() {
           </div>
         </>
       )}
-      {!isAuthRoute && <Header />} {/* Header is placed outside the AppLayout */}
+      {!isAuthRoute && <Header id="header" />} {/* Header is placed outside the AppLayout */}
       <AppLayout
         headerSelector="#header"
         headerVariant="high-contrast"
