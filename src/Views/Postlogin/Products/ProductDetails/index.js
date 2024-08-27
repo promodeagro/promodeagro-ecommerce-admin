@@ -149,6 +149,7 @@ const ProductDetail = () => {
       console.error("Error publishing product:", err);
     } finally {
       setIsPublishing(false);
+      setTimeout(() => setFlashMessages([]), 5000);
     }
   };
 
@@ -187,6 +188,7 @@ const ProductDetail = () => {
       return;
     }
     setIsModalVisible(true);
+  
   };
 
   if (!product.data) {
@@ -224,7 +226,7 @@ const ProductDetail = () => {
         <Flashbar
           items={[
             {
-              type: "success",
+              type: "info",
               message: "Updated successfully",
               content: "Product Status Changed Successfully",
               dismissible: true,

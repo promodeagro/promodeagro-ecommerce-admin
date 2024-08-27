@@ -59,7 +59,7 @@ const Numbers = ({products}) => {
       <Box variant="awsui-key-label">
         <p style={{ fontSize: 12 }}>Total Stock</p>
       </Box>
-      <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>₹436K</span>
+      <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>436K</span>
     </div>
     <div>
       <Box variant="awsui-key-label">
@@ -71,7 +71,7 @@ const Numbers = ({products}) => {
       <Box variant="awsui-key-label">
         <p style={{ fontSize: 12 }}>Net Profit</p>
       </Box>
-      <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>123K</span>
+      <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>₹123K</span>
     </div>
     <div>
       <Box variant="awsui-key-label">

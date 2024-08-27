@@ -25,6 +25,10 @@ const Config = {
    FETCH_PURCHASE_REQUSTION_LIST:`${BASE_URL}/users`,
    VENDOR_PROFILE:`${BASE_URL}/users`,
    FETCH_CUSTOMER:`${BASE_URL}/user`,
+   AUTH_USER:`${BASE_URL}/auth/signin`,
+   SIGNUP:`${BASE_URL}/auth/signup`,
+   FORGOT_PASSSWORD:`${BASE_URL}/auth/forgot-password`,
+   RESET_PASSWORD:`${BASE_URL}/auth/reset-password`,
 };
 
 export default Config;
