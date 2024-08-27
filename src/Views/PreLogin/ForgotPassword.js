@@ -71,10 +71,10 @@ const ForgotPassword = () => {
                   style={{
                     fontWeight: "bolder",
                     textShadow: "0px 1px, 1px 0px, 1px 1px",
-                    fontSize: "30px",
+                    fontSize: "22px",
                   }}
                 >
-                  &nbsp;&nbsp;&nbsp;&nbsp;<b>Forget your password?</b>
+                  <b>Forget your password?</b>
                 </h3>
               </Header>
             </div>

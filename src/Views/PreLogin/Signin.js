@@ -73,7 +73,7 @@ const Signin = () => {
             zIndex:"12929"
           }}
         >
-          <Container variant="borderless">
+          <Container>
             <div
               style={{
                 marginBottom: "10px",
@@ -120,7 +120,8 @@ const Signin = () => {
                 style={{
                   display: "flex",
                   justifyContent: "center",
-                  padding: "2vh 2vw 0 2vw",
+                  padding: "2vh 2vw 0 2vw ",
+                  margin:"5px"
                 }}
               >
                 <Button fullWidth ariaExpanded variant="primary" disabled={loading}>

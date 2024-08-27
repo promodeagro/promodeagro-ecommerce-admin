@@ -509,16 +509,16 @@ const Products = () => {
       </Modal>
       {/* Modal for confirmation */}
       <Modal
-        // onDismiss={handleModalCancel}
+           onDismiss={() => setModalVisible(false)}
         visible={isModalVisible}
         closeAriaLabel="Close modal"
         header="Confirm Status Change"
         footer={
           <Box float="right">
             <SpaceBetween direction="horizontal" size="xs">
-              {/* <Button onClick={handleModalCancel} variant="link">
-                Cancel
-              </Button> */}
+            <Button variant="link" onClick={() => setModalVisible(false)}>
+              Cancel
+            </Button>
               <Button onClick={confirmToggleChange} variant="primary">
                 Confirm
               </Button>
