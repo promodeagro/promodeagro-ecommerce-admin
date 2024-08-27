@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -106,16 +106,18 @@ const Products = () => {
       setIsToggle(false);
     }, 5000);
   };
-
-  const filteredProducts = data.filter(item => {
-    const matchesStatus = activeButton === "All" || item.active === (activeButton === "Active");
-    const matchesSearch = item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
-      item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
-      (item.active ? "active" : "inactive").includes(filteringText.toLowerCase());
-    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
-
-    return matchesStatus && matchesSearch && matchesCategory;
-  });
+  const filteredProducts = useMemo(() => {
+    return data.filter(item => {
+      const matchesStatus = activeButton === "All" || item.active === (activeButton === "Active");
+      const matchesSearch = item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
+        item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
+        (item.active ? "active" : "inactive").includes(filteringText.toLowerCase());
+      const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+  
+      return matchesStatus && matchesSearch && matchesCategory;
+    });
+  }, [data, activeButton, filteringText, selectedCategory]);
+  
 
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
