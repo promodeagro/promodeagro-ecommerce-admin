@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders, fetchOrderStatus, updateOrderStatus, assignDeliveryBoyAndMoveToOnTheWay } from "Redux-Store/Orders/OrdersThunk";
+import { fetchOrders, fetchOrderStatus, updateOrderStatus, assignDeliveryBoyAndMoveToOnTheWay, fetchFilteredOrders } from "Redux-Store/Orders/OrdersThunk";
 import {
   Table,
   Pagination,
@@ -23,55 +23,59 @@ const Orders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
   const orderStatus = useSelector((state) => state.orders.order_status);
-  // Ensure ordersData is correctly structured
+
   const data = ordersData?.data || {};
   const items = data.items || [];
-
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage =50;
+  const ordersPerPage = 50;
   const [activeButton, setActiveButton] = useState("All");
   const [filteringText, setFilteringText] = useState("");
   const [selectedAssignee, setSelectedAssignee] = useState(null);
   const [isAssignOrdersModalVisible, setIsAssignOrdersModalVisible] = useState(false);
   const [isMoveToPackedModalVisible, setIsMoveToPackedModalVisible] = useState(false);
-  const [orderId, setOrderId] = useState(null); 
+  const [orderId, setOrderId] = useState(null);
   const [deliveryBoyId, setDeliveryBoyId] = useState(null);
   const [isMoveToDeliveredModalVisible, setIsMoveToDeliveredModalVisible] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [filteredOrders, setFilteredOrders] = useState([]);
 
   useEffect(() => {
     dispatch(fetchOrders());
     dispatch(fetchOrderStatus());
   }, [dispatch]);
 
-  const filteredOrders = (data && data.items)
-  ? data.items.filter((item) => {
-      const matchesStatus =
-        activeButton === "All" ||
-        (activeButton === "Confirmed" && item.orderStatus === "order placed") ||
-        item.orderStatus === activeButton;
-      const matchesSearch = item.id
-        .toLowerCase()
-        .includes(filteringText.toLowerCase());
-      return matchesStatus && matchesSearch;
-    })
-  : [];
+  useEffect(() => {
+    const applyFilter = () => {
+      if (activeButton === "All") {
+        setFilteredOrders(items);
+      } else {
+        setFilteredOrders(items.filter(order => order.orderStatus === activeButton));
+      }
+    };
+    applyFilter();
+  }, [activeButton, items]);
 
+  const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
   const indexOfLastOrder = currentPage * ordersPerPage;
-  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = filteredOrders.slice(
-    indexOfFirstOrder,
-    indexOfLastOrder
-  );
+  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
 
   const handlePageChange = (pageIndex) => {
-    setCurrentPage(pageIndex + 1);
+    setCurrentPage(pageIndex);
   };
 
-  const handleSelectChange = ({ detail }) => {
-    setActiveButton(detail.selectedOption.value);
-    setSelectedItems([]);  
+  const handleSelectChange = async ({ detail }) => {
+    const newStatus = detail.selectedOption.value;
+    setSelectedStatus(newStatus);
+    setActiveButton(newStatus);
+    setSelectedItems([]);
     setCurrentPage(1);
+
+    if (newStatus !== "All") {
+      await dispatch(fetchFilteredOrders({ pageKey: '', status: newStatus }));
+    } else {
+      await dispatch(fetchOrders());
+    }
   };
 
   const handleSearchChange = (e) => {
@@ -79,13 +83,12 @@ const Orders = () => {
   };
 
   const selectOptions = [
-    { label: "All", value: "All" }, 
+    { label: "All", value: "All" },
     { label: "Order Confirmed", value: "order placed" },
     { label: "Packed", value: "packed" },
     { label: "On the Way", value: "on the way" },
     { label: "Delivered", value: "delivered" },
   ];
-
 
   const handleMoveToPackedClick = () => {
     setIsMoveToPackedModalVisible(true);
@@ -94,6 +97,8 @@ const Orders = () => {
   const handleMoveToPackedModalCancel = () => {
     setIsMoveToPackedModalVisible(false);
   };
+
+
   const handleAssignAndMove = () => {
     if (orderId && deliveryBoyId) {
       assignDeliveryBoyAndMoveToOnTheWay(orderId, deliveryBoyId);
@@ -374,14 +379,13 @@ const Orders = () => {
 )}
 
 
-    <Pagination
-      currentPageIndex={currentPage - 1}
-      onChange={({ detail }) =>
-        handlePageChange(detail.currentPageIndex)
-      }
-      openEnd
-      pagesCount={5}
-    />
+<Pagination
+  currentPageIndex={currentPage}
+  onChange={({ detail }) => handlePageChange(detail.currentPageIndex)}
+  openEnd
+  pagesCount={5}
+/>
+
   </div>
 </Grid>
           </Box>
@@ -458,7 +462,7 @@ const Orders = () => {
                 } selected`,
               itemSelectionLabel: ({ selectedItems }, item) => item.name,
             }}
-            items={currentOrders}
+            items={filteredOrders}
             columnDefinitions={[
               {
                 id: "id",
@@ -557,7 +561,7 @@ const Orders = () => {
                 </SpaceBetween>
               </Box>
             }
-          />
+          />  
         </SpaceBetween>
       </SpaceBetween>
     </ContentLayout>

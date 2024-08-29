@@ -200,3 +200,44 @@ export const assignDeliveryBoyAndMoveToOnTheWayforsingleorder = createAsyncThunk
     }
   }
 );
+
+export const fetchFilteredOrders = createAsyncThunk(
+  'orders/fetchFilteredOrders',
+  async ({ pageKey = '', status }, { rejectWithValue }) => {
+    try {
+      // Construct the URL with pageKey
+      let url = `${config.FETCH_FILTER_ORDERS}?pageKey=${encodeURIComponent(pageKey)}&status=${status}`;
+      console.log('Parameters:', { pageKey, status });
+      console.log('Fetching filtered orders with URL:', url);
+
+      // Fetch the data
+      const response = await fetch(url);
+
+      // Check if the response is ok (status in the range 200-299)
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      // Parse the JSON data
+      const data = await response.json();
+
+      // Log the entire fetched data
+      console.log('Fetched data:', data);
+
+      // Filter and log the orders with the selected status
+      const filteredOrders = data.items.filter(order => order.orderStatus === status);
+      console.log('Filtered orders with status:', status, filteredOrders);
+
+      // Return the items (adjust based on your API response structure)
+      return data.items;
+    } catch (error) {
+      // Log the error for debugging purposes
+      console.error('Error fetching filtered orders:', error.message);
+      console.error('Parameters causing error:', { pageKey, status });
+
+      // Return the error message as a rejected value
+      return rejectWithValue(error.message);
+    }
+  }
+);
+

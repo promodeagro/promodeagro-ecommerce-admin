@@ -78,7 +78,7 @@ function MainLayout() {
           </div>
         </>
       )}
-      {!isAuthRoute && <Header id="header" />} {/* Header is placed outside the AppLayout */}
+      {!isAuthRoute && <Header id="header" />} 
       <AppLayout
         headerSelector="#header"
         headerVariant="high-contrast"

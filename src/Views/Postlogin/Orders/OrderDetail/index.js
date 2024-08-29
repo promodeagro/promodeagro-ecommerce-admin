@@ -20,7 +20,6 @@ import Modal from "@cloudscape-design/components/modal";
 import { useLocation } from "react-router-dom";
 import Flashbar from "@cloudscape-design/components/flashbar";
 
-
 const OrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -195,7 +194,7 @@ const OrderDetail = () => {
     } else if (newStatus === "on the way") {
       displayFlashMessage("success", "Order Status Updated", `Order Assigned to ${assigneeName} for Delivery.`, "ontheway_message");
     } else if (newStatus === "delivered") {
-      displayFlashMessage("success", "Order Status Updated", "Your order has been Delivered to the Customer.", "delivered_message");
+      displayFlashMessage("success", "Order Status Updated", "Order has been Delivered to the Customer.", "delivered_message");
     }
   };
   
