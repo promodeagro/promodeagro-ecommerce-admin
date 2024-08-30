@@ -177,8 +177,6 @@ const OrderDetail = () => {
       navigate(`/app/order/orderdetail/${prevId}`);
     }
   };
-  
- 
 
   const handleItemClick = (event) => {
     if (event.detail.id === "refund") {

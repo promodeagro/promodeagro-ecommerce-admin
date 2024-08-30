@@ -3,7 +3,6 @@ import { fetchOrders, ordersDetails, fetchOrderStatus, updateOrderStatus, assign
 import status from "Redux-Store/Constants";
 import { fetchFilteredOrders } from "Redux-Store/Orders/OrdersThunk";
 
-
 const OrderSlice = createSlice({
   name: "orders",
   initialState: {
@@ -24,7 +23,7 @@ const OrderSlice = createSlice({
     },
     filteredOrders: {
       status: null,
-      data: [], // Ensure this is an array
+      data: [], 
       error: null,
     },
   },
