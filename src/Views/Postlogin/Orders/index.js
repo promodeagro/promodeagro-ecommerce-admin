@@ -21,9 +21,12 @@ import {
   SpaceBetween,
   Grid,
   Select,
+  
 } from "@cloudscape-design/components";
 import { Link } from "react-router-dom";
 import Modal from "@cloudscape-design/components/modal";
+import Icon from "@cloudscape-design/components/icon";
+
 
 const Orders = () => {
   const dispatch = useDispatch();
@@ -47,6 +50,8 @@ const Orders = () => {
     useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
+  const [searchOrderId, setSearchOrderId] = useState("");
+
 
   useEffect(() => {
     dispatch(fetchOrders());
@@ -99,7 +104,7 @@ const Orders = () => {
     { label: "All", value: "All" },
     { label: "Order Confirmed", value: "order placed" },
     { label: "Packed", value: "packed" },
-    { label: "On the Way", value: "on the way" },
+    { label: "On The Way", value: "on the way" },
     { label: "Delivered", value: "delivered" },
   ];
 
@@ -236,10 +241,48 @@ const Orders = () => {
       setIsMoveToDeliveredModalVisible(false);
       window.location.reload();
 
+
     } catch (error) {
       console.error("Error updating order status:", error);
     }
   };
+
+  const getOrderStatusWithIcon = (orderStatus) => {
+    switch (orderStatus.toLowerCase()) {
+      case "order placed":
+        return (
+          <>
+            <Icon name="status-info" variant="link" />
+            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '500' }}>Order Confirmed</span>
+          </>
+        );
+      case "packed":
+        return (
+          <>
+            <Icon name="status-info" variant="link" />
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '500' }}>Packed</span>
+          </>
+        );
+      case "on the way":
+        return (
+          <>
+            <Icon name="status-info" variant="link" />
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '500' }}>On The Way</span>
+          </>
+        );
+      case "delivered":
+        return (
+          <>
+            <Icon name="status-positive" variant="success" />
+            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '500' }}>Delivered</span>
+          </>
+        );
+      default:
+        return <span>{orderStatus}</span>;
+    }
+  };
+  
+  
 
   return (
     <ContentLayout
@@ -600,7 +643,7 @@ const Orders = () => {
               {
                 id: "orderStatus",
                 header: "Order Status",
-                cell: (item) => item.orderStatus || "N/A",
+                cell: (item) => getOrderStatusWithIcon(item.orderStatus) || "N/A",
               },
 
               {
