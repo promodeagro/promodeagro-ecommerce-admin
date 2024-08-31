@@ -129,29 +129,20 @@ const Orders = () => {
       if (!Array.isArray(selectedItems) || selectedItems.length === 0) {
         throw new Error("No items selected or invalid selection.");
       }
-
       const orderIds = selectedItems.map((item) => item.id);
       const result = await dispatch(
         updateOrderStatus({ ids: orderIds, status: "Packed" })
       ).unwrap();
-
-      // Check if the success message is received
       if (result.message === "success") {
         console.log("Order status updated successfully:", result);
-
-        // Refetch orders to update the UI
         await dispatch(fetchOrders());
-
       } else {
         throw new Error("Failed to update order status");
       }
-
+        window.location.reload();
       setIsMoveToPackedModalVisible(false);
-      window.location.reload();
-
     } catch (error) {
       console.error("Error updating order status:", error);
-      // Optionally display an error message to the user
     }
   };
 
@@ -160,14 +151,11 @@ const Orders = () => {
       if (!Array.isArray(selectedItems) || selectedItems.length === 0) {
         throw new Error("No items selected or invalid selection.");
       }
-
       const orderIds = selectedItems.map((item) => item.id); // Extract IDs
       const assignee = selectedAssignee.value; // Extract selected assignee's value
-
       if (!Array.isArray(orderIds) || orderIds.length === 0) {
         throw new Error("Invalid order IDs.");
       }
-
       const result = await dispatch(
         assignDeliveryBoyAndMoveToOnTheWay({
           orderIds,
@@ -175,7 +163,6 @@ const Orders = () => {
           status: "On The Way",
         })
       ).unwrap();
-
       if (result.message === "success") {
         console.log("Orders assigned and status updated successfully:", result);
         await dispatch(fetchOrders());
@@ -184,10 +171,8 @@ const Orders = () => {
           "Failed to assign delivery boy and update order status"
         );
       }
-
+       window.location.reload();
       setIsAssignOrdersModalVisible(false);
-      window.location.reload();
-
     } catch (error) {
       console.error(
         "Error assigning delivery boy and updating order status:",
@@ -225,23 +210,18 @@ const Orders = () => {
       if (!Array.isArray(selectedItems) || selectedItems.length === 0) {
         throw new Error("No items selected or invalid selection.");
       }
-
       const orderIds = selectedItems.map((item) => item.id);
       const result = await dispatch(
         updateOrderStatus({ ids: orderIds, status: "Delivered" })
       ).unwrap();
-
       if (result.message === "success") {
         console.log("Order status updated to delivered successfully:", result);
         await dispatch(fetchOrders());
       } else {
         throw new Error("Failed to update order status");
       }
-
+       window.location.reload();
       setIsMoveToDeliveredModalVisible(false);
-      window.location.reload();
-
-
     } catch (error) {
       console.error("Error updating order status:", error);
     }
@@ -252,29 +232,29 @@ const Orders = () => {
       case "order placed":
         return (
           <>
-            <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '500' }}>Order Confirmed</span>
+            <Icon name="status-in-progress" variant="subtle" />
+            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '600' }}>Order Confirmed</span>
           </>
         );
       case "packed":
         return (
           <>
             <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '500' }}>Packed</span>
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>Packed</span>
           </>
         );
       case "on the way":
         return (
           <>
             <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '500' }}>On The Way</span>
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>On The Way</span>
           </>
         );
       case "delivered":
         return (
           <>
             <Icon name="status-positive" variant="success" />
-            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '500' }}>Delivered</span>
+            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '600' }}>Delivered</span>
           </>
         );
       default:
@@ -282,8 +262,6 @@ const Orders = () => {
     }
   };
   
-  
-
   return (
     <ContentLayout
       headerVariant="high-contrast"

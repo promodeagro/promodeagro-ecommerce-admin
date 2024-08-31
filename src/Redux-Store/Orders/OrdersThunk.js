@@ -76,9 +76,6 @@ export const updateOrderStatus = createAsyncThunk(
       console.log('API Response:', result);    
 
       await dispatch(fetchOrders());
-
-       //window.location.reload();
-
       return result;
     } catch (error) {
       console.error('Error updating order status:', error);
