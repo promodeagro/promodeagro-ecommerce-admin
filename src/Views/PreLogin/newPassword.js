@@ -164,6 +164,7 @@ const NewPassword = () => {
                   display: "flex",
                   justifyContent: "center",
                   padding: "2vh 2vw 0 2vw",
+                  margin:"10px"
                 }}
               >
                 <Button

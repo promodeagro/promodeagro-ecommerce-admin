@@ -40,7 +40,7 @@ const OtpVerification = () => {
             width:"26vw"
           }}
         >
-          <Container variant="borderless">
+          <Container>
             <div
               style={{
                 marginBottom: "20px",

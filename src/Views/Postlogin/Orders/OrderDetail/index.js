@@ -20,7 +20,6 @@ import Modal from "@cloudscape-design/components/modal";
 import { useLocation } from "react-router-dom";
 import Flashbar from "@cloudscape-design/components/flashbar";
 
-
 const OrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -100,12 +99,11 @@ const OrderDetail = () => {
     { header: "Item", cell: (item) => item.productName },
     { header: "Quantity", cell: (item) => item.quantity },
     { header: "Product Category", cell: (item) => item.category },
-    { header: "Unit per cost", cell: (item) => item.mrp },
-    { header: "Total Cost", cell: (item) => `₹${item.price}` },
+    { header: "Unit per cost", cell: (item) => item.price },
+    { header: "Total Cost", cell: (item) => `₹${item.total}` },
   ];
 
   const items = orderDetail?.items || [];
-  const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
 
   const [orderIds, setOrderIds] = useState([]);
   const [currentOrderId, setCurrentOrderId] = useState(id);
@@ -125,19 +123,21 @@ const OrderDetail = () => {
   const assigneeName = orderDetail?.assignedTo || "the assigned person";
 
   
-  useEffect(() => {
-    if (orderDetail?.status === "packed") {
-      displayFlashMessage("success", "Order Status Updated", "Your order has been successfully moved to the Packed Stage.", "packed_message");
-    } else if (orderDetail?.status === "on the way") {
-      displayFlashMessage(
-        "success", 
-        "Order Status Updated", 
-        `Order Assigned to ${assigneeName} for Delivery.`, 
-        "ontheway_message"
-    );    } else if (orderDetail?.status === "delivered") {
-      displayFlashMessage("success", "Order Status Updated", "Your order has been Delivered to the Customer.", "delivered_message");
-    }
-  }, [orderDetail?.status]);
+  // useEffect(() => {
+  //   if (orderDetail?.status === "packed") {
+  //     displayFlashMessage("success", "Order Status Updated", "Your order has been successfully moved to the Packed Stage.", "packed_message");
+  //   } else if (orderDetail?.status === "on the way") {
+  //     displayFlashMessage(
+  //       "success", 
+  //       "Order Status Updated", 
+  //       `Order Assigned to ${assigneeName} for Delivery.`, 
+  //       "ontheway_message"
+  //   );    } else if (orderDetail?.status === "delivered") {
+  //     displayFlashMessage("success", "Order Status Updated", "Your order has been Delivered to the Customer.", "delivered_message");
+  //   }
+  // }, [orderDetail?.status]);
+
+
 
   const displayFlashMessage = (type, header, content, id) => {
     const message = {
@@ -177,8 +177,6 @@ const OrderDetail = () => {
       navigate(`/app/order/orderdetail/${prevId}`);
     }
   };
-  
- 
 
   const handleItemClick = (event) => {
     if (event.detail.id === "refund") {
@@ -187,6 +185,17 @@ const OrderDetail = () => {
       navigate(`/app/order/invoice/${id}`); // Navigate to the invoice page with the Order ID
     }
   };
+
+  const handleStatusChange = (newStatus) => {
+    if (newStatus === "packed") {
+      displayFlashMessage("success", "Order Status Updated", "Your order has been successfully moved to the Packed Stage.", "packed_message");
+    } else if (newStatus === "on the way") {
+      displayFlashMessage("success", "Order Status Updated", `Order Assigned to ${assigneeName} for Delivery.`, "ontheway_message");
+    } else if (newStatus === "delivered") {
+      displayFlashMessage("success", "Order Status Updated", "Order has been Delivered to the Customer.", "delivered_message");
+    }
+  };
+  
   
 
   const [visible, setVisible] = React.useState(false);
@@ -196,92 +205,67 @@ const OrderDetail = () => {
   const isAtLastProduct = orderIds.indexOf(currentOrderId) ===
   orderIds.length - 1;
 
-  const handleMoveToPackedModalConfirm = async () => {
-    try {
-      if (!currentOrderId) {
-        throw new Error('No order ID available.');
-      }
-  
-      // Update the status of the current order
-      const result = await dispatch(updateSingleOrderStatus({ ids: [currentOrderId], status: 'packed' })).unwrap();
-  
-      // Check if the success message is received
-      if (result.message === 'success') {
-        console.log('Order status updated successfully:', result);
-  
-        // Refetch orders to update the UI
-        await dispatch(fetchOrders());
-      } else {
-        throw new Error('Failed to update order status');
-      }
-  
-      setIsMoveToPackedModalVisible(false);
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      // Optionally display an error message to the user
+const handleMoveToPackedModalConfirm = async () => {
+  try {
+    if (!currentOrderId) {
+      throw new Error('No order ID available.');
     }
-  };
-  
-  
-  const handleDeliveredModalConfirm = async () => {
-    try {
-      if (!currentOrderId) {
-        throw new Error('No order ID available.');
-      }
-  
-      // Update the status of the current order
-      const result = await dispatch(updateSingleOrderStatus({ ids: [currentOrderId], status: 'delivered' })).unwrap();
-  
-      // Check if the success message is received
-      if (result.message === 'success') {
-        console.log('Order status updated successfully:', result);
-  
-        // Refetch orders to update the UI
-        await dispatch(fetchOrders());
-      } else {
-        throw new Error('Failed to update order status');
-      }
-  
-      setIsDeliveredModalVisible(false);
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      // Optionally display an error message to the user
+    const result = await dispatch(updateSingleOrderStatus({ ids: [currentOrderId], status: 'packed' })).unwrap();
+    if (result.message === 'success') {
+      console.log('Order status updated successfully:', result);
+      displayFlashMessage("success", "Order Status Updated", "Your order has been successfully moved to the Packed Stage.", "packed_message");
+      await dispatch(fetchOrders());
+    } else {
+      throw new Error('Failed to update order status');
     }
-  };
+    setIsMoveToPackedModalVisible(false);
+  } catch (error) {
+    console.error('Error updating order status:', error);
+  }
+};
   
-  const handleAssignModalConfirm = async () => {
-    try {
-      if (!currentOrderId || !selectedAssignee) {
-        throw new Error('No order ID or assignee available.');
-      }
   
-      // Log the id and assignee being passed to the thunk
-      console.log('Assigning delivery boy to order ID:', currentOrderId);
-      console.log('Selected assignee:', selectedAssignee);
-  
-      // Log the payload to be sent to the thunk
-      const payload = { ids: [currentOrderId], assignee: selectedAssignee, status: 'on the way' };
-      console.log('Payload:', payload);
-  
-      // Assign delivery boy and update the status of the current order
-      const result = await dispatch(assignDeliveryBoyAndMoveToOnTheWayforsingleorder(payload)).unwrap();
-  
-      // Check if the success message is received
-      if (result.message === 'success') {
-        console.log('Order assigned and status updated successfully:', result);
-  
-        // Refetch orders to update the UI
-        await dispatch(fetchOrders());
-      } else {
-        throw new Error('Failed to assign delivery boy and update order status');
-      }
-  
-      setIsAssignModalVisible(false);
-    } catch (error) {
-      console.error('Error assigning delivery boy and updating order status:', error);
-      // Optionally display an error message to the user
+const handleDeliveredModalConfirm = async () => {
+  try {
+    if (!currentOrderId) {
+      throw new Error('No order ID available.');
     }
-  };
+    const result = await dispatch(updateSingleOrderStatus({ ids: [currentOrderId], status: 'delivered' })).unwrap();
+    if (result.message === 'success') {
+      console.log('Order status updated successfully:', result);
+      displayFlashMessage("success", "Order Status Updated", "Your order has been Delivered to the Customer.", "delivered_message");
+      await dispatch(fetchOrders());
+    } else {
+      throw new Error('Failed to update order status');
+    }
+    setIsDeliveredModalVisible(false);
+  } catch (error) {
+    console.error('Error updating order status:', error);
+  }
+};
+  
+const handleAssignModalConfirm = async () => {
+  try {
+    if (!currentOrderId || !selectedAssignee) {
+      throw new Error('No order ID or assignee available.');
+    }
+    console.log('Assigning delivery boy to order ID:', currentOrderId);
+    console.log('Selected assignee:', selectedAssignee);
+    const payload = { ids: [currentOrderId], assignee: selectedAssignee, status: 'on the way' };
+    console.log('Payload:', payload);
+    const result = await dispatch(assignDeliveryBoyAndMoveToOnTheWayforsingleorder(payload)).unwrap();
+    if (result.message === 'success') {
+      console.log('Order assigned and status updated successfully:', result);
+      displayFlashMessage("success", "Order Status Updated", `Order Assigned to ${selectedAssignee} for Delivery.`, "ontheway_message");
+      await dispatch(fetchOrders());
+    } else {
+      throw new Error('Failed to assign delivery boy and update order status');
+    }
+    setIsAssignModalVisible(false);
+  } catch (error) {
+    console.error('Error assigning delivery boy and updating order status:', error);
+  }
+};
   
 
   const randomNames = [
@@ -616,16 +600,16 @@ const OrderDetail = () => {
                   <p>Subtotal &nbsp;:</p>
                 </div>
                 <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  <p style={{ fontWeight: "bold" }}>₹{subtotal}</p>
+                  <p style={{ fontWeight: "bold" }}>₹{orderDetail?. paymentDetails?.amount}</p>
                 </div>
                 <div style={{ fontSize: "16px", fontWeight: "bold" }}>
                   Shipping Charges&nbsp;:
                 </div>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>N/A</div>
+                <div style={{ fontSize: "16px", fontWeight: "bold" }}>{orderDetail?.deliveryCharges || 0}</div>
                 <div style={{ fontSize: "16px", fontWeight: "bold" }}>
                   Tax&nbsp;:
                 </div>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>N/A</div>
+                <div style={{ fontSize: "16px", fontWeight: "bold" }}>{orderDetail?.tax || 0}</div>
                 <div style={{ fontSize: "18px", fontWeight: "bold" }}>
                   Total Price&nbsp;:
                 </div>
@@ -636,7 +620,7 @@ const OrderDetail = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  ₹{orderDetail?.paymentDetails?.totalAmount || "N/A"}
+                  ₹{orderDetail?.paymentDetails?.amount || "N/A"}
                 </div>
               </ColumnLayout>
             </Grid>

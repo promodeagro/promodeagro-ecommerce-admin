@@ -1,12 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Views from "./Views/index";
 import Sidebar from "components/Sidebar";
 import { AppLayout } from "@cloudscape-design/components";
 import PTRLogo from "../src/assets/img/PTRLogo.png";
-import Signin from "Views/PreLogin/Signin";
-import { Navigate } from "react-router-dom";
+
 function App() {
   return (
     <Router>
@@ -79,7 +78,7 @@ function MainLayout() {
           </div>
         </>
       )}
-      {!isAuthRoute && <Header />} {/* Header is placed outside the AppLayout */}
+      {!isAuthRoute && <Header id="header" />} 
       <AppLayout
         headerSelector="#header"
         headerVariant="high-contrast"

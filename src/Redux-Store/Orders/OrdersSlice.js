@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchOrders, ordersDetails, fetchOrderStatus, updateOrderStatus, assignDeliveryBoyAndMoveToOnTheWay } from "Redux-Store/Orders/OrdersThunk";
 import status from "Redux-Store/Constants";
+import { fetchFilteredOrders } from "Redux-Store/Orders/OrdersThunk";
+
 
 const OrderSlice = createSlice({
   name: "orders",
@@ -19,6 +21,11 @@ const OrderSlice = createSlice({
     },
     assignDeliveryBoyAndMoveToOnTheWay: {
       status: null,
+    },
+    filteredOrders: {
+      status: null,
+      data: [], // Ensure this is an array
+      error: null,
     },
   },
   reducers: {},
@@ -109,8 +116,20 @@ const OrderSlice = createSlice({
       })
       .addCase(assignDeliveryBoyAndMoveToOnTheWay.rejected.toString(), (state) => {
         state.assignDeliveryBoyAndMoveToOnTheWay.status = status.FAILURE;
+      })
+      .addCase(fetchFilteredOrders.pending, (state) => {
+        state.filteredOrders.status = status.IN_PROGRESS;
+        state.filteredOrders.error = null;
+      })
+      .addCase(fetchFilteredOrders.fulfilled, (state, action) => {
+        state.filteredOrders.status = status.SUCCESS;
+        state.filteredOrders.data = action.payload; 
+      })
+      .addCase(fetchFilteredOrders.rejected, (state, action) => {
+        state.filteredOrders.status = status.FAILURE;
+        state.filteredOrders.error = action.payload;
       });
-  },
+        },
 });
 
 export default OrderSlice.reducer;
