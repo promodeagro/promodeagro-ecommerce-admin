@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useSelector ,useDispatch} from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import BreadcrumbGroup from "@cloudscape-design/components/breadcrumb-group";
 import Table from "@cloudscape-design/components/table";
 import Box from "@cloudscape-design/components/box";
@@ -13,7 +13,7 @@ import Container from "@cloudscape-design/components/container";
 import Tabs from "@cloudscape-design/components/tabs";
 import Overview from "./drawerTabs/overview";
 import StatusIndicator from "@cloudscape-design/components/status-indicator";
-import { ColumnLayout } from "@cloudscape-design/components";
+import { ColumnLayout, Select } from "@cloudscape-design/components";
 import { fetchProducts } from "Redux-Store/Inventory/inventoryThunk";
 
 const Inventory = () => {
@@ -23,25 +23,38 @@ const Inventory = () => {
   const [activeTabId, setActiveTabId] = React.useState("first");
   const [currentPageIndex, setCurrentPageIndex] = React.useState(1);
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [selectedCategory, setSelectedCategory] = React.useState(null);
+
   const products = useSelector((state) => state.items.products);
 
   const dispatch = useDispatch();
-  console.log("pro",products)
-  const { data = [],status} = products;
-  console.log("data",data)
-   // Fetch products when component mounts
-   useEffect(() => {
-     dispatch(fetchProducts()
-   );
-   }, [dispatch]);
+  // console.log("pro",products)
+  const { data = [], status } = products;
+  console.log("data", data);
+  // Fetch products when component mounts
+  useEffect(() => {
+    dispatch(
+      fetchProducts({
+        category: selectedCategory?.value || "",
+        search: filteringText,
+      })
+    );
+  }, [dispatch, selectedCategory, filteringText]);
+
+  const handleCategoryChange = ({ detail }) => {
+    setSelectedCategory(detail.selectedOption);
+  };
+  const handleSearchChange = ({ detail }) => {
+    setFilteringText(detail.filteringText);
+  };
   // Check if products is an array and has elements
-  
+
   // Filter products based on the filteringText
   const filteredProducts = Array.isArray(data?.items)
-  ? data.items.filter((product) =>
-    product.name.toLowerCase().includes(filteringText.toLowerCase())
-)
-: [];
+    ? data.items.filter((product) =>
+        product.name.toLowerCase().includes(filteringText.toLowerCase())
+      )
+    : [];
 
   const ITEMS_PER_PAGE = 10;
   // Calculate the items for the current page
@@ -68,11 +81,6 @@ const Inventory = () => {
     setSelectedProduct(null);
   };
 
-  const handleSearchChange = (e) => {
-    setFilteringText(e.detail.filteringText);
-    setCurrentPage(1); // Reset to the first page on search text change
-  };
-
   return (
     <div className="flex-col gap-3">
       <div className="flex flex-col gap-3">
@@ -88,13 +96,7 @@ const Inventory = () => {
               ariaLabel="Breadcrumbs"
             />
           }
-          header={
-            <Header
-              variant="h1"
-            >
-              Inventory
-            </Header>
-          }
+          header={<Header variant="h1">Inventory</Header>}
         >
           <Container>
             <ColumnLayout columns={5} variant="default" minColumnWidth={150}>
@@ -179,28 +181,43 @@ const Inventory = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            paddingRight: "25px",
-            paddingLeft: "25px",
-            paddingTop: "15px",
+            // gridTemplateColumns: "1fr auto auto",
+
+            justifyContent:"space-between",
+            gap: "10px",
+            alignItems: "center",
+            marginTop: "12px",
+            padding: "0 25px 0 25px",
           }}
         >
-          <div style={{ width: "60%" }}>
-            <TextFilter
-              size="3xs"
-              filteringPlaceholder="Search"
-              filteringText={filteringText}
-              onChange={handleSearchChange}
-            />
-          </div>
-
+          <div style={{display:"flex",gap:"7px"}}>
+            <div style={{width:"30vw"}}>
+          <TextFilter
+            size="3xs"
+            filteringPlaceholder="Search"
+            filteringText={filteringText}
+            onChange={handleSearchChange}
+          /></div>  
+          <Select
+            required
+            selectedOption={selectedCategory}
+            onChange={handleCategoryChange}
+            options={[
+              { label: "All Categories", value: "" },
+              { label: "FRUIT", value: "Fruit" },
+              { label: "VEGETABLE", value: "Vegetable" },
+              { label: "DAIRY", value: "Dairy" },
+            ]}
+            placeholder="Select Category"
+          /></div>
+           <div>
           <Pagination
-              currentPageIndex={currentPageIndex}
-              onChange={({ detail }) =>
-                setCurrentPageIndex(detail.currentPageIndex)
-              }
-              pagesCount={5}
-            />
+            currentPageIndex={currentPageIndex}
+            onChange={({ detail }) =>
+              setCurrentPageIndex(detail.currentPageIndex)
+            }
+            pagesCount={5}
+          /></div>
         </div>
       </div>
       <div style={{ marginTop: "15px", padding: "0 25px 0 25px" }}>
@@ -256,8 +273,7 @@ const Inventory = () => {
               header: "Stock Alert",
               cell: (e) => (
                 <span style={{ color: getStockAlertColor("Available") }}>
-              "Available"
-                 
+                  "Available"
                 </span>
               ),
             },
@@ -313,7 +329,7 @@ const Inventory = () => {
           }}
         >
           <Box
-            padding={{ left: "m", right: "m", top: "s", }}
+            padding={{ left: "m", right: "m", top: "s" }}
             display="flex"
             // alignItems="center"
             justifyContent="space-between"
@@ -360,19 +376,20 @@ const Inventory = () => {
             </div>
           </Box>
           <div>
-          <Tabs
-          variant="borderless"
-            onChange={({ detail }) => setActiveTabId(detail.activeTabId)}
-            activeTabId={activeTabId}
-            tabs={[
-              {
-                size:"xs",
-                label: "Overview",
-                id: "first",
-                content: <Overview selectedProduct={selectedProduct} />,
-              },
-            ]}
-          /></div>
+            <Tabs
+              variant="borderless"
+              onChange={({ detail }) => setActiveTabId(detail.activeTabId)}
+              activeTabId={activeTabId}
+              tabs={[
+                {
+                  size: "xs",
+                  label: "Overview",
+                  id: "first",
+                  content: <Overview selectedProduct={selectedProduct} />,
+                },
+              ]}
+            />
+          </div>
         </div>
       )}
     </div>
