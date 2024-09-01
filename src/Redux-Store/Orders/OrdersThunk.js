@@ -24,7 +24,6 @@ export const fetchOrders = createAsyncThunk(
   }
 );
 
-
 export const ordersDetails = createAsyncThunk(
   "orders/details",
   async (id) => {

@@ -47,6 +47,7 @@ const OrderSlice = createSlice({
           ordersData: {
             status: status.SUCCESS,
             data: payload,
+            
             nextKey: payload.nextKey, // Update nextKey for pagination
 
           },
