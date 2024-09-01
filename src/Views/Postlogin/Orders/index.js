@@ -52,11 +52,26 @@ const Orders = () => {
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [searchOrderId, setSearchOrderId] = useState("");
 
+  const [nextKey, setNextKey] = useState(null);
+
 
   useEffect(() => {
-    dispatch(fetchOrders());
+    // Fetch orders when component mounts
+    dispatch(fetchOrders({ nextKey }));
+  }, [dispatch, nextKey]);
+
+  // Handle successful fetch and update nextKey
+  useEffect(() => {
+    if (ordersData?.nextKey) {
+      setNextKey(ordersData.nextKey); // Update nextKey for pagination
+    }
+  }, [ordersData]);
+
+  // Optionally, handle order status separately
+  useEffect(() => {
     dispatch(fetchOrderStatus());
   }, [dispatch]);
+
 
   useEffect(() => {
     const applyFilter = () => {
@@ -78,9 +93,22 @@ const Orders = () => {
     indexOfLastOrder
   );
 
-  const handlePageChange = (pageIndex) => {
+  const handlePageChange = async (pageIndex) => {
     setCurrentPage(pageIndex);
+    if (pageIndex > 1 && nextKey) {
+      try {
+        const result = await dispatch(fetchOrders({ pageKey: nextKey })).unwrap();
+        if (result?.data?.nextKey) {
+          setNextKey(result.data.nextKey);
+        } else {
+          setNextKey(null); // No more pages
+        }
+      } catch (error) {
+        console.error("Error fetching next page:", error);
+      }
+    }
   };
+  
 
   const handleSelectChange = async ({ detail }) => {
     const newStatus = detail.selectedOption.value;
@@ -95,6 +123,7 @@ const Orders = () => {
       await dispatch(fetchOrders());
     }
   };
+
 
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
