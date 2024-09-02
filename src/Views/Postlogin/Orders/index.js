@@ -27,7 +27,6 @@ import { Link } from "react-router-dom";
 import Modal from "@cloudscape-design/components/modal";
 import Icon from "@cloudscape-design/components/icon";
 
-
 const Orders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
@@ -50,84 +49,53 @@ const Orders = () => {
     useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
-  const [searchOrderId, setSearchOrderId] = useState("");
-
-  const [nextKey, setNextKey] = useState(null);
-
 
   useEffect(() => {
-    // Fetch orders when component mounts
-    dispatch(fetchOrders({ nextKey }));
-  }, [dispatch, nextKey]);
+    dispatch(fetchOrders({ search: filteringText, status: activeButton }));
+  }, [dispatch, filteringText, activeButton]);
 
-  // Handle successful fetch and update nextKey
-  useEffect(() => {
-    if (ordersData?.nextKey) {
-      setNextKey(ordersData.nextKey); // Update nextKey for pagination
-    }
-  }, [ordersData]);
+useEffect(() => {
+  dispatch(fetchOrderStatus());
+}, [dispatch]);
 
-  // Optionally, handle order status separately
-  useEffect(() => {
-    dispatch(fetchOrderStatus());
-  }, [dispatch]);
-
-
-  useEffect(() => {
-    const applyFilter = () => {
-      if (activeButton === "All") {
-        setFilteredOrders(items);
-      } else {
-        setFilteredOrders(
-          items.filter((order) => order.orderStatus === activeButton)
-        );
-      }
-    };
-    applyFilter();
-  }, [activeButton, items]);
-
-  const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
-  const indexOfLastOrder = currentPage * ordersPerPage;
-  const currentOrders = filteredOrders.slice(
-    indexOfFirstOrder,
-    indexOfLastOrder
-  );
-
-  const handlePageChange = async (pageIndex) => {
-    setCurrentPage(pageIndex);
-    if (pageIndex > 1 && nextKey) {
-      try {
-        const result = await dispatch(fetchOrders({ pageKey: nextKey })).unwrap();
-        if (result?.data?.nextKey) {
-          setNextKey(result.data.nextKey);
-        } else {
-          setNextKey(null); // No more pages
-        }
-      } catch (error) {
-        console.error("Error fetching next page:", error);
-      }
-    }
-  };
-  
-
-  const handleSelectChange = async ({ detail }) => {
-    const newStatus = detail.selectedOption.value;
-    setSelectedStatus(newStatus);
-    setActiveButton(newStatus);
-    setSelectedItems([]);
-    setCurrentPage(1);
-
-    if (newStatus !== "All") {
-      await dispatch(fetchFilteredOrders({ pageKey: "", status: newStatus }));
+useEffect(() => {
+  const applyFilter = () => {
+    if (activeButton === "All") {
+      setFilteredOrders(items);
     } else {
-      await dispatch(fetchOrders());
+      setFilteredOrders(
+        items.filter((order) => order.orderStatus === activeButton)
+      );
     }
   };
+  applyFilter();
+}, [activeButton, items]);
 
+const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
+const indexOfLastOrder = currentPage * ordersPerPage;
+const currentOrders = filteredOrders.slice(
+  indexOfFirstOrder,
+  indexOfLastOrder
+);
 
-  const handleSearchChange = (e) => {
-    setFilteringText(e.detail.filteringText);
-  };
+const handlePageChange = async (pageIndex) => {
+  setCurrentPage(pageIndex);
+  await dispatch(fetchOrders({ search: filteringText, status: activeButton }));
+};
+
+const handleSelectChange = async ({ detail }) => {
+  const newStatus = detail.selectedOption.value;
+  setSelectedStatus(newStatus);
+  setActiveButton(newStatus);
+  setSelectedItems([]);
+  setCurrentPage(1);
+
+  await dispatch(fetchOrders({ search: filteringText, status: newStatus }));
+};
+const handleSearchChange = (e) => {
+  setFilteringText(e.detail.filteringText);
+  setCurrentPage(1); 
+};
 
   const selectOptions = [
     { label: "All", value: "All" },
@@ -304,14 +272,7 @@ const Orders = () => {
         />
       }
       header={
-        <Header
-          variant="h1"
-          // actions={
-          //   <SpaceBetween direction="horizontal" size="xs">
-          //     <Button>Export</Button>
-          //     <Button iconName="calendar">Today</Button>
-          //   </SpaceBetween>
-          // }
+        <Header  variant="h1"
         >
           Orders
         </Header>
@@ -416,11 +377,11 @@ const Orders = () => {
               ]}
             >
               <div style={{ display: "flex", gap: "0.5rem" }}>
-                <TextFilter
-                  filteringPlaceholder="Search"
-                  filteringText={filteringText}
-                  onChange={handleSearchChange}
-                />
+              <TextFilter
+                      filteringPlaceholder="Search"
+                      filteringText={filteringText}
+                      onChange={handleSearchChange}
+                    />
                 <Select
                   options={selectOptions}
                   selectedOption={selectOptions.find(

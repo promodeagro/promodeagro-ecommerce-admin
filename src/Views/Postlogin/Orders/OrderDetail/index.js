@@ -100,7 +100,7 @@ const OrderDetail = () => {
     { header: "Quantity", cell: (item) => item.quantity },
     { header: "Product Category", cell: (item) => item.category },
     { header: "Unit per cost", cell: (item) => item.price },
-    { header: "Total Cost", cell: (item) => `₹${item.total}` },
+    { header: "Total Cost", cell: (item) => `₹${item.subtotal}` },
   ];
 
   const items = orderDetail?.items || [];
@@ -424,7 +424,7 @@ const handleAssignModalConfirm = async () => {
         color: "white",
       }}
     >
-      {orderDetail?.paymentDetails?.paymentStatus || "N/A"}
+      {orderDetail?.paymentDetails?.status || "N/A"}
     </div>
     <div
   style={{
