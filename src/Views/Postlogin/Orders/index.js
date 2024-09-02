@@ -230,28 +230,28 @@ const handleSearchChange = (e) => {
         return (
           <>
             <Icon name="status-in-progress" variant="subtle" />
-            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '600' }}>Order Confirmed</span>
+            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '400' }}>Order Confirmed</span>
           </>
         );
       case "packed":
         return (
           <>
             <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>Packed</span>
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '400' }}>Packed</span>
           </>
         );
       case "on the way":
         return (
           <>
             <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>On The Way</span>
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '400' }}>On The Way</span>
           </>
         );
       case "delivered":
         return (
           <>
             <Icon name="status-positive" variant="success" />
-            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '600' }}>Delivered</span>
+            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '400' }}>Delivered</span>
           </>
         );
       default:
