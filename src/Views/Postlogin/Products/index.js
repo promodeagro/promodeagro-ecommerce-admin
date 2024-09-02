@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect,useState,useRef,useCallback } from "react";
 import {
   Box,
   Button,
@@ -15,6 +15,7 @@ import {
   Modal,
   Flashbar,
   FormField,
+  Spinner
 } from "@cloudscape-design/components";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -22,16 +23,17 @@ import {
   fetchProducts,
   PutToggle,
   putPricingById,
+
 } from "Redux-Store/Products/ProductThunk";
+import { resetProducts } from "Redux-Store/Products/ProductsSlice";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
 import Numbers from "./Numbers";
 
 const Products = () => {
+
   const dispatch = useDispatch();
-  const products = useSelector((state) => state.products.products);
-  const { data = [] } = products;
-  
-  const [activeButton, setActiveButton] = useState("All");
+  const { data = [], nextKey, status, error } = useSelector((state) => state.products.products);
+
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteringText, setFilteringText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -43,10 +45,20 @@ const Products = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [isToggle, setIsToggle] = useState(false);
   const [toggleItem, setToggleItem] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
+
+  const observer = useRef();
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    // Reset products when filters change
+    dispatch(resetProducts());
+
+    // Fetch initial products
+    dispatch(fetchProducts({
+      search: filteringText,
+      category: selectedCategory,
+    }));
+  }, [dispatch, filteringText, selectedCategory]);
 
   const handleInputChange = (id, field, value) => {
     setEditedProducts(prev => ({
@@ -83,19 +95,22 @@ const Products = () => {
     }));
   };
 
-  const handleToggleChange = (item) => {
-    setToggleItem(item);
-    setModalVisible(true);
-  };
-
   const confirmToggleChange = () => {
     const newStatus = !toggleItem.active;
 
     dispatch(PutToggle({ id: toggleItem.id, active: newStatus })).then(response => {
       if (response.meta.requestStatus === "fulfilled" && response.payload.status === 200) {
-        dispatch(fetchProducts());
+    // Fetch initial products
+    dispatch(fetchProducts({
+      search: filteringText,
+      category: selectedCategory,
+    }));
       } else {
-        dispatch(fetchProducts());
+           // Fetch initial products
+    dispatch(fetchProducts({
+      search: filteringText,
+      category: selectedCategory,
+    }));
       }
     });
 
@@ -106,18 +121,10 @@ const Products = () => {
       setIsToggle(false);
     }, 5000);
   };
-  const filteredProducts = useMemo(() => {
-    return data.filter(item => {
-      const matchesStatus = activeButton === "All" || item.active === (activeButton === "Active");
-      const matchesSearch = item.itemCode.toLowerCase().includes(filteringText.toLowerCase()) ||
-        item.name.toLowerCase().includes(filteringText.toLowerCase()) ||
-        (item.active ? "active" : "inactive").includes(filteringText.toLowerCase());
-      const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
-  
-      return matchesStatus && matchesSearch && matchesCategory;
-    });
-  }, [data, activeButton, filteringText, selectedCategory]);
-  
+  const handleToggleChange = (item) => {
+    setToggleItem(item);
+    setModalVisible(true);
+  };
 
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
@@ -138,7 +145,6 @@ const Products = () => {
   const handleSelectionChange = ({ detail }) => {
     setSelectedItems(detail.selectedItems);
   };
-
   const handleBulkModifyPrice = () => {
     if (validateInputs()) {
       setModalVisible1(true);
@@ -254,6 +260,25 @@ const Products = () => {
     },
   ]);
 
+
+
+  // Infinite Scroll Logic
+  const lastProductRef = useCallback(node => {
+    if (status === 'loading') return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && nextKey) {
+        setIsFetching(true);
+        dispatch(fetchProducts({
+          search: filteringText,
+          category: selectedCategory,
+          nextKey: nextKey,
+        })).finally(() => setIsFetching(false));
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [status, nextKey, dispatch, filteringText, selectedCategory]);
+
   return (
     <ContentLayout
     notifications={
@@ -290,9 +315,10 @@ const Products = () => {
         </Header>
       }
     >
+
       <SpaceBetween direction="vertical" size="s">
         <Container>
-          <Numbers products={products} />
+          <Numbers products={{ data, nextKey, status, error }} />
         </Container>
 
         <div>
@@ -333,6 +359,7 @@ const Products = () => {
                     </Button>
               
                 </div>
+                
               </div>
             }
             variant="borderless"
@@ -365,7 +392,6 @@ const Products = () => {
                 header: "Category",
                 cell: (item) => <Box textAlign="center">{item?.category}</Box>,
               },
-
               {
                 id: "stock",
                 header: "On Hand Quantity",
@@ -379,12 +405,11 @@ const Products = () => {
                 id: "alert",
                 header: "Stock Alert",
                 cell: (item) => (
-                  <p style={{color: "#0972D3", textAlign: "center"}}>
-                  Active
+                  <p style={{ color: "#0972D3", textAlign: "center" }}>
+                    Active
                   </p>
                 ),
               },
-
               {
                 id: "onlineStorePrice",
                 header: "Online Price",
@@ -462,57 +487,61 @@ const Products = () => {
                   </div>
                 ),
               },
+
             ]}
             selectedItems={selectedItems}
             onSelectionChange={handleSelectionChange}
-            items={filteredProducts}
+            items={data}
             selectionType="multi"
           />
+          {/* Sentinel element for infinite scrolling */}
+          <div ref={lastProductRef} style={{ height: '20px' }}>
+            {isFetching && <Spinner />}
+          </div>
         </div>
+        {status === 'failed' && <Box color="red">{error}</Box>}
       </SpaceBetween>
-
       <Modal
      
-        visible={isModalVisible1}
-        onDismiss={() => setModalVisible1(false)}
-        header="Confirm Bulk Modify"
-        footer={
-          <SpaceBetween direction="horizontal" size="xs">
-            <Button variant="link" onClick={() => setModalVisible1(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleModalConfirm}>
-              Confirm
-            </Button>
-          </SpaceBetween>
-        }
-      >
-        Are you sure you want to bulk modify the prices for the selected items?
-      </Modal>
-      {/* Modal for confirmation */}
-      <Modal
-           onDismiss={() => setModalVisible(false)}
-        visible={isModalVisible}
-        closeAriaLabel="Close modal"
-        header="Confirm Status Change"
-        footer={
-          <Box float="right">
-            <SpaceBetween direction="horizontal" size="xs">
-            <Button variant="link" onClick={() => setModalVisible(false)}>
-              Cancel
-            </Button>
-              <Button onClick={confirmToggleChange} variant="primary">
-                Confirm
-              </Button>
-            </SpaceBetween>
-          </Box>
-        }
-      >
-        Are you sure you want to {toggleItem?.active ? "deactivate" : "activate"} this product?
-      </Modal>
-
-      
+     visible={isModalVisible1}
+     onDismiss={() => setModalVisible1(false)}
+     header="Confirm Bulk Modify"
+     footer={
+       <SpaceBetween direction="horizontal" size="xs">
+         <Button variant="link" onClick={() => setModalVisible1(false)}>
+           Cancel
+         </Button>
+         <Button variant="primary" onClick={handleModalConfirm}>
+           Confirm
+         </Button>
+       </SpaceBetween>
+     }
+   >
+     Are you sure you want to bulk modify the prices for the selected items?
+   </Modal>
+   {/* Modal for confirmation */}
+   <Modal
+        onDismiss={() => setModalVisible(false)}
+     visible={isModalVisible}
+     closeAriaLabel="Close modal"
+     header="Confirm Status Change"
+     footer={
+       <Box float="right">
+         <SpaceBetween direction="horizontal" size="xs">
+         <Button variant="link" onClick={() => setModalVisible(false)}>
+           Cancel
+         </Button>
+           <Button onClick={confirmToggleChange} variant="primary">
+             Confirm
+           </Button>
+         </SpaceBetween>
+       </Box>
+     }
+   >
+     Are you sure you want to {toggleItem?.active ? "deactivate" : "activate"} this product?
+   </Modal>
     </ContentLayout>
   );
 };
+
 export default Products;

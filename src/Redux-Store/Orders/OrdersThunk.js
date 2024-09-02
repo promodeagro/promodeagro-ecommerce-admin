@@ -76,6 +76,7 @@ export const updateOrderStatus = createAsyncThunk(
       console.log('API Response:', result);    
 
       await dispatch(fetchOrders());
+
       return result;
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -116,9 +117,6 @@ export const assignDeliveryBoyAndMoveToOnTheWay = createAsyncThunk(
 
       await dispatch(fetchOrders());
 
-     // window.location.reload();
-
-
       return result;
     } catch (error) {
       console.error('Error assigning delivery boy:', error);
@@ -153,9 +151,6 @@ export const updateSingleOrderStatus = createAsyncThunk(
       console.log('API Response:', result);    
 
       await dispatch(ordersDetails(ids));
-
-        // window.location.reload();
-
       return result;
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -184,9 +179,6 @@ export const assignDeliveryBoyAndMoveToOnTheWayforsingleorder = createAsyncThunk
       console.log('API Response:', data);
 
       await dispatch(ordersDetails(ids));
-
-        // window.location.reload();  
-
       if (!response.ok) {
         throw new Error(data.message || 'Failed to assign delivery boy');
       }
