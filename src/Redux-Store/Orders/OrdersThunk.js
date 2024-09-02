@@ -4,15 +4,22 @@ import { postLoginService } from "Services";
 
 export const fetchOrders = createAsyncThunk(
   "orders/fetch",
-  async () => {
+  async ({ nextKey = '' } = {}, { rejectWithValue }) => {
     try {
-      const url = config.FETCH_ORDERS;
+      console.log('NextKey value:', nextKey); // Log the nextKey value
+      const url = `${config.FETCH_ORDERS}${nextKey ? `?nextKey=${encodeURIComponent(nextKey)}` : ''}`;
+      console.log('Fetching orders with URL:', url);
+
       const response = await postLoginService.get(url);
       console.log('All orders:', response);
-      return response.data; 
+
+      return {
+        items: response.data.items,
+        nextKey: response.data.nextKey
+      };
     } catch (error) {
       console.error('API error:', error);
-      return Promise.reject(error);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -195,7 +202,7 @@ export const fetchFilteredOrders = createAsyncThunk(
   async ({ pageKey = '', status }, { rejectWithValue }) => {
     try {
       // Construct the URL with pageKey
-      let url = `${config.FETCH_FILTER_ORDERS}?pageKey=${encodeURIComponent(pageKey)}&status=${status}`;
+      let url = `${config.FETCH_ORDERS}?pageKey=${encodeURIComponent(pageKey)}&status=${status}`;
       console.log('Parameters:', { pageKey, status });
       console.log('Fetching filtered orders with URL:', url);
 

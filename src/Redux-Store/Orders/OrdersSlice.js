@@ -9,6 +9,8 @@ const OrderSlice = createSlice({
   initialState: {
     ordersData: {
       status: null,
+      data: [], // Ensure this is an array
+      nextKey: null, // Add this line
     },
     order_details: {
       status: null,
@@ -45,6 +47,9 @@ const OrderSlice = createSlice({
           ordersData: {
             status: status.SUCCESS,
             data: payload,
+            
+            nextKey: payload.nextKey, // Update nextKey for pagination
+
           },
         };
       })
