@@ -4,18 +4,34 @@ import { postLoginService } from "Services";
 
 export const fetchOrders = createAsyncThunk(
   "orders/fetch",
-  async ({ nextKey = '' } = {}, { rejectWithValue }) => {
+  async ({ search = '', status = '' } = {}, { rejectWithValue }) => {
     try {
-      console.log('NextKey value:', nextKey); // Log the nextKey value
-      const url = `${config.FETCH_ORDERS}${nextKey ? `?nextKey=${encodeURIComponent(nextKey)}` : ''}`;
+      console.log('Search term:', search); // Log the search term
+      console.log('Status filter:', status); // Log the status filter
+
+      // Initialize an array to hold query parameters
+      let queryParams = [];
+
+      // Add search term to query parameters if provided
+      if (search) {
+        queryParams.push(`search=${encodeURIComponent(search)}`);
+      }
+
+      // Add status filter to query parameters if provided
+      if (status) {
+        queryParams.push(`status=${encodeURIComponent(status)}`);
+      }
+
+      // Build the final URL with query parameters
+      const url = `${config.FETCH_ORDERS}${queryParams.length > 0 ? `?${queryParams.join('&')}` : ''}`;
       console.log('Fetching orders with URL:', url);
 
       const response = await postLoginService.get(url);
-      console.log('All orders:', response);
+      console.log('Orders:', response);
 
       return {
         items: response.data.items,
-        nextKey: response.data.nextKey
+      
       };
     } catch (error) {
       console.error('API error:', error);
@@ -23,6 +39,8 @@ export const fetchOrders = createAsyncThunk(
     }
   }
 );
+
+
 
 export const ordersDetails = createAsyncThunk(
   "orders/details",
@@ -196,44 +214,3 @@ export const assignDeliveryBoyAndMoveToOnTheWayforsingleorder = createAsyncThunk
     }
   }
 );
-
-export const fetchFilteredOrders = createAsyncThunk(
-  'orders/fetchFilteredOrders',
-  async ({ pageKey = '', status }, { rejectWithValue }) => {
-    try {
-      // Construct the URL with pageKey
-      let url = `${config.FETCH_ORDERS}?pageKey=${encodeURIComponent(pageKey)}&status=${status}`;
-      console.log('Parameters:', { pageKey, status });
-      console.log('Fetching filtered orders with URL:', url);
-
-      // Fetch the data
-      const response = await fetch(url);
-
-      // Check if the response is ok (status in the range 200-299)
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      // Parse the JSON data
-      const data = await response.json();
-
-      // Log the entire fetched data
-      console.log('Fetched data:', data);
-
-      // Filter and log the orders with the selected status
-      const filteredOrders = data.items.filter(order => order.orderStatus === status);
-      console.log('Filtered orders with status:', status, filteredOrders);
-
-      // Return the items (adjust based on your API response structure)
-      return data.items;
-    } catch (error) {
-      // Log the error for debugging purposes
-      console.error('Error fetching filtered orders:', error.message);
-      console.error('Parameters causing error:', { pageKey, status });
-
-      // Return the error message as a rejected value
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
