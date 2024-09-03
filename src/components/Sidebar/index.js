@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SideNavigation from "@cloudscape-design/components/side-navigation";
-import Badge from "@cloudscape-design/components/badge";
 import { Box } from "@cloudscape-design/components";
 
 const pages = [
@@ -14,20 +13,7 @@ const pages = [
   { path: "/app/customers", label: "CRM" },
 ];
 
-const bottomPages = [
-  {
-    type: "link",
-    text: "Notifications",
-    href: "#/notifications",
-    info: <Badge color="red">23</Badge>,
-  },
-  {
-    type: "link",
-    text: "Documentation",
-    href: "https://example.com",
-    external: true,
-  },
-];
+
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -69,14 +55,8 @@ const Sidebar = () => {
               }))
             : [],
         })),
-        { type: "divider" },
-        ...bottomPages.map((page) => ({
-          type: "link",
-          text: page.text,
-          href: page.href,
-          info: page.info,
-          external: page.external,
-        })),
+   
+     
       ]}
     />
   );

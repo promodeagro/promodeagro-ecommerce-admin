@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchProducts, fetchProductById, PutToggle,putPricingById } from "Redux-Store/Products/ProductThunk";
+import {
+  fetchProducts,
+  fetchProductById,
+  PutToggle,
+  putPricingById,
+} from "Redux-Store/Products/ProductThunk";
 import status from "Redux-Store/Constants";
 
 const ProductsSlice = createSlice({
@@ -8,6 +13,8 @@ const ProductsSlice = createSlice({
     products: {
       status: null,
       data: [],
+      nextKey: null, // Store the nextKey for pagination
+      hasMore: true, // Flag to indicate if more products can be loaded
     },
     productDetail: {
       status: null,
@@ -16,10 +23,17 @@ const ProductsSlice = createSlice({
   },
   reducers: {
     toggleStatus: (state, action) => {
-      const product = state.products.data.find(p => p.itemCode === action.payload.itemCode);
+      const product = state.products.data.find(
+        (p) => p.itemCode === action.payload.itemCode
+      );
       if (product) {
         product.status = product.status === "Active" ? "Inactive" : "Active";
       }
+    },
+    resetProducts: (state) => {
+      state.products.data = [];
+      state.products.nextKey = null;
+      state.products.hasMore = true;
     },
   },
   extraReducers: (builder) => {
@@ -30,7 +44,15 @@ const ProductsSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, { payload }) => {
         state.products.status = status.SUCCESS;
-        state.products.data = payload.items || []; // Ensure `items` exists in payload
+        if (state.products.nextKey) {
+          // Append new products to existing list for infinite scroll
+          state.products.data = [...state.products.data, ...payload.items];
+        } else {
+          // Initial load or when filters are changed
+          state.products.data = payload.items;
+        }
+        state.products.nextKey = payload.nextKey || null; // Update the nextKey or nullify if no nextKey
+        state.products.hasMore = !!payload.nextKey; // Set hasMore flag based on nextKey
       })
       .addCase(fetchProducts.rejected, (state) => {
         state.products.status = status.FAILURE;
@@ -46,21 +68,6 @@ const ProductsSlice = createSlice({
       .addCase(fetchProductById.rejected, (state) => {
         state.productDetail.status = status.FAILURE;
       })
-      // Put Product by ID
-      // .addCase(putProductById.pending, (state) => {
-      //   state.productDetail.status = status.IN_PROGRESS;
-      // })
-      // .addCase(putProductById.fulfilled, (state, { payload }) => {
-      //   state.productDetail.status = status.SUCCESS;
-      //   // Update the specific product in the `products.data` array
-      //   state.products.data = state.products.data.map((product) =>
-      //     product.id === payload.id ? payload : product
-      //   );
-      //   state.productDetail.data = payload; // Update product detail
-      // })
-      // .addCase(putProductById.rejected, (state) => {
-      //   state.productDetail.status = status.FAILURE;
-      // })
       // Put Pricing by ID
       .addCase(putPricingById.pending, (state) => {
         state.productDetail.status = status.IN_PROGRESS;
@@ -92,5 +99,6 @@ const ProductsSlice = createSlice({
       });
   },
 });
-export const { toggleStatus } = ProductsSlice.actions;
+
+export const { toggleStatus, resetProducts } = ProductsSlice.actions;
 export default ProductsSlice.reducer;

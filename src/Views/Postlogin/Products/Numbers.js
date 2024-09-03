@@ -39,19 +39,12 @@ const Numbers = ({products}) => {
     }
   }, [products]);
   
-
-  
-
-
-
-
-  
   return (
 
     <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
     <div>
       <Box variant="awsui-key-label">
-        <p style={{ fontSize: 12 }}>Total Active Products</p>
+        <p style={{ fontSize: 12 }}> Active Products</p>
       </Box>
       <span style={{ fontSize: 36, fontWeight: '900', lineHeight: 1.3, color: "#0972D3" }}>{active?.length}</span>
     </div>

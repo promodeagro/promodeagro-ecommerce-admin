@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchOrders, ordersDetails, fetchOrderStatus, updateOrderStatus, assignDeliveryBoyAndMoveToOnTheWay } from "Redux-Store/Orders/OrdersThunk";
 import status from "Redux-Store/Constants";
-import { fetchFilteredOrders } from "Redux-Store/Orders/OrdersThunk";
+// import { fetchFilteredOrders } from "Redux-Store/Orders/OrdersThunk";
 
 
 const OrderSlice = createSlice({
@@ -9,6 +9,8 @@ const OrderSlice = createSlice({
   initialState: {
     ordersData: {
       status: null,
+      data: [], // Ensure this is an array
+      nextKey: null, // Add this line
     },
     order_details: {
       status: null,
@@ -45,6 +47,7 @@ const OrderSlice = createSlice({
           ordersData: {
             status: status.SUCCESS,
             data: payload,
+            
           },
         };
       })
@@ -116,19 +119,19 @@ const OrderSlice = createSlice({
       })
       .addCase(assignDeliveryBoyAndMoveToOnTheWay.rejected.toString(), (state) => {
         state.assignDeliveryBoyAndMoveToOnTheWay.status = status.FAILURE;
-      })
-      .addCase(fetchFilteredOrders.pending, (state) => {
-        state.filteredOrders.status = status.IN_PROGRESS;
-        state.filteredOrders.error = null;
-      })
-      .addCase(fetchFilteredOrders.fulfilled, (state, action) => {
-        state.filteredOrders.status = status.SUCCESS;
-        state.filteredOrders.data = action.payload; 
-      })
-      .addCase(fetchFilteredOrders.rejected, (state, action) => {
-        state.filteredOrders.status = status.FAILURE;
-        state.filteredOrders.error = action.payload;
       });
+      // .addCase(fetchFilteredOrders.pending, (state) => {
+      //   state.filteredOrders.status = status.IN_PROGRESS;
+      //   state.filteredOrders.error = null;
+      // })
+      // .addCase(fetchFilteredOrders.fulfilled, (state, action) => {
+      //   state.filteredOrders.status = status.SUCCESS;
+      //   state.filteredOrders.data = action.payload; 
+      // })
+      // .addCase(fetchFilteredOrders.rejected, (state, action) => {
+      //   state.filteredOrders.status = status.FAILURE;
+      //   state.filteredOrders.error = action.payload;
+      // });
         },
 });
 

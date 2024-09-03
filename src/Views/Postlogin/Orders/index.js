@@ -27,7 +27,6 @@ import { Link } from "react-router-dom";
 import Modal from "@cloudscape-design/components/modal";
 import Icon from "@cloudscape-design/components/icon";
 
-
 const Orders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
@@ -50,55 +49,53 @@ const Orders = () => {
     useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
-  const [searchOrderId, setSearchOrderId] = useState("");
-
 
   useEffect(() => {
-    dispatch(fetchOrders());
-    dispatch(fetchOrderStatus());
-  }, [dispatch]);
+    dispatch(fetchOrders({ search: filteringText, status: activeButton }));
+  }, [dispatch, filteringText, activeButton]);
 
-  useEffect(() => {
-    const applyFilter = () => {
-      if (activeButton === "All") {
-        setFilteredOrders(items);
-      } else {
-        setFilteredOrders(
-          items.filter((order) => order.orderStatus === activeButton)
-        );
-      }
-    };
-    applyFilter();
-  }, [activeButton, items]);
+useEffect(() => {
+  dispatch(fetchOrderStatus());
+}, [dispatch]);
 
-  const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
-  const indexOfLastOrder = currentPage * ordersPerPage;
-  const currentOrders = filteredOrders.slice(
-    indexOfFirstOrder,
-    indexOfLastOrder
-  );
-
-  const handlePageChange = (pageIndex) => {
-    setCurrentPage(pageIndex);
-  };
-
-  const handleSelectChange = async ({ detail }) => {
-    const newStatus = detail.selectedOption.value;
-    setSelectedStatus(newStatus);
-    setActiveButton(newStatus);
-    setSelectedItems([]);
-    setCurrentPage(1);
-
-    if (newStatus !== "All") {
-      await dispatch(fetchFilteredOrders({ pageKey: "", status: newStatus }));
+useEffect(() => {
+  const applyFilter = () => {
+    if (activeButton === "All") {
+      setFilteredOrders(items);
     } else {
-      await dispatch(fetchOrders());
+      setFilteredOrders(
+        items.filter((order) => order.orderStatus === activeButton)
+      );
     }
   };
+  applyFilter();
+}, [activeButton, items]);
 
-  const handleSearchChange = (e) => {
-    setFilteringText(e.detail.filteringText);
-  };
+const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
+const indexOfLastOrder = currentPage * ordersPerPage;
+const currentOrders = filteredOrders.slice(
+  indexOfFirstOrder,
+  indexOfLastOrder
+);
+
+const handlePageChange = async (pageIndex) => {
+  setCurrentPage(pageIndex);
+  await dispatch(fetchOrders({ search: filteringText, status: activeButton }));
+};
+
+const handleSelectChange = async ({ detail }) => {
+  const newStatus = detail.selectedOption.value;
+  setSelectedStatus(newStatus);
+  setActiveButton(newStatus);
+  setSelectedItems([]);
+  setCurrentPage(1);
+
+  await dispatch(fetchOrders({ search: filteringText, status: newStatus }));
+};
+const handleSearchChange = (e) => {
+  setFilteringText(e.detail.filteringText);
+  setCurrentPage(1); 
+};
 
   const selectOptions = [
     { label: "All", value: "All" },
@@ -233,28 +230,28 @@ const Orders = () => {
         return (
           <>
             <Icon name="status-in-progress" variant="subtle" />
-            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '600' }}>Order Confirmed</span>
+            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '400' }}>Order Confirmed</span>
           </>
         );
       case "packed":
         return (
           <>
             <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>Packed</span>
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '400' }}>Packed</span>
           </>
         );
       case "on the way":
         return (
           <>
             <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>On The Way</span>
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '400' }}>On The Way</span>
           </>
         );
       case "delivered":
         return (
           <>
             <Icon name="status-positive" variant="success" />
-            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '600' }}>Delivered</span>
+            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '400' }}>Delivered</span>
           </>
         );
       default:
@@ -275,14 +272,7 @@ const Orders = () => {
         />
       }
       header={
-        <Header
-          variant="h1"
-          // actions={
-          //   <SpaceBetween direction="horizontal" size="xs">
-          //     <Button>Export</Button>
-          //     <Button iconName="calendar">Today</Button>
-          //   </SpaceBetween>
-          // }
+        <Header  variant="h1"
         >
           Orders
         </Header>
@@ -387,11 +377,11 @@ const Orders = () => {
               ]}
             >
               <div style={{ display: "flex", gap: "0.5rem" }}>
-                <TextFilter
-                  filteringPlaceholder="Search"
-                  filteringText={filteringText}
-                  onChange={handleSearchChange}
-                />
+              <TextFilter
+                      filteringPlaceholder="Search"
+                      filteringText={filteringText}
+                      onChange={handleSearchChange}
+                    />
                 <Select
                   options={selectOptions}
                   selectedOption={selectOptions.find(
