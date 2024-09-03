@@ -31,6 +31,7 @@ const OrderDetail = () => {
   const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
   const [selectedAssignee, setSelectedAssignee] = useState("");
   const [flashMessages, setFlashMessages] = useState([]);
+  const [isFormSubmittedWithoutSelection, setIsFormSubmittedWithoutSelection] = useState(false);
 
 
   useEffect(() => {
@@ -99,8 +100,11 @@ const OrderDetail = () => {
     { header: "Item", cell: (item) => item.productName },
     { header: "Quantity", cell: (item) => item.quantity },
     { header: "Product Category", cell: (item) => item.category },
-    { header: "Unit per cost", cell: (item) => item.price },
-    { header: "Total Cost", cell: (item) => `₹${item.subtotal}` },
+    { 
+      header: "Unit per cost", 
+      cell: (item) => `₹${(item.price / item.quantityUnits).toFixed(2)}/ ${item.units}` 
+    },
+        { header: "Total Cost", cell: (item) => `₹${item.total}` },
   ];
 
   const items = orderDetail?.items || [];
@@ -235,6 +239,8 @@ const handleDeliveredModalConfirm = async () => {
       console.log('Order status updated successfully:', result);
       displayFlashMessage("success", "Order Status Updated", "Your order has been Delivered to the Customer.", "delivered_message");
       await dispatch(fetchOrders());
+      setSelectedAssignee(""); // Reset the selected assignee
+
     } else {
       throw new Error('Failed to update order status');
     }
@@ -246,6 +252,13 @@ const handleDeliveredModalConfirm = async () => {
   
 const handleAssignModalConfirm = async () => {
   try {
+    if (!selectedAssignee) {
+      setIsFormSubmittedWithoutSelection(true);
+      return;
+    }
+    setIsFormSubmittedWithoutSelection(false);
+
+
     if (!currentOrderId || !selectedAssignee) {
       throw new Error('No order ID or assignee available.');
     }
@@ -273,7 +286,6 @@ const handleAssignModalConfirm = async () => {
     { label: "Jane Smith", value: "jane_smith" },
     { label: "Alice Johnson", value: "alice_johnson" },
   ];
-
 
   return (
     <div>
@@ -365,6 +377,8 @@ const handleAssignModalConfirm = async () => {
     selectedOption={randomNames.find(name => name.value === selectedAssignee)}
     onChange={({ detail }) => setSelectedAssignee(detail.selectedOption.value)}
     placeholder="Select an assignee"
+    invalid={isFormSubmittedWithoutSelection && !selectedAssignee} // Conditionally make it invalid
+
   />
 </Modal>
 
@@ -600,7 +614,7 @@ const handleAssignModalConfirm = async () => {
                   <p>Subtotal &nbsp;:</p>
                 </div>
                 <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  <p style={{ fontWeight: "bold" }}>₹{orderDetail?. paymentDetails?.amount}</p>
+                  <p style={{ fontWeight: "bold" }}>₹{orderDetail?.subTotal}</p>
                 </div>
                 <div style={{ fontSize: "16px", fontWeight: "bold" }}>
                   Shipping Charges&nbsp;:
@@ -620,7 +634,7 @@ const handleAssignModalConfirm = async () => {
                     fontWeight: "bold",
                   }}
                 >
-                  ₹{orderDetail?.paymentDetails?.amount || "N/A"}
+                  ₹{orderDetail?.totalPrice || "N/A"}
                 </div>
               </ColumnLayout>
             </Grid>

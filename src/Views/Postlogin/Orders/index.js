@@ -49,6 +49,8 @@ const Orders = () => {
     useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
+  const [isFormSubmittedWithoutSelection, setIsFormSubmittedWithoutSelection] = useState(false);
+
 
   useEffect(() => {
     dispatch(fetchOrders({ search: filteringText, status: activeButton }));
@@ -58,18 +60,25 @@ useEffect(() => {
   dispatch(fetchOrderStatus());
 }, [dispatch]);
 
+
 useEffect(() => {
   const applyFilter = () => {
-    if (activeButton === "All") {
-      setFilteredOrders(items);
-    } else {
-      setFilteredOrders(
-        items.filter((order) => order.orderStatus === activeButton)
-      );
+    let filtered = items;
+    if (activeButton !== "All") {
+      filtered = items.filter((order) => order.orderStatus === activeButton);
     }
+
+    setFilteredOrders((prevFilteredOrders) => {
+      if (JSON.stringify(prevFilteredOrders) !== JSON.stringify(filtered)) {
+        return filtered;
+      }
+      return prevFilteredOrders;
+    });
   };
+
   applyFilter();
 }, [activeButton, items]);
+
 
 const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
 const indexOfLastOrder = currentPage * ordersPerPage;
@@ -89,13 +98,15 @@ const handleSelectChange = async ({ detail }) => {
   setActiveButton(newStatus);
   setSelectedItems([]);
   setCurrentPage(1);
-
   await dispatch(fetchOrders({ search: filteringText, status: newStatus }));
 };
+
+
 const handleSearchChange = (e) => {
-  setFilteringText(e.detail.filteringText);
+  setFilteringText(e.detail.filteringText); 
   setCurrentPage(1); 
 };
+
 
   const selectOptions = [
     { label: "All", value: "All" },
@@ -145,14 +156,24 @@ const handleSearchChange = (e) => {
 
   const handleAssignOrdersModalConfirm = async () => {
     try {
+      if (!selectedAssignee) {
+        setIsFormSubmittedWithoutSelection(true);
+        return;
+      }
+  
+      setIsFormSubmittedWithoutSelection(false);
+      
       if (!Array.isArray(selectedItems) || selectedItems.length === 0) {
         throw new Error("No items selected or invalid selection.");
       }
-      const orderIds = selectedItems.map((item) => item.id); // Extract IDs
-      const assignee = selectedAssignee.value; // Extract selected assignee's value
+  
+      const orderIds = selectedItems.map((item) => item.id);
+      const assignee = selectedAssignee.value;
+  
       if (!Array.isArray(orderIds) || orderIds.length === 0) {
         throw new Error("Invalid order IDs.");
       }
+  
       const result = await dispatch(
         assignDeliveryBoyAndMoveToOnTheWay({
           orderIds,
@@ -160,24 +181,21 @@ const handleSearchChange = (e) => {
           status: "On The Way",
         })
       ).unwrap();
+  
       if (result.message === "success") {
         console.log("Orders assigned and status updated successfully:", result);
         await dispatch(fetchOrders());
       } else {
-        throw new Error(
-          "Failed to assign delivery boy and update order status"
-        );
+        throw new Error("Failed to assign delivery boy and update order status");
       }
-       window.location.reload();
+      
+      window.location.reload();
       setIsAssignOrdersModalVisible(false);
     } catch (error) {
-      console.error(
-        "Error assigning delivery boy and updating order status:",
-        error
-      );
+      console.error("Error assigning delivery boy and updating order status:", error);
     }
   };
-
+  
   const handleSelectAssigneeChange = ({ detail }) => {
     setSelectedAssignee(detail.selectedOption);
   };
@@ -230,28 +248,28 @@ const handleSearchChange = (e) => {
         return (
           <>
             <Icon name="status-in-progress" variant="subtle" />
-            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '400' }}>Order Confirmed</span>
+            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '600' }}>Order Confirmed</span>
           </>
         );
       case "packed":
         return (
           <>
             <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '400' }}>Packed</span>
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>Packed</span>
           </>
         );
       case "on the way":
         return (
           <>
             <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '400' }}>On The Way</span>
+            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>On The Way</span>
           </>
         );
       case "delivered":
         return (
           <>
             <Icon name="status-positive" variant="success" />
-            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '400' }}>Delivered</span>
+            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '600' }}>Delivered</span>
           </>
         );
       default:
@@ -272,7 +290,8 @@ const handleSearchChange = (e) => {
         />
       }
       header={
-        <Header  variant="h1"
+        <Header
+          variant="h1"
         >
           Orders
         </Header>
@@ -389,6 +408,7 @@ const handleSearchChange = (e) => {
                   )}
                   onChange={handleSelectChange}
                   placeholder="Sort by Status"
+                  
                 />
               </div>
               <div
@@ -484,19 +504,21 @@ const handleSearchChange = (e) => {
                     variant="primary"
                     onClick={handleAssignOrdersModalConfirm}
                   >
-                    Confirm
+                    Assign
                   </Button>
                 </SpaceBetween>
               </Box>
             }
             header="Assign Orders"
           >
-            <Select
-              options={randomNames}
-              selectedOption={selectedAssignee}
-              onChange={handleSelectAssigneeChange}
-              placeholder="Select an assignee"
-            />
+           <Select
+  options={randomNames}
+  selectedOption={selectedAssignee}
+  onChange={handleSelectAssigneeChange}
+  placeholder="Select Assignee"
+  invalid={isFormSubmittedWithoutSelection && !selectedAssignee} // Conditionally make it invalid
+/>
+
           </Modal>
           <Modal
             onDismiss={handleMoveToDeliveredModalCancel}
