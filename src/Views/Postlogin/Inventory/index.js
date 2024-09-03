@@ -127,6 +127,7 @@ const Inventory = () => {
                     color: "#602400",
                   }}
                 >
+                  
                   423
                 </span>
               </div>
