@@ -86,7 +86,7 @@ const Inventory = () => {
       <div className="flex flex-col gap-3">
         <ContentLayout
           headerVariant="high-contrast"
-          defaultPadding
+          // defaultPadding
           breadcrumbs={
             <BreadcrumbGroup
               items={[
@@ -112,7 +112,7 @@ const Inventory = () => {
                     color: "#037F0C",
                   }}
                 >
-                  924
+                  {data.count}
                 </span>
               </div>
               <div>
@@ -127,6 +127,7 @@ const Inventory = () => {
                     color: "#602400",
                   }}
                 >
+                  
                   423
                 </span>
               </div>
@@ -187,7 +188,7 @@ const Inventory = () => {
             gap: "10px",
             alignItems: "center",
             marginTop: "12px",
-            padding: "0 25px 0 25px",
+            // padding: "0 25px 0 25px",
           }}
         >
           <div style={{display:"flex",gap:"7px"}}>
@@ -220,7 +221,7 @@ const Inventory = () => {
           /></div>
         </div>
       </div>
-      <div style={{ marginTop: "15px", padding: "0 25px 0 25px" }}>
+      <div style={{ marginTop: "15px"}}>
         <Table
           variant="borderless"
           columnDefinitions={[
