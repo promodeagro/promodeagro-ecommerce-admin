@@ -37,6 +37,7 @@ const Products = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteringText, setFilteringText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState("All");
   const [editedProducts, setEditedProducts] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
   const [isModalVisible1, setModalVisible1] = useState(false);
@@ -57,8 +58,9 @@ const Products = () => {
     dispatch(fetchProducts({
       search: filteringText,
       category: selectedCategory,
+      active:selectedStatus,
     }));
-  }, [dispatch, filteringText, selectedCategory]);
+  }, [dispatch,selectedStatus, filteringText, selectedCategory]);
 
   const handleInputChange = (id, field, value) => {
     setEditedProducts(prev => ({
@@ -104,6 +106,7 @@ const Products = () => {
     dispatch(fetchProducts({
       search: filteringText,
       category: selectedCategory,
+      active:selectedStatus,
     }));
       } else {
            // Fetch initial products
@@ -129,6 +132,10 @@ const Products = () => {
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
   };
+  const handleSelectionChangeStatus = ({ detail }) => {
+    setSelectedStatus(detail.selectedOption.value);
+  };
+
 
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
@@ -141,10 +148,17 @@ const Products = () => {
     { label: "Vegetable", value: "Vegetable" },
     { label: "Bengali Vegetable", value: "Bengali Vegetable" },
   ];
+  const selectOptionsStatus = [
+    { label: "All", value: "All" },
+    { label: "Active", value: "true" },
+    { label: "Inactive", value: "false" },
+
+  ];
 
   const handleSelectionChange = ({ detail }) => {
     setSelectedItems(detail.selectedItems);
   };
+
   const handleBulkModifyPrice = () => {
     if (validateInputs()) {
       setModalVisible1(true);
@@ -333,7 +347,7 @@ const Products = () => {
                       onChange={handleSearchChange}
                     />
                   </div>
-                  <div style={{ width: "120px" }}>
+                  <div style={{ width: "110px" }}>
                     <Select
                       options={selectOptions}
                       selectedOption={selectOptions.find(
@@ -341,6 +355,16 @@ const Products = () => {
                       )}
                       onChange={handleSelectChange}
                       placeholder="Select Category"
+                    />
+                  </div>
+                  <div style={{ width: "100px" }}>
+                    <Select
+                      options={selectOptionsStatus}
+                      selectedOption={selectOptionsStatus.find(
+                        (option) => option.value === selectedStatus
+                      )}
+                      onChange={handleSelectionChangeStatus}
+                      placeholder="Select Status"
                     />
                   </div>
                 </div>

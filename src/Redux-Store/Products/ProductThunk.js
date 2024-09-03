@@ -7,17 +7,18 @@ import { postLoginService } from "Services";
 // Fetch products with optional queries and pagination
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
-  async ({ search = '', category = '', nextKey = '' }, { rejectWithValue }) => {
+  async ({ search = '', category = '',active='', nextKey = '' }, { rejectWithValue }) => {
     try {
       const url = config.FETCH_PRODUCTS;
       const params = {
         search: search || undefined,
         category: category === 'All' ? undefined : category,
+        active: active === 'All' ? undefined : active,
         nextKey: nextKey || undefined,
       };
       const response = await postLoginService.get(url, { params });
       console.log(response, "products api");
-      console.log(params.category,params.nextKey,params.search,"filtering key search category");
+      console.log(params.category,params.nextKey,params.search,params.active,"filtering key search category active");
       return response.data;
     } catch (error) {
       console.error('Failed to fetch products:', error);
