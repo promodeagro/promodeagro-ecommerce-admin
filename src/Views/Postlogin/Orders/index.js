@@ -5,7 +5,6 @@ import {
   fetchOrderStatus,
   updateOrderStatus,
   assignDeliveryBoyAndMoveToOnTheWay,
-  fetchFilteredOrders,
 } from "Redux-Store/Orders/OrdersThunk";
 import {
   Table,
@@ -36,7 +35,7 @@ const Orders = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 50;
-  const [activeButton, setActiveButton] = useState("All");
+  const [activeButton, setActiveButton] = useState("order placed");
   const [filteringText, setFilteringText] = useState("");
   const [selectedAssignee, setSelectedAssignee] = useState(null);
   const [isAssignOrdersModalVisible, setIsAssignOrdersModalVisible] =
@@ -64,10 +63,9 @@ useEffect(() => {
 useEffect(() => {
   const applyFilter = () => {
     let filtered = items;
-    if (activeButton !== "All") {
+    if (activeButton) {
       filtered = items.filter((order) => order.orderStatus === activeButton);
     }
-
     setFilteredOrders((prevFilteredOrders) => {
       if (JSON.stringify(prevFilteredOrders) !== JSON.stringify(filtered)) {
         return filtered;
@@ -78,7 +76,6 @@ useEffect(() => {
 
   applyFilter();
 }, [activeButton, items]);
-
 
 const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
 const indexOfLastOrder = currentPage * ordersPerPage;
@@ -109,7 +106,6 @@ const handleSearchChange = (e) => {
 
 
   const selectOptions = [
-    { label: "All", value: "All" },
     { label: "Order Confirmed", value: "order placed" },
     { label: "Packed", value: "packed" },
     { label: "On The Way", value: "on the way" },
@@ -401,15 +397,14 @@ const handleSearchChange = (e) => {
                       filteringText={filteringText}
                       onChange={handleSearchChange}
                     />
-                <Select
-                  options={selectOptions}
-                  selectedOption={selectOptions.find(
-                    (option) => option.value === activeButton
-                  )}
-                  onChange={handleSelectChange}
-                  placeholder="Sort by Status"
-                  
-                />
+<Select
+  options={selectOptions}
+  selectedOption={selectOptions.find(
+    (option) => option.value === activeButton
+  )}
+  onChange={handleSelectChange}
+  placeholder="Sort by Status"
+/>
               </div>
               <div
                 style={{
@@ -511,12 +506,13 @@ const handleSearchChange = (e) => {
             }
             header="Assign Orders"
           >
-           <Select
+  <h3 style={{marginBottom: '0.5em'}}>Select Assignee</h3>
+  <Select
   options={randomNames}
   selectedOption={selectedAssignee}
   onChange={handleSelectAssigneeChange}
   placeholder="Select Assignee"
-  invalid={isFormSubmittedWithoutSelection && !selectedAssignee} // Conditionally make it invalid
+  invalid={isFormSubmittedWithoutSelection && !selectedAssignee}
 />
 
           </Modal>

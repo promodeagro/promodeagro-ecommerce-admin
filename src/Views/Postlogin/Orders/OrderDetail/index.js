@@ -365,18 +365,19 @@ const handleAssignModalConfirm = async () => {
           Cancel
         </Button>
         <Button variant="primary" onClick={handleAssignModalConfirm}>
-          Confirm
+          Assign
         </Button>
       </SpaceBetween>
     </Box>
   }
   header="Assign Order"
 >
+  <h3 style={{marginBottom: '0.5em'}}>Select Assignee</h3>
   <Select
     options={randomNames}
     selectedOption={randomNames.find(name => name.value === selectedAssignee)}
     onChange={({ detail }) => setSelectedAssignee(detail.selectedOption.value)}
-    placeholder="Select an assignee"
+    placeholder="Select Assignee"
     invalid={isFormSubmittedWithoutSelection && !selectedAssignee} // Conditionally make it invalid
 
   />
