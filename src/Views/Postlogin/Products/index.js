@@ -430,7 +430,7 @@ const Products = () => {
                 header: "Stock Alert",
                 cell: (item) => (
                   <p style={{ color: "#0972D3", textAlign: "center" }}>
-                    Active
+                    Available
                   </p>
                 ),
               },
