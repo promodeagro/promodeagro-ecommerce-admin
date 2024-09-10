@@ -320,7 +320,7 @@ const Products = () => {
         <Header
           actions={
             <SpaceBetween alignItems="center" direction="horizontal" size="xs">
-              <Button variant="normal">Export</Button>
+              {/* <Button variant="normal">Export</Button> */}
             </SpaceBetween>
           }
           variant="h1"

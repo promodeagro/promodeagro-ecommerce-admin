@@ -20,7 +20,6 @@ import {
   SpaceBetween,
   Grid,
   Select,
-  
 } from "@cloudscape-design/components";
 import { Link } from "react-router-dom";
 import Modal from "@cloudscape-design/components/modal";
@@ -35,7 +34,7 @@ const Orders = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 50;
-  const [activeButton, setActiveButton] = useState("order placed");
+  const [activeButton, setActiveButton] = useState("Order Confirmed");
   const [filteringText, setFilteringText] = useState("");
   const [selectedAssignee, setSelectedAssignee] = useState(null);
   const [isAssignOrdersModalVisible, setIsAssignOrdersModalVisible] =
@@ -48,65 +47,72 @@ const Orders = () => {
     useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
-  const [isFormSubmittedWithoutSelection, setIsFormSubmittedWithoutSelection] = useState(false);
-
+  const [isFormSubmittedWithoutSelection, setIsFormSubmittedWithoutSelection] =
+    useState(false);
+  const [selectedOption, setSelectedOption] = React.useState();
 
   useEffect(() => {
     dispatch(fetchOrders({ search: filteringText, status: activeButton }));
   }, [dispatch, filteringText, activeButton]);
 
-useEffect(() => {
-  dispatch(fetchOrderStatus());
-}, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchOrderStatus());
+  }, [dispatch]);
 
-
-useEffect(() => {
-  const applyFilter = () => {
-    let filtered = items;
-    if (activeButton) {
-      filtered = items.filter((order) => order.orderStatus === activeButton);
-    }
-    setFilteredOrders((prevFilteredOrders) => {
-      if (JSON.stringify(prevFilteredOrders) !== JSON.stringify(filtered)) {
-        return filtered;
+  useEffect(() => {
+    const applyFilter = () => {
+      let filtered = items;
+      if (activeButton) {
+        filtered = items.filter((order) => order.orderStatus === activeButton);
       }
-      return prevFilteredOrders;
-    });
+      setFilteredOrders((prevFilteredOrders) => {
+        if (JSON.stringify(prevFilteredOrders) !== JSON.stringify(filtered)) {
+          return filtered;
+        }
+        return prevFilteredOrders;
+      });
+    };
+
+    applyFilter();
+  }, [activeButton, items]);
+
+  useEffect(() => {
+    if (activeButton === "delivered" && !selectedOption) {
+      setSelectedOption({ label: "7 Days Old", value: "1" }); // Default to 7 days old
+    }
+  }, [activeButton]);
+  
+
+  const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const currentOrders = filteredOrders.slice(
+    indexOfFirstOrder,
+    indexOfLastOrder
+  );
+
+  const handlePageChange = async (pageIndex) => {
+    setCurrentPage(pageIndex);
+    await dispatch(
+      fetchOrders({ search: filteringText, status: activeButton })
+    );
   };
 
-  applyFilter();
-}, [activeButton, items]);
+  const handleSelectChange = async ({ detail }) => {
+    const newStatus = detail.selectedOption.value;
+    setSelectedStatus(newStatus);
+    setActiveButton(newStatus);
+    setSelectedItems([]);
+    setCurrentPage(1);
+    await dispatch(fetchOrders({ search: filteringText, status: newStatus }));
+  };
 
-const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
-const indexOfLastOrder = currentPage * ordersPerPage;
-const currentOrders = filteredOrders.slice(
-  indexOfFirstOrder,
-  indexOfLastOrder
-);
-
-const handlePageChange = async (pageIndex) => {
-  setCurrentPage(pageIndex);
-  await dispatch(fetchOrders({ search: filteringText, status: activeButton }));
-};
-
-const handleSelectChange = async ({ detail }) => {
-  const newStatus = detail.selectedOption.value;
-  setSelectedStatus(newStatus);
-  setActiveButton(newStatus);
-  setSelectedItems([]);
-  setCurrentPage(1);
-  await dispatch(fetchOrders({ search: filteringText, status: newStatus }));
-};
-
-
-const handleSearchChange = (e) => {
-  setFilteringText(e.detail.filteringText); 
-  setCurrentPage(1); 
-};
-
+  const handleSearchChange = (e) => {
+    setFilteringText(e.detail.filteringText);
+    setCurrentPage(1);
+  };
 
   const selectOptions = [
-    { label: "Order Confirmed", value: "order placed" },
+    { label: "Order Confirmed", value: "Order Confirmed" },
     { label: "Packed", value: "packed" },
     { label: "On The Way", value: "on the way" },
     { label: "Delivered", value: "delivered" },
@@ -143,7 +149,7 @@ const handleSearchChange = (e) => {
       } else {
         throw new Error("Failed to update order status");
       }
-        window.location.reload();
+      window.location.reload();
       setIsMoveToPackedModalVisible(false);
     } catch (error) {
       console.error("Error updating order status:", error);
@@ -156,20 +162,20 @@ const handleSearchChange = (e) => {
         setIsFormSubmittedWithoutSelection(true);
         return;
       }
-  
+
       setIsFormSubmittedWithoutSelection(false);
-      
+
       if (!Array.isArray(selectedItems) || selectedItems.length === 0) {
         throw new Error("No items selected or invalid selection.");
       }
-  
+
       const orderIds = selectedItems.map((item) => item.id);
       const assignee = selectedAssignee.value;
-  
+
       if (!Array.isArray(orderIds) || orderIds.length === 0) {
         throw new Error("Invalid order IDs.");
       }
-  
+
       const result = await dispatch(
         assignDeliveryBoyAndMoveToOnTheWay({
           orderIds,
@@ -177,21 +183,26 @@ const handleSearchChange = (e) => {
           status: "On The Way",
         })
       ).unwrap();
-  
+
       if (result.message === "success") {
         console.log("Orders assigned and status updated successfully:", result);
         await dispatch(fetchOrders());
       } else {
-        throw new Error("Failed to assign delivery boy and update order status");
+        throw new Error(
+          "Failed to assign delivery boy and update order status"
+        );
       }
-      
+
       window.location.reload();
       setIsAssignOrdersModalVisible(false);
     } catch (error) {
-      console.error("Error assigning delivery boy and updating order status:", error);
+      console.error(
+        "Error assigning delivery boy and updating order status:",
+        error
+      );
     }
   };
-  
+
   const handleSelectAssigneeChange = ({ detail }) => {
     setSelectedAssignee(detail.selectedOption);
   };
@@ -231,48 +242,15 @@ const handleSearchChange = (e) => {
       } else {
         throw new Error("Failed to update order status");
       }
-       window.location.reload();
+      window.location.reload();
       setIsMoveToDeliveredModalVisible(false);
     } catch (error) {
       console.error("Error updating order status:", error);
     }
   };
 
-  const getOrderStatusWithIcon = (orderStatus) => {
-    switch (orderStatus.toLowerCase()) {
-      case "order placed":
-        return (
-          <>
-            <Icon name="status-in-progress" variant="subtle" />
-            <span style={{ marginLeft: "6px", color: '#5F6B7A', fontWeight: '600' }}>Order Confirmed</span>
-          </>
-        );
-      case "packed":
-        return (
-          <>
-            <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>Packed</span>
-          </>
-        );
-      case "on the way":
-        return (
-          <>
-            <Icon name="status-info" variant="link" />
-            <span style={{ marginLeft: "6px", color: '#0972D3', fontWeight: '600' }}>On The Way</span>
-          </>
-        );
-      case "delivered":
-        return (
-          <>
-            <Icon name="status-positive" variant="success" />
-            <span style={{ marginLeft: "6px", color: '#037F0C', fontWeight: '600' }}>Delivered</span>
-          </>
-        );
-      default:
-        return <span>{orderStatus}</span>;
-    }
-  };
-  
+ 
+
   return (
     <ContentLayout
       headerVariant="high-contrast"
@@ -285,13 +263,7 @@ const handleSearchChange = (e) => {
           ariaLabel="Breadcrumbs"
         />
       }
-      header={
-        <Header
-          variant="h1"
-        >
-          Orders
-        </Header>
-      }
+      header={<Header variant="h1">Orders</Header>}
     >
       <SpaceBetween direction="vertical" size="xl">
         <Container className="top-container" style={{ marginBottom: "1rem" }}>
@@ -391,29 +363,58 @@ const handleSearchChange = (e) => {
                 { colspan: { default: 12, xxs: 6 } },
               ]}
             >
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-              <TextFilter
-                      filteringPlaceholder="Search"
-                      filteringText={filteringText}
-                      onChange={handleSearchChange}
-                    />
-<Select
-  options={selectOptions}
-  selectedOption={selectOptions.find(
-    (option) => option.value === activeButton
-  )}
-  onChange={handleSelectChange}
-  placeholder="Sort by Status"
-/>
+              <div style={{ display: "flex", gap: "0.4rem" }}>
+                <TextFilter
+                  filteringPlaceholder="Search"
+                  filteringText={filteringText}
+                  onChange={handleSearchChange}
+                />
+                <Select
+                  options={selectOptions}
+                  selectedOption={
+                    selectOptions.find(
+                      (option) => option.value === activeButton
+                    )
+                      ? {
+                          label:
+                            activeButton === "Order Confirmed"
+                              ? "Sort By Status"
+                              : activeButton === "packed"
+                              ? "Sort By Pack"
+                              : activeButton === "on the way"
+                              ? "Sort By On The Way"
+                              : activeButton === "delivered"
+                              ? "Sort By Delivered"
+                              : "Sort By Status",
+                          value: activeButton,
+                        }
+                      : null
+                  }
+                  onChange={handleSelectChange}
+                />
+
+{activeButton === "delivered" && (
+  <Select
+    selectedOption={selectedOption}
+    onChange={({ detail }) => setSelectedOption(detail.selectedOption)}
+    options={[
+      { label: "7 Days Old", value: "1" },
+      { label: "14 Days Old", value: "2" },
+      { label: "1 Month Old", value: "3" },
+      { label: "2 Month Old", value: "4" },
+      { label: "Old Orders", value: "5" },
+    ]}
+    placeholder="Completed Order"
+  />
+)}
               </div>
               <div
                 style={{
                   display: "flex",
-                  gap: "0.5rem",
                   justifyContent: "flex-end",
                 }}
               >
-                {activeButton === "order placed" && (
+                {activeButton === "Order Confirmed" && (
                   <Button
                     disabled={selectedItems.length === 0}
                     onClick={handleMoveToPackedClick}
@@ -506,15 +507,14 @@ const handleSearchChange = (e) => {
             }
             header="Assign Orders"
           >
-  <h3 style={{marginBottom: '0.5em'}}>Select Assignee</h3>
-  <Select
-  options={randomNames}
-  selectedOption={selectedAssignee}
-  onChange={handleSelectAssigneeChange}
-  placeholder="Select Assignee"
-  invalid={isFormSubmittedWithoutSelection && !selectedAssignee}
-/>
-
+            <h3 style={{ marginBottom: "0.5em" }}>Select Assignee</h3>
+            <Select
+              options={randomNames}
+              selectedOption={selectedAssignee}
+              onChange={handleSelectAssigneeChange}
+              placeholder="Select Assignee"
+              invalid={isFormSubmittedWithoutSelection && !selectedAssignee}
+            />
           </Modal>
           <Modal
             onDismiss={handleMoveToDeliveredModalCancel}
@@ -629,7 +629,8 @@ const handleSearchChange = (e) => {
               {
                 id: "orderStatus",
                 header: "Order Status",
-                cell: (item) => getOrderStatusWithIcon(item.orderStatus) || "N/A",
+                cell: (item) =>
+              (item.orderStatus) || "N/A",
               },
 
               {
@@ -643,7 +644,18 @@ const handleSearchChange = (e) => {
                 header: "Delivery Area",
                 cell: (item) => item.area || "N/A",
               },
+              ...(activeButton === "on the way" || activeButton === "delivered"
+                ? [
+                    {
+                      id: "assignee",
+                      header: "Assignee",
+                      cell: (item) => item.assignee || "N/A",
+                    },
+                  ]
+                : []),
             ]}
+          
+            
             loadingText="Loading resources"
             selectionType="multi"
             trackBy="id"
