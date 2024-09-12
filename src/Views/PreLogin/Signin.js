@@ -28,7 +28,9 @@ const Signin = () => {
       .then((response) => {
         // Log the successful response
         console.log("Signin Response:", response.accessToken);
-        localStorage.setItem("user", JSON.stringify(response.accessToken));
+        localStorage.setItem("user", JSON.stringify(response));
+        localStorage.setItem("userEmail", JSON.stringify(email));
+
 
         // If the API call is successful, show the success message and navigate to the dashboard
         setItems([

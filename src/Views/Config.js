@@ -18,6 +18,7 @@ const Config = {
   ORDERS_VIEWATTACHMENTS:`${BASE_URL}/users`,
    FETCH_BATCH_SHEET:`${BASE_URL}/users`,
    FETCH_PRODUCTS:`${BASE_URL}/inventory`,
+   SIGNOUT:`${BASE_URL}/auth/signout`,
    FETCH_PRODUCTS_DETAIL:`${BASE_URL}/inventory`,
    PUT_PRODUCTS_DETAIL:`${BASE_URL}/publish`,
    PUT_PRICING:`${BASE_URL}/inventory`,
