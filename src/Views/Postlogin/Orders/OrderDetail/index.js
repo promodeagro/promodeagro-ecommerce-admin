@@ -42,7 +42,7 @@ const OrderDetail = () => {
   
 
   const events = [
-    { step: "Step 1", title: "Order Confirmed", status: "order placed" },
+    { step: "Step 1", title: "Order Confirmed", status: "Order Confirmed" },
     { step: "Step 2", title: "Packed", status: "packed" },
     { step: "Step 3", title: "On the Way", status: "on the way" },
     { step: "Step 4", title: "Delivered", status: "delivered" },
@@ -302,7 +302,7 @@ const handleAssignModalConfirm = async () => {
          <Header
           actions={
             <SpaceBetween direction="horizontal" size="xs">
-              {orderDetail?.status === "order placed" && (
+              {orderDetail?.status === "Order Confirmed" && (
                 <Button onClick={() => setIsMoveToPackedModalVisible(true)} iconName="angle-right-double" iconAlign="right">
                   Move to Packed
                 </Button>
@@ -445,7 +445,7 @@ const handleAssignModalConfirm = async () => {
   style={{
     display: "inline-block",
     backgroundColor: 
-      orderDetail?.status === 'order placed' ? '#414D5C' : // Dark grey color for 'Order Confirmed'
+      orderDetail?.status === 'Order Confirmed' ? '#414D5C' : // Dark grey color for 'Order Confirmed'
       orderDetail?.status === 'packed' ? '#0972D3' : // Blue color for 'Packed'
       orderDetail?.status === 'on the way' ? '#0972D3' : // Teal color for 'On The Way'
       orderDetail?.status === 'delivered' ? '#0972D3' : // Green color for 'Delivered'
@@ -458,7 +458,7 @@ const handleAssignModalConfirm = async () => {
     color: "white",
   }}
 >
-  {orderDetail?.status === 'order placed' ? 'Order Confirmed' :
+  {orderDetail?.status === 'Order Confirmed' ? 'Order Confirmed' :
    orderDetail?.status === 'packed' ? 'Packed' :
    orderDetail?.status === 'on the way' ? 'On The Way' :
    orderDetail?.status === 'delivered' ? 'Delivered' :

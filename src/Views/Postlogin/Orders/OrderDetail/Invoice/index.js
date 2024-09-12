@@ -149,7 +149,7 @@ const Invoice = () => {
     color: "white",
   }}
 >
-  {orderDetails?.status === 'order placed' ? 'Order Confirmed' :
+  {orderDetails?.status === 'Order Confirmed' ? 'Order Confirmed' :
    orderDetails?.status === 'packed' ? 'Packed' :
    orderDetails?.status === 'on the way' ? 'On The Way' :
    orderDetails?.status === 'delivered' ? 'Delivered' :
