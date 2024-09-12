@@ -172,7 +172,7 @@ const Invoice = () => {
     padding: "42px 0 42px 42px",
     backgroundColor: "#F9FAFC",
     maxWidth: "100%",
-    minHeight: "11in", // Adjust to ensure it covers the height of the PDF
+    minHeight: "11in",
     height: "auto",
     display: "flex",
     flexDirection: "column",
@@ -193,9 +193,9 @@ const Invoice = () => {
               src={invoiceImage}
               alt="Invoice"
               style={{
-                width: "60px", // Adjust as needed
-                height: "56px", // Adjust as needed
-                display: "block", // Ensures no extra space below the image
+                width: "60px", 
+                height: "56px", 
+                display: "block", 
               }}
             />
             <div>
@@ -237,7 +237,6 @@ const Invoice = () => {
               display: "flex",
               height: "10rem",
               width: "28rem",
-              // backgroundColor:'red',
               gap: "16px",
             }}
           >
@@ -299,7 +298,6 @@ const Invoice = () => {
               display: "flex",
               height: "4rem",
               width: "20rem",
-              // backgroundColor:'red',
               gap: "2px",
             }}
           >
@@ -337,7 +335,6 @@ const Invoice = () => {
               display: "flex",
               height: "12rem",
               width: "20rem",
-              // backgroundColor:'red',
               gap: "2px",
             }}
           >

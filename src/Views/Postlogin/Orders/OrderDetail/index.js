@@ -378,7 +378,7 @@ const handleAssignModalConfirm = async () => {
     selectedOption={randomNames.find(name => name.value === selectedAssignee)}
     onChange={({ detail }) => setSelectedAssignee(detail.selectedOption.value)}
     placeholder="Select Assignee"
-    invalid={isFormSubmittedWithoutSelection && !selectedAssignee} // Conditionally make it invalid
+    invalid={isFormSubmittedWithoutSelection && !selectedAssignee} 
 
   />
 </Modal>

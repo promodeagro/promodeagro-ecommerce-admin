@@ -102,6 +102,7 @@ const Header = () => {
               // {
               //   id: "support-group",
               //   text: "Support",
+<<<<<<< HEAD
                 // items: [
                 //   {
                 //     id: "documentation",
@@ -131,6 +132,24 @@ const Header = () => {
             ],
             onItemClick: handleSignOut1, 
           },
+=======
+              //   items: [
+                 
+              //     { id: "support", text: "Support" },
+              //     {
+              //       id: "feedback",
+              //       text: "Feedback",
+              //       href: "#",
+              //       external: true,
+              //       externalIconAriaLabel:
+              //         " (opens in new tab)"
+              //     }
+              //   ]
+              // },
+              { id: "signout", text: "Sign out" }
+            ]
+          }
+>>>>>>> d65541bf283f7ecb5208e50a13da30a051a18d31
         ]}
       />
     </div>
