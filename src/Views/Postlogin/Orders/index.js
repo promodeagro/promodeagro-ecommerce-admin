@@ -23,17 +23,15 @@ import {
 } from "@cloudscape-design/components";
 import { Link } from "react-router-dom";
 import Modal from "@cloudscape-design/components/modal";
-import Icon from "@cloudscape-design/components/icon";
 
 const Orders = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders.ordersData);
   const orderStatus = useSelector((state) => state.orders.order_status);
   const data = ordersData?.data || {};
-  const items = data.items || [];
+  const items = React.useMemo(() => data.items || [], [data.items]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 50;
   const [activeButton, setActiveButton] = useState("Order Confirmed");
   const [filteringText, setFilteringText] = useState("");
   const [selectedAssignee, setSelectedAssignee] = useState(null);
@@ -41,11 +39,8 @@ const Orders = () => {
     useState(false);
   const [isMoveToPackedModalVisible, setIsMoveToPackedModalVisible] =
     useState(false);
-  const [orderId, setOrderId] = useState(null);
-  const [deliveryBoyId, setDeliveryBoyId] = useState(null);
   const [isMoveToDeliveredModalVisible, setIsMoveToDeliveredModalVisible] =
     useState(false);
-  const [selectedStatus, setSelectedStatus] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [isFormSubmittedWithoutSelection, setIsFormSubmittedWithoutSelection] =
     useState(false);
@@ -72,24 +67,16 @@ const Orders = () => {
         return prevFilteredOrders;
       });
     };
-
+  
     applyFilter();
   }, [activeButton, items]);
-
+  
   useEffect(() => {
     if (activeButton === "delivered" && !selectedOption) {
-      setSelectedOption({ label: "7 Days Old", value: "1" }); // Default to 7 days old
+      setSelectedOption({ label: "7 Days Old", value: "1" }); 
     }
-  }, [activeButton]);
+  }, [activeButton, selectedOption]);
   
-
-  const indexOfFirstOrder = (currentPage - 1) * ordersPerPage;
-  const indexOfLastOrder = currentPage * ordersPerPage;
-  const currentOrders = filteredOrders.slice(
-    indexOfFirstOrder,
-    indexOfLastOrder
-  );
-
   const handlePageChange = async (pageIndex) => {
     setCurrentPage(pageIndex);
     await dispatch(
@@ -99,7 +86,6 @@ const Orders = () => {
 
   const handleSelectChange = async ({ detail }) => {
     const newStatus = detail.selectedOption.value;
-    setSelectedStatus(newStatus);
     setActiveButton(newStatus);
     setSelectedItems([]);
     setCurrentPage(1);
@@ -124,14 +110,6 @@ const Orders = () => {
 
   const handleMoveToPackedModalCancel = () => {
     setIsMoveToPackedModalVisible(false);
-  };
-
-  const handleAssignAndMove = () => {
-    if (orderId && deliveryBoyId) {
-      assignDeliveryBoyAndMoveToOnTheWay(orderId, deliveryBoyId);
-    } else {
-      console.error("Order ID or Delivery Boy ID is not defined.");
-    }
   };
 
   const handleMoveToPackedModalConfirm = async () => {
