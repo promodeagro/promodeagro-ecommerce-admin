@@ -19,6 +19,7 @@ import {
   Box,
   SpaceBetween,
   Grid,
+  Icon,
   Select,
 } from "@cloudscape-design/components";
 import { Link } from "react-router-dom";
@@ -32,7 +33,7 @@ const Orders = () => {
   const items = React.useMemo(() => data.items || [], [data.items]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeButton, setActiveButton] = useState("Order Confirmed");
+  const [activeButton, setActiveButton] = useState("order placed");
   const [filteringText, setFilteringText] = useState("");
   const [selectedAssignee, setSelectedAssignee] = useState(null);
   const [isAssignOrdersModalVisible, setIsAssignOrdersModalVisible] =
@@ -98,7 +99,7 @@ const Orders = () => {
   };
 
   const selectOptions = [
-    { label: "Order Confirmed", value: "Order Confirmed" },
+    { label: "Order Confirmed", value: "order placed" },
     { label: "Packed", value: "packed" },
     { label: "On The Way", value: "on the way" },
     { label: "Delivered", value: "delivered" },
@@ -224,6 +225,56 @@ const Orders = () => {
       setIsMoveToDeliveredModalVisible(false);
     } catch (error) {
       console.error("Error updating order status:", error);
+    }
+  };
+
+  const getOrderStatusWithIcon = (orderStatus) => {
+    switch (orderStatus.toLowerCase()) {
+      case "order placed":
+        return (
+          <>
+            <Icon name="status-in-progress" variant="subtle" />
+            <span
+              style={{ marginLeft: "6px", color: "#5F6B7A", fontWeight: "400" }}
+            >Order Confirmed
+            </span>
+          </>
+        );
+      case "packed":
+        return (
+          <>
+            <Icon name="status-info" variant="link" />
+            <span
+              style={{ marginLeft: "6px", color: "#0972D3", fontWeight: "400" }}
+            >
+              Packed
+            </span>
+          </>
+        );
+      case "on the way":
+        return (
+          <>
+            <Icon name="status-info" variant="link" />
+            <span
+              style={{ marginLeft: "6px", color: "#0972D3", fontWeight: "400" }}
+            >
+              On The Way
+            </span>
+          </>
+        );
+      case "delivered":
+        return (
+          <>
+            <Icon name="status-positive" variant="success" />
+            <span
+              style={{ marginLeft: "6px", color: "#037F0C", fontWeight: "400" }}
+            >
+              Delivered
+            </span>
+          </>
+        );
+      default:
+        return <span>{orderStatus}</span>;
     }
   };
 
@@ -355,7 +406,7 @@ const Orders = () => {
                     )
                       ? {
                           label:
-                            activeButton === "Order Confirmed"
+                            activeButton === "order placed"
                               ? "Sort By Status"
                               : activeButton === "packed"
                               ? "Sort By Pack"
@@ -392,7 +443,7 @@ const Orders = () => {
                   justifyContent: "flex-end",
                 }}
               >
-                {activeButton === "Order Confirmed" && (
+                {activeButton === "order placed" && (
                   <Button
                     disabled={selectedItems.length === 0}
                     onClick={handleMoveToPackedClick}
@@ -607,8 +658,8 @@ const Orders = () => {
               {
                 id: "orderStatus",
                 header: "Order Status",
-                cell: (item) =>
-              (item.orderStatus) || "N/A",
+                
+                  cell: (item) => getOrderStatusWithIcon(item.orderStatus) || "N/A",
               },
 
               {
