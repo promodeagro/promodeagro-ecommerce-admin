@@ -11,6 +11,14 @@ const Header = () => {
   const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail");
 
+  // Handle sign-out option click
+  const handleSignOut1 = (item) => {
+    if (item.detail.id === "signout") {
+      handleSignOut();
+    }
+  };
+
+  // Handle sign-out logic
   const handleSignOut = () => {
     const userData = localStorage.getItem("user");
 
@@ -18,6 +26,7 @@ const Header = () => {
       try {
         const parsedUserData = JSON.parse(userData);
         const token = parsedUserData.accessToken;
+
         if (token) {
           dispatch(authSignOut({ accessToken: token }))
             .unwrap()
@@ -43,36 +52,38 @@ const Header = () => {
   };
 
   return (
-    <div style={{ position: "sticky", top: 0, zIndex: 1000, background: "#fff" }}>
-      <TopNavigation
-        search={<Input type="search" placeholder="Search" ariaLabel="Search" />}
-        identity={{
-          href: "/app/dashboard",
-          title: "Ecommerce",
-          logo: {
-            src: logo,
-            alt: "Service",
-          },
-        }}
-        utilities={[
-          {
-            type: "menu-dropdown",
-            text: "User Menu",
-            description: userEmail,
-            iconName: "user-profile",
-            items: [
-              { id: "profile", text: "Profile" },
-              { id: "signout", text: "Sign out" }
-            ],
-            onItemClick: (item) => {
-              if (item.detail.id === "signout") {
-                handleSignOut();
-              }
+    <>
+      <div style={{ position: "sticky", top: 0, zIndex: 1000, background: "#fff" }}>
+        <TopNavigation
+          search={<Input type="search" placeholder="Search" ariaLabel="Search" />}
+          identity={{
+            href: "/app/dashboard",
+            title: "Ecommerce",
+            logo: {
+              src: logo,
+              alt: "Service",
             },
-          }
-        ]}
-      />
-    </div>
+          }}
+          utilities={[
+            {
+              type: "menu-dropdown",
+              text: "User",
+              description: userEmail,
+              iconName: "user-profile",
+              items: [
+                { id: "profile", text: "Profile" },
+                {
+                  variant: "primary-button",
+                  id: "signout",
+                  text: "Sign out",
+                },
+              ],
+              onItemClick: handleSignOut1,
+            },
+          ]}
+        />
+      </div>
+    </>
   );
 };
 
