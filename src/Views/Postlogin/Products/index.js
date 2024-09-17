@@ -25,7 +25,7 @@ import {
   putPricingById,
 
 } from "Redux-Store/Products/ProductThunk";
-// import { resetProducts } from "Redux-Store/Products/ProductsSlice";
+import { resetProducts } from "Redux-Store/Products/ProductsSlice";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
 import Numbers from "./Numbers";
 
@@ -36,8 +36,8 @@ const Products = () => {
 
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteringText, setFilteringText] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [editedProducts, setEditedProducts] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
   const [isModalVisible1, setModalVisible1] = useState(false);
@@ -52,7 +52,7 @@ const Products = () => {
 
   useEffect(() => {
     // Reset products when filters change
-    // dispatch(resetProducts());
+    dispatch(resetProducts());
 
     // Fetch initial products
     dispatch(fetchProducts({
@@ -143,17 +143,16 @@ const Products = () => {
   };
 
   const selectOptions = [
-    { label: "All", value: "All" },
+    { label: "All", value: "" },
     { label: "Fruits And Vegetables", value: "Fruits And Vegetables" },
     { label: "Dairies And Groceries", value: "Diaries And Groceries" },
     { label: "Meat/Fish/Eggs", value: "Meat/Fish/Eggs" },
     { label: "Fruit", value: "Fruit" },
     { label: "vegetable", value: "Vegetable" },
-
     { label: "Bengali Special", value: "Bengali Special" },
   ];
   const selectOptionsStatus = [
-    { label: "All", value: "All" },
+    { label: "All", value: "" },
     { label: "Active", value: "true" },
     { label: "Inactive", value: "false" },
 
@@ -283,21 +282,36 @@ const Products = () => {
 
 
   // Infinite Scroll Logic
-  // const lastProductRef = useCallback(node => {
-  //   if (status === 'loading') return;
-  //   if (observer.current) observer.current.disconnect();
-  //   observer.current = new IntersectionObserver(entries => {
-  //     if (entries[0].isIntersecting && nextKey) {
-  //       setIsFetching(true);
-  //       dispatch(fetchProducts({
-  //         search: filteringText,
-  //         category: selectedCategory,
-  //         nextKey: nextKey,
-  //       })).finally(() => setIsFetching(false));
-  //     }
-  //   });
-  //   if (node) observer.current.observe(node);
-  // }, [status, nextKey, dispatch, filteringText, selectedCategory]);
+  const previousNextKey = useRef(null); // Store the previous nextKey
+
+  const lastProductRef = useCallback(node => {
+    if (status === 'loading' || !nextKey) return; // Stop if fetching or no nextKey
+  
+    if (observer.current) observer.current.disconnect();
+  
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && nextKey) {
+        // Compare previous nextKey with current nextKey
+        if (previousNextKey.current !== nextKey) {
+          setIsFetching(true);
+          console.log("Fetching next set of products with nextKey:", nextKey);
+  
+          dispatch(fetchProducts({
+            search: filteringText,
+            category: selectedCategory,
+            nextKey: nextKey, // Pass the correct nextKey here
+          })).finally(() => {
+            setIsFetching(false);
+            previousNextKey.current = nextKey; // Update previous nextKey after fetch
+          });
+        }
+      }
+    });
+  
+    if (node) observer.current.observe(node);
+  }, [status, nextKey, dispatch, filteringText, selectedCategory]);
+  
+  
 
   return (
     <ContentLayout
@@ -525,9 +539,9 @@ const Products = () => {
             selectionType="multi"
           />
           {/* Sentinel element for infinite scrolling */}
-          {/* <div ref={lastProductRef} style={{ height: '20px' }}>
+          <div ref={lastProductRef} style={{ height: '20px' }}>
             {isFetching && <Spinner />}
-          </div> */}
+          </div>
         </div>
         {status === 'failed' && <Box color="red">{error}</Box>}
       </SpaceBetween>

@@ -4,30 +4,44 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import config from "Views/Config";
 import { postLoginService } from "Services";
 
-// Fetch products with optional queries and pagination
-export const fetchProducts = createAsyncThunk(
-  "products/fetchProducts",
-  async ({ search = '', category = '',active='', nextKey = '' }, { rejectWithValue }) => {
-    try {
-      const url = config.FETCH_PRODUCTS;
-      const params = {
-        search: search || undefined,
-        category: category === 'All' ? undefined : category,
-        active: active === 'All' ? undefined : active,
-        nextKey: nextKey || undefined,
-      };
-      const response = await postLoginService.get(url, { params });
-      console.log(response, "products api");
-      console.log(params.category,params.nextKey,params.search,params.active,"filtering key search category active");
-      return response.data;
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-      return rejectWithValue(
-        error.response ? error.response.data : error.message
-      );
+
+// Fetch products
+export const fetchProducts = createAsyncThunk("products/fetch", async (params, { rejectWithValue }) => {
+  try {
+    let url = config.FETCH_PRODUCTS;
+
+    // Initialize an array to hold query parameters
+    let queryParams = [];
+
+    // Add search term to query parameters if provided
+    if (params?.search) {
+      queryParams.push(`search=${encodeURIComponent(params.search)}`);
     }
+
+    // Add category to query parameters if provided
+    if (params?.category) {
+      queryParams.push(`category=${encodeURIComponent(params.category)}`);
+    }
+    if (params?.active) {
+      queryParams.push(`active=${encodeURIComponent(params.active)}`);
+    }
+    if (params?.nextKey) {
+      queryParams.push(`nextKey=${encodeURIComponent(params.nextKey)}`);
+    }
+
+    // Join the query parameters and append to the URL if there are any
+    if (queryParams.length > 0) {
+      url += `?${queryParams.join('&')}`;
+    }
+
+    const response = await postLoginService.get(url);
+    console.log(response,"inventory response");
+    console.log(url,"pro url");
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response.data);
   }
-);
+});
 
 
 

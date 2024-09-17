@@ -30,11 +30,11 @@ const ProductsSlice = createSlice({
         product.status = product.status === "Active" ? "Inactive" : "Active";
       }
     },
-    // resetProducts: (state) => {
-    //   state.products.data = [];
-    //   state.products.nextKey = null;
-    //   state.products.hasMore = true;
-    // },
+    resetProducts: (state) => {
+      state.products.data = [];
+      state.products.nextKey = null;
+      state.products.hasMore = true;
+    },
   },
   extraReducers: (builder) => {
     builder
