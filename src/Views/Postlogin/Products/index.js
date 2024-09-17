@@ -25,7 +25,7 @@ import {
   putPricingById,
 
 } from "Redux-Store/Products/ProductThunk";
-import { resetProducts } from "Redux-Store/Products/ProductsSlice";
+// import { resetProducts } from "Redux-Store/Products/ProductsSlice";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
 import Numbers from "./Numbers";
 
@@ -52,7 +52,7 @@ const Products = () => {
 
   useEffect(() => {
     // Reset products when filters change
-    dispatch(resetProducts());
+    // dispatch(resetProducts());
 
     // Fetch initial products
     dispatch(fetchProducts({
@@ -113,6 +113,7 @@ const Products = () => {
     dispatch(fetchProducts({
       search: filteringText,
       category: selectedCategory,
+      active:selectedStatus,
     }));
       }
     });
@@ -143,10 +144,13 @@ const Products = () => {
 
   const selectOptions = [
     { label: "All", value: "All" },
-    { label: "Leafy Vegetables", value: "Leafy Vegetables" },
+    { label: "Fruits And Vegetables", value: "Fruits And Vegetables" },
+    { label: "Dairies And Groceries", value: "Diaries And Groceries" },
+    { label: "Meat/Fish/Eggs", value: "Meat/Fish/Eggs" },
     { label: "Fruit", value: "Fruit" },
-    { label: "Vegetable", value: "Vegetable" },
-    { label: "Bengali Vegetable", value: "Bengali Vegetable" },
+    { label: "vegetable", value: "Vegetable" },
+
+    { label: "Bengali Special", value: "Bengali Special" },
   ];
   const selectOptionsStatus = [
     { label: "All", value: "All" },
@@ -206,8 +210,10 @@ const Products = () => {
 
     try {
       const response = await dispatch(putPricingById(pricingDataArray));
+      console.log(response,"bulk resp");
 
       if (response.meta.requestStatus === "fulfilled" && response.payload.status === 200) {
+        console.log("bulk modify",response);
         setBulkModifySuccessflash(true);
         setBulkModifySuccess(true);
         setSelectedItems([]);
@@ -230,14 +236,14 @@ const Products = () => {
 
   const navigateToStore = () => {
     const baseCategoryUrl = "https://promodeagro.com";
-    const categoryUrlPart = {
-      "Leafy Vegetables": "/category/VEGETABLES/Leafy%20Vegetables",
-      "Fruit": "/category/Fruits/Fresh%20Fruits",
-      "Vegetable": "/category/VEGETABLES/Fresh%20Vegetables",
-      "Bengali Vegetable": "/category/VEGETABLES/Bengali%20Vegetables",
-    }[selectedCategory] || "";
+    // const categoryUrlPart = {
+    //   "Leafy Vegetables": "/category/VEGETABLES/Leafy%20Vegetables",
+    //   "Fruit": "/category/Fruits/Fresh%20Fruits",
+    //   "Vegetable": "/category/VEGETABLES/Fresh%20Vegetables",
+    //   "Bengali Vegetable": "/category/VEGETABLES/Bengali%20Vegetables",
+    // }[selectedCategory] || "";
 
-    window.open(`${baseCategoryUrl}${categoryUrlPart}`, "_blank");
+    window.open(`${baseCategoryUrl}`, "_blank");
   };
 
   
@@ -277,21 +283,21 @@ const Products = () => {
 
 
   // Infinite Scroll Logic
-  const lastProductRef = useCallback(node => {
-    if (status === 'loading') return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && nextKey) {
-        setIsFetching(true);
-        dispatch(fetchProducts({
-          search: filteringText,
-          category: selectedCategory,
-          nextKey: nextKey,
-        })).finally(() => setIsFetching(false));
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [status, nextKey, dispatch, filteringText, selectedCategory]);
+  // const lastProductRef = useCallback(node => {
+  //   if (status === 'loading') return;
+  //   if (observer.current) observer.current.disconnect();
+  //   observer.current = new IntersectionObserver(entries => {
+  //     if (entries[0].isIntersecting && nextKey) {
+  //       setIsFetching(true);
+  //       dispatch(fetchProducts({
+  //         search: filteringText,
+  //         category: selectedCategory,
+  //         nextKey: nextKey,
+  //       })).finally(() => setIsFetching(false));
+  //     }
+  //   });
+  //   if (node) observer.current.observe(node);
+  // }, [status, nextKey, dispatch, filteringText, selectedCategory]);
 
   return (
     <ContentLayout
@@ -320,7 +326,7 @@ const Products = () => {
         <Header
           actions={
             <SpaceBetween alignItems="center" direction="horizontal" size="xs">
-              <Button variant="normal">Export</Button>
+              {/* <Button variant="normal">Export</Button> */}
             </SpaceBetween>
           }
           variant="h1"
@@ -519,9 +525,9 @@ const Products = () => {
             selectionType="multi"
           />
           {/* Sentinel element for infinite scrolling */}
-          <div ref={lastProductRef} style={{ height: '20px' }}>
+          {/* <div ref={lastProductRef} style={{ height: '20px' }}>
             {isFetching && <Spinner />}
-          </div>
+          </div> */}
         </div>
         {status === 'failed' && <Box color="red">{error}</Box>}
       </SpaceBetween>
