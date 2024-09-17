@@ -29,12 +29,12 @@ const Refund = () => {
     {
       id: "unitPerCost",
       header: "Unit Per Cost",
-      cell: (item) => `₹${item.unitPerCost}`, 
+      cell: (item) => `₹${item.unitPerCost}`,
     },
     {
       id: "totalCost",
       header: "Total Cost",
-      cell: (item) => `₹${item.totalCost}`, 
+      cell: (item) => `₹${item.totalCost}`,
     },
   ];
 
@@ -46,18 +46,18 @@ const Refund = () => {
       totalCost: "10",
     },
     {
-        name: "Item 1",
-        quantity: "2",
-        unitPerCost: "5",
-        totalCost: "10",
-      },
-      {
-        name: "Item 1",
-        quantity: "2",
-        unitPerCost: "5",
-        totalCost: "10",
-      },
-       {
+      name: "Item 1",
+      quantity: "2",
+      unitPerCost: "5",
+      totalCost: "10",
+    },
+    {
+      name: "Item 1",
+      quantity: "2",
+      unitPerCost: "5",
+      totalCost: "10",
+    },
+    {
       name: "Item 1",
       quantity: "2",
       unitPerCost: "5",
@@ -93,10 +93,7 @@ const Refund = () => {
           { colspan: { default: 16, xxs: 4 } },
         ]}
       >
-        <Container 
-        variant="borderless"
-        className="container-box-shadow"
-        >
+        <Container variant="borderless" className="container-box-shadow">
           <Table
             renderAriaLive={({ firstIndex, lastIndex, totalItemsCount }) =>
               `Displaying items ${firstIndex} to ${lastIndex} of ${totalItemsCount}`
@@ -134,59 +131,59 @@ const Refund = () => {
             header={<Header>Items</Header>}
           />
         </Container>
-        <Container variant="borderless"
-                        className="container-box-shadow"
-                        >
-            <Header>Refund Amount</Header>
-            <SpaceBetween size="s">
-            <div style={{fontWeight: 'bold'}}>Summary</div>
-    <Grid
-      disableGutters
-      gridDefinition={[{ colspan: 9 }, { colspan: 3 }]}
-    >
-<div style={{ borderBottom: '1px solid gray', height: '2rem' }}>Item Subtotal</div>
-<div style={{ borderBottom: '1px solid gray', height: '2rem' }}>₹1050</div>
-    </Grid>
-    <Grid
-      disableGutters
-      gridDefinition={[{ colspan: 9 }, { colspan: 3 }]}
-    >
-      <div style={{ borderBottom: '1px solid gray', height: '2rem'}}>Total Refund </div>
-      <div style={{ borderBottom: '1px solid gray', height: '2rem'}}>₹1050</div>
-    </Grid>
-    <div style={{fontWeight: 'bold'}}>
-        Manual
-        <Input
-      onChange={({ detail }) => setValue(detail.value)}
-      value={value}
-    />
-
-    </div>
-    <p>₹1050.00 available for refund</p>
-    <div style={{margin:'auto', width: '50%'}}>
-    <Button variant="primary">Refund ₹1050</Button></div>
-
-    </SpaceBetween>
-
+        <Container variant="borderless" className="container-box-shadow">
+          <Header>Refund Amount</Header>
+          <SpaceBetween size="s">
+            <div style={{ fontWeight: "bold" }}>Summary</div>
+            <Grid
+              disableGutters
+              gridDefinition={[{ colspan: 9 }, { colspan: 3 }]}
+            >
+              <div style={{ borderBottom: "1px solid gray", height: "2rem" }}>
+                Item Subtotal
+              </div>
+              <div style={{ borderBottom: "1px solid gray", height: "2rem" }}>
+                ₹1050
+              </div>
+            </Grid>
+            <Grid
+              disableGutters
+              gridDefinition={[{ colspan: 9 }, { colspan: 3 }]}
+            >
+              <div style={{ borderBottom: "1px solid gray", height: "2rem" }}>
+                Total Refund{" "}
+              </div>
+              <div style={{ borderBottom: "1px solid gray", height: "2rem" }}>
+                ₹1050
+              </div>
+            </Grid>
+            <div style={{ fontWeight: "bold" }}>
+              Manual
+              <Input
+                onChange={({ detail }) => setValue(detail.value)}
+                value={value}
+              />
+            </div>
+            <p>₹1050.00 available for refund</p>
+            <div style={{ margin: "auto", width: "50%" }}>
+              <Button variant="primary">Refund ₹1050</Button>
+            </div>
+          </SpaceBetween>
         </Container>
       </Grid>
 
       <Grid gridDefinition={[{ colspan: 8 }, { colspan: 10 }]}>
-        <Container variant="borderless"
-                        className="container-box-shadow">
-            <SpaceBetween size="s">
-        <Header>
-        Reason for Refund
-        </Header>
+        <Container variant="borderless" className="container-box-shadow">
+          <SpaceBetween size="s">
+            <Header>Reason for Refund</Header>
             <Textarea
-      onChange={({ detail }) => setValues(detail.values)}
-      value={values}
-    />
-    <p>Only your and other members can see this message</p>
-    </SpaceBetween>
+              onChange={({ detail }) => setValues(detail.values)}
+              value={values}
+            />
+            <p>Only your and other members can see this message</p>
+          </SpaceBetween>
         </Container>
       </Grid>
-      
     </SpaceBetween>
   );
 };

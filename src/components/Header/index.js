@@ -1,86 +1,90 @@
-
-import { TopNavigation, Input } from '@cloudscape-design/components';
-import React from 'react';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import TopNavigation from "@cloudscape-design/components/top-navigation";
+import { Input } from "@cloudscape-design/components";
 import logo from '../../assets/img/logo_PTR 1.png';
+import { authSignOut } from "Redux-Store/authenticate/signout/signoutThunk";
 
+const Header = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const userEmail = localStorage.getItem("userEmail");
 
-const TopBar = () => {
-  return (
-    <div id='header' style={{position: 'sticky', zIndex: 1000, top: 0, left: 0, right: 0}}>
-      <TopNavigation
-        identity={{
-          href: "#",
-          title: "E-commerce",
-          logo: {
-            src: logo, // Use the imported logo here
-            alt: "Service"
-          }
-        }}
-        utilities={[
-          {
-            type: "button",
-            iconName: "notification",
-            title: "Notifications",
-            ariaLabel: "Notifications (unread)",
-            badge: true,
-            disableUtilityCollapse: false
-          },
-          {
-            type: "menu-dropdown",
-            iconName: "settings",
-            ariaLabel: "Settings",
-            title: "Settings",
-            items: [
-              {
-                id: "settings-org",
-                text: "Organizational settings"
-              },
-              {
-                id: "settings-project",
-                text: "Project settings"
-              }
-            ]
-          },
-          {
-            type: "menu-dropdown",
-            text: "xyz",
-            description: "shaisthasamreen786@gmail.com",
-            iconName: "user-profile",
-            items: [
-              { id: "profile", text: "Profile" },
-              { id: "preferences", text: "Preferences" },
-              { id: "security", text: "Security" },
-              {
-                id: "support-group",
-                text: "Support",
-                items: [
-                 
-                  { id: "support", text: "Support" },
-                  {
-                    id: "feedback",
-                    text: "Feedback",
-                    href: "#",
-                    external: true,
-                    externalIconAriaLabel:
-                      " (opens in new tab)"
-                  }
-                ]
-              },
-              { id: "signout", text: "Sign out" }
-            ]
-          }
-        ]}
-        search={
-          <Input
-            type="search"
-            placeholder="Search"
-            ariaLabel="Search"
-          />
+  // Handle sign-out option click
+  const handleSignOut1 = (item) => {
+    if (item.detail.id === "signout") {
+      handleSignOut();
+    }
+  };
+
+  // Handle sign-out logic
+  const handleSignOut = () => {
+    const userData = localStorage.getItem("user");
+
+    if (userData) {
+      try {
+        const parsedUserData = JSON.parse(userData);
+        const token = parsedUserData.accessToken;
+
+        if (token) {
+          dispatch(authSignOut({ accessToken: token }))
+            .unwrap()
+            .then((response) => {
+              console.log("Sign-out Response:", response);
+              localStorage.removeItem("user");
+              localStorage.removeItem("email");
+              localStorage.removeItem("userEmail");
+              navigate("/auth/signin");
+            })
+            .catch((error) => {
+              console.error("Sign-out failed:", error);
+            });
+        } else {
+          console.error("No access token found in user data.");
         }
-      />
-    </div>
+      } catch (error) {
+        console.error("Failed to parse user data:", error);
+      }
+    } else {
+      console.warn("No user data found.");
+    }
+  };
+
+  return (
+    <>
+      <div style={{ position: "sticky", top: 0, zIndex: 1000, background: "#fff" }}>
+        <TopNavigation
+          search={<Input type="search" placeholder="Search" ariaLabel="Search" />}
+          identity={{
+            href: "/app/dashboard",
+            title: "Ecommerce",
+            logo: {
+              src: logo,
+              alt: "Service",
+            },
+          }}
+          utilities={[
+            {
+              type: "menu-dropdown",
+              text: "User",
+              description: userEmail,
+              iconName: "user-profile",
+              items: [
+                { id: "profile", text: "Profile" },
+                {
+                  variant: "primary-button",
+                  id: "signout",
+                  text: "Sign out",
+                },
+              ],
+              onItemClick: handleSignOut1,
+            },
+          ]}
+        />
+      </div>
+    </>
   );
 };
 
-export default TopBar;
-
+export default Header;

@@ -12,6 +12,7 @@ const ForgotPassword = () => {
   const [items, setItems] = React.useState([]);
 
   const handleSendOtp = () => {
+    localStorage.setItem("email", JSON.stringify(email));
     dispatch(forgotPwd(email))
     .unwrap()
     .then(() => {
@@ -28,7 +29,10 @@ const ForgotPassword = () => {
           }
        
         ])
-        navigate("/auth/newpassword"); // Navigate to OTP verification page
+         // Navigate to the sign-in page after a delay
+         setTimeout(() => {
+           navigate("/auth/newpassword"); // Navigate to OTP verification page
+        }, 5000); // 15 seconds delay
       })
       .catch((error) => {
         console.error("Login failed:", error);
@@ -71,10 +75,10 @@ const ForgotPassword = () => {
                   style={{
                     fontWeight: "bolder",
                     textShadow: "0px 1px, 1px 0px, 1px 1px",
-                    fontSize: "22px",
+                    fontSize: "30px",
                   }}
                 >
-                  <b>Forget your password?</b>
+                  &nbsp;&nbsp;&nbsp;&nbsp;<b>Forget your password?</b>
                 </h3>
               </Header>
             </div>
@@ -109,7 +113,7 @@ const ForgotPassword = () => {
                 </div>
               )}
               <div style={{ display: "flex", justifyContent: "center" }}>
-                <Button href="#" variant="inline-link">
+                <Button href="/auth/signin" variant="inline-link">
                   Or Login
                 </Button>
               </div>
