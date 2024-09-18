@@ -36,8 +36,8 @@ const Products = () => {
 
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteringText, setFilteringText] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [editedProducts, setEditedProducts] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
   const [isModalVisible1, setModalVisible1] = useState(false);
@@ -113,6 +113,7 @@ const Products = () => {
     dispatch(fetchProducts({
       search: filteringText,
       category: selectedCategory,
+      active:selectedStatus,
     }));
       }
     });
@@ -142,14 +143,16 @@ const Products = () => {
   };
 
   const selectOptions = [
-    { label: "All", value: "All" },
-    { label: "Leafy Vegetables", value: "Leafy Vegetables" },
+    { label: "All", value: "" },
+    { label: "Fruits And Vegetables", value: "Fruits And Vegetables" },
+    { label: "Dairies And Groceries", value: "Diaries And Groceries" },
+    { label: "Meat/Fish/Eggs", value: "Meat/Fish/Eggs" },
     { label: "Fruit", value: "Fruit" },
-    { label: "Vegetable", value: "Vegetable" },
-    { label: "Bengali Vegetable", value: "Bengali Vegetable" },
+    { label: "vegetable", value: "Vegetable" },
+    { label: "Bengali Special", value: "Bengali Special" },
   ];
   const selectOptionsStatus = [
-    { label: "All", value: "All" },
+    { label: "All", value: "" },
     { label: "Active", value: "true" },
     { label: "Inactive", value: "false" },
 
@@ -206,8 +209,10 @@ const Products = () => {
 
     try {
       const response = await dispatch(putPricingById(pricingDataArray));
+      console.log(response,"bulk resp");
 
       if (response.meta.requestStatus === "fulfilled" && response.payload.status === 200) {
+        console.log("bulk modify",response);
         setBulkModifySuccessflash(true);
         setBulkModifySuccess(true);
         setSelectedItems([]);
@@ -230,14 +235,14 @@ const Products = () => {
 
   const navigateToStore = () => {
     const baseCategoryUrl = "https://promodeagro.com";
-    const categoryUrlPart = {
-      "Leafy Vegetables": "/category/VEGETABLES/Leafy%20Vegetables",
-      "Fruit": "/category/Fruits/Fresh%20Fruits",
-      "Vegetable": "/category/VEGETABLES/Fresh%20Vegetables",
-      "Bengali Vegetable": "/category/VEGETABLES/Bengali%20Vegetables",
-    }[selectedCategory] || "";
+    // const categoryUrlPart = {
+    //   "Leafy Vegetables": "/category/VEGETABLES/Leafy%20Vegetables",
+    //   "Fruit": "/category/Fruits/Fresh%20Fruits",
+    //   "Vegetable": "/category/VEGETABLES/Fresh%20Vegetables",
+    //   "Bengali Vegetable": "/category/VEGETABLES/Bengali%20Vegetables",
+    // }[selectedCategory] || "";
 
-    window.open(`${baseCategoryUrl}${categoryUrlPart}`, "_blank");
+    window.open(`${baseCategoryUrl}`, "_blank");
   };
 
   
@@ -277,21 +282,36 @@ const Products = () => {
 
 
   // Infinite Scroll Logic
+  const previousNextKey = useRef(null); // Store the previous nextKey
+
   const lastProductRef = useCallback(node => {
-    if (status === 'loading') return;
+    if (status === 'loading' || !nextKey) return; // Stop if fetching or no nextKey
+  
     if (observer.current) observer.current.disconnect();
+  
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && nextKey) {
-        setIsFetching(true);
-        dispatch(fetchProducts({
-          search: filteringText,
-          category: selectedCategory,
-          nextKey: nextKey,
-        })).finally(() => setIsFetching(false));
+        // Compare previous nextKey with current nextKey
+        if (previousNextKey.current !== nextKey) {
+          setIsFetching(true);
+          console.log("Fetching next set of products with nextKey:", nextKey);
+  
+          dispatch(fetchProducts({
+            search: filteringText,
+            category: selectedCategory,
+            nextKey: nextKey, // Pass the correct nextKey here
+          })).finally(() => {
+            setIsFetching(false);
+            previousNextKey.current = nextKey; // Update previous nextKey after fetch
+          });
+        }
       }
     });
+  
     if (node) observer.current.observe(node);
   }, [status, nextKey, dispatch, filteringText, selectedCategory]);
+  
+  
 
   return (
     <ContentLayout
