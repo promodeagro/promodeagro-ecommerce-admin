@@ -51,7 +51,7 @@ const OrderDetail = () => {
     }, [id, dispatch]);
     
   const events = [
-    { step: "Step 1", title: "Order Confirmed", status: "Order Confirmed" },
+    { step: "Step 1", title: "Order Confirmed", status: "order placed" },
     { step: "Step 2", title: "Packed", status: "packed" },
     { step: "Step 3", title: "On the Way", status: "on the way" },
     { step: "Step 4", title: "Delivered", status: "delivered" },
@@ -303,7 +303,7 @@ const OrderDetail = () => {
         <Header
           actions={
             <SpaceBetween direction="horizontal" size="xs">
-              {orderDetail?.status === "Order Confirmed" && (
+              {orderDetail?.status === "order placed" && (
                 <Button
                   onClick={() => setIsMoveToPackedModalVisible(true)}
                   iconName="angle-right-double"
@@ -482,7 +482,7 @@ const OrderDetail = () => {
               style={{
                 display: "inline-block",
                 backgroundColor:
-                  orderDetail?.status === "Order Confirmed"
+                  orderDetail?.status === "order placed"
                     ? "#414D5C" // Dark grey color for 'Order Confirmed'
                     : orderDetail?.status === "packed"
                     ? "#0972D3" // Blue color for 'Packed'
@@ -499,7 +499,7 @@ const OrderDetail = () => {
                 color: "white",
               }}
             >
-              {orderDetail?.status === "Order Confirmed"
+              {orderDetail?.status === "order placed"
                 ? "Order Confirmed"
                 : orderDetail?.status === "packed"
                 ? "Packed"

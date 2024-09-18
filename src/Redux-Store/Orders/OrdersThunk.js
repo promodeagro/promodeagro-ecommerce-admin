@@ -4,10 +4,11 @@ import { postLoginService } from "Services";
 
 export const fetchOrders = createAsyncThunk(
   "orders/fetch",
-  async ({ search = '', status = '' } = {}, { rejectWithValue }) => {
+  async ({ search = '', status = '', date = '' } = {}, { rejectWithValue }) => {
     try {
       console.log('Search term:', search); // Log the search term
       console.log('Status filter:', status); // Log the status filter
+      console.log('Date filter:', date); // Log the date filter
 
       // Initialize an array to hold query parameters
       let queryParams = [];
@@ -17,30 +18,54 @@ export const fetchOrders = createAsyncThunk(
         queryParams.push(`search=${encodeURIComponent(search)}`);
       }
 
-      // Add status filter to query parameters if provided
+      // Handle status and date parameters
       if (status) {
-        queryParams.push(`status=${encodeURIComponent(status)}`);
+        if (status === 'delivered') {
+          // Special handling for 'delivered' status
+          if (date) {
+            // Construct URL with 'status=delivered' and 'date' using a new '?' for date
+            const url = `${config.FETCH_ORDERS}?status=${encodeURIComponent(status)}?date=${encodeURIComponent(date)}`;
+            console.log('Fetching orders with URL:', url);
+            const response = await postLoginService.get(url);
+            console.log('Orders:', response);
+            return { items: response.data.items };
+          } else {
+            // Handle case where only status is 'delivered' with no date
+            const url = `${config.FETCH_ORDERS}?status=${encodeURIComponent(status)}`;
+            console.log('Fetching orders with URL:', url);
+            const response = await postLoginService.get(url);
+            console.log('Orders:', response);
+            return { items: response.data.items };
+          }
+        } else {
+          // For all other statuses, include status and date if provided
+          queryParams.push(`status=${encodeURIComponent(status)}`);
+          if (date) {
+            queryParams.push(`date=${encodeURIComponent(date)}`);
+          }
+          const url = `${config.FETCH_ORDERS}${queryParams.length > 0 ? `?${queryParams.join('&')}` : ''}`;
+          console.log('Fetching orders with URL:', url);
+          const response = await postLoginService.get(url);
+          console.log('Orders:', response);
+          return { items: response.data.items };
+        }
+      } else {
+        // If no status is provided, just handle the date and search term
+        if (date) {
+          queryParams.push(`date=${encodeURIComponent(date)}`);
+        }
+        const url = `${config.FETCH_ORDERS}${queryParams.length > 0 ? `?${queryParams.join('&')}` : ''}`;
+        console.log('Fetching orders with URL:', url);
+        const response = await postLoginService.get(url);
+        console.log('Orders:', response);
+        return { items: response.data.items };
       }
-
-      // Build the final URL with query parameters
-      const url = `${config.FETCH_ORDERS}${queryParams.length > 0 ? `?${queryParams.join('&')}` : ''}`;
-      console.log('Fetching orders with URL:', url);
-
-      const response = await postLoginService.get(url);
-      console.log('Orders:', response);
-
-      return {
-        items: response.data.items,
-      
-      };
     } catch (error) {
       console.error('API error:', error);
       return rejectWithValue(error.message);
     }
   }
 );
-
-
 
 export const ordersDetails = createAsyncThunk(
   "orders/details",

@@ -1,8 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchOrders, ordersDetails, fetchOrderStatus, updateOrderStatus, assignDeliveryBoyAndMoveToOnTheWay } from "Redux-Store/Orders/OrdersThunk";
 import status from "Redux-Store/Constants";
-// import { fetchFilteredOrders } from "Redux-Store/Orders/OrdersThunk";
-
 
 const OrderSlice = createSlice({
   name: "orders",
