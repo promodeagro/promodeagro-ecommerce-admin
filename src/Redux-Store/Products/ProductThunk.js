@@ -98,6 +98,8 @@ export const PutToggle = createAsyncThunk(
       const response = await postLoginService.put(url, { id, active });
 
       console.log(response.data, "async put of toggle successful");
+      window.location.reload();
+
       return response.data;
     } catch (error) {
       console.error("API error:", error); // Log API error

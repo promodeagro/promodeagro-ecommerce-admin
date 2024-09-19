@@ -15,6 +15,7 @@ import Overview from "./drawerTabs/overview";
 import StatusIndicator from "@cloudscape-design/components/status-indicator";
 import { ColumnLayout, Select } from "@cloudscape-design/components";
 import { fetchProducts } from "Redux-Store/Inventory/inventoryThunk";
+import Grid from "@cloudscape-design/components/grid";
 
 const Inventory = () => {
   const [filteringText, setFilteringText] = React.useState("");
@@ -56,7 +57,7 @@ const Inventory = () => {
       )
     : [];
 
-  const ITEMS_PER_PAGE = 10;
+  const ITEMS_PER_PAGE = 50;
   // Calculate the items for the current page
   const startIndex = (currentPageIndex - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -99,6 +100,7 @@ const Inventory = () => {
           header={<Header variant="h1">Inventory</Header>}
         >
           <Container>
+            
             <ColumnLayout columns={5} variant="default" minColumnWidth={150}>
               <div>
                 <Box variant="awsui-key-label">
@@ -179,26 +181,23 @@ const Inventory = () => {
             </ColumnLayout>
           </Container>
         </ContentLayout>
-        <div
-          style={{
-            display: "flex",
-            // gridTemplateColumns: "1fr auto auto",
 
-            justifyContent:"space-between",
-            gap: "10px",
-            alignItems: "center",
-            marginTop: "12px",
-            // padding: "0 25px 0 25px",
-          }}
-        >
-          <div style={{display:"flex",gap:"7px"}}>
-            <div style={{width:"30vw"}}>
+        <div style={{marginTop: '1rem'}}>
+            <Grid
+              disableGutters
+              gridDefinition={[
+                { colspan: { default: 12, xxs: 6 } },
+                { colspan: { default: 12, xxs: 6 } },
+              ]}
+            >
+              <div style={{ display: "flex", gap: "0.4rem" }}>
+       
           <TextFilter
             size="3xs"
             filteringPlaceholder="Search"
             filteringText={filteringText}
             onChange={handleSearchChange}
-          /></div>  
+          /> 
           <Select
             required
             selectedOption={selectedCategory}
@@ -211,17 +210,28 @@ const Inventory = () => {
               { label: "MEAT/FISH/EGGS", value: "Meat/Fish/Eggs" },
             ]}
             placeholder="Select Category"
-          /></div>
-           <div>
+          />
+           </div>
+           <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
+              >
           <Pagination
             currentPageIndex={currentPageIndex}
             onChange={({ detail }) =>
               setCurrentPageIndex(detail.currentPageIndex)
             }
             pagesCount={5}
-          /></div>
-        </div>
-      </div>
+          />
+          </div>
+        <div/>  
+        </Grid>
+          </div>
+
+          </div>
+      
       <div style={{ marginTop: "15px"}}>
         <Table
           variant="borderless"
@@ -316,6 +326,7 @@ const Inventory = () => {
           }
         />
       </div>
+
       {isDrawerOpen && selectedProduct && (
         <div
           style={{
@@ -395,6 +406,7 @@ const Inventory = () => {
         </div>
       )}
     </div>
+    
   );
 };
 

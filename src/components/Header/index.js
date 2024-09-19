@@ -11,14 +11,12 @@ const Header = () => {
   const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail");
 
-  // Handle sign-out option click
   const handleSignOut1 = (item) => {
     if (item.detail.id === "signout") {
       handleSignOut();
     }
   };
 
-  // Handle sign-out logic
   const handleSignOut = () => {
     const userData = localStorage.getItem("user");
 

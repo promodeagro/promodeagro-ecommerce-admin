@@ -81,7 +81,7 @@ const Dashboard = () => {
       >
         <SpaceBetween direction="vertical" size="l">
         <Container className="top-container" style={{ marginBottom: '1rem' }}>
-          <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
+          <ColumnLayout columns={5} variant="default" minColumnWidth={150}>
             <div>
 
               <Box variant="awsui-key-label">
