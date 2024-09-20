@@ -1,16 +1,16 @@
-import React from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import TopNavigation from "@cloudscape-design/components/top-navigation";
 import { Input } from "@cloudscape-design/components";
 import logo from '../../assets/img/logo_PTR 1.png';
 import { authSignOut } from "Redux-Store/authenticate/signout/signoutThunk";
+import { jwtDecode } from "jwt-decode";
 
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail");
-
   const handleSignOut1 = (item) => {
     if (item.detail.id === "signout") {
       handleSignOut();
@@ -48,6 +48,32 @@ const Header = () => {
       console.warn("No user data found.");
     }
   };
+
+  useEffect(() => {
+    const checkTokenExpiration = () => {
+      const userData = localStorage.getItem("user");
+
+      if (userData) {
+        try {
+          const parsedUserData = JSON.parse(userData);
+          const token = parsedUserData.accessToken;
+
+          if (token) {
+            const decodedToken = jwtDecode(token);
+            const currentTime = Date.now() / 1000;  
+
+            if (decodedToken.exp < currentTime) {
+              handleSignOut();  // Token is expired, sign out the user
+            }
+          }
+        } catch (error) {
+          console.error("Error decoding token:", error);
+        }
+      }
+    };
+
+    checkTokenExpiration();  // Call the token check function when the component renders
+  }, []);
 
   return (
     <>

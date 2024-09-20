@@ -429,8 +429,8 @@ const Products = () => {
                 cell: (item) => (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <img
-                      src={item?.images[0]}
-                      alt={item.name}
+                      src={item?.images}
+                      // alt={item.name}
                       height={35}
                       width={35}
                       style={{ borderRadius: "8px", marginRight: "10px" }}

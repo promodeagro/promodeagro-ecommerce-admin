@@ -415,6 +415,8 @@ const OrderDetail = () => {
                   }
                   placeholder="Select Assignee"
                   invalid={isFormSubmittedWithoutSelection && !selectedAssignee}
+                  errorText="This is an error message."
+
                 />
               </Modal>
               <ButtonDropdown
