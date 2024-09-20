@@ -85,19 +85,19 @@ const Signin = () => {
     setEmail(e.detail.value);
     if (emailInvalid) setEmailInvalid(false); // Clear invalid state for email when typing
     if (emailError) setEmailError(""); // Clear error when typing
-    if (showErrorMessage) setShowErrorMessage(false); // Hide error message when typing
+    if (showErrorMessage) {
+      setShowErrorMessage(false); // Hide error message when typing
+      setPasswordInvalid(false); // Clear password invalid state when typing
+    }
   };
 
   const handlePasswordChange = (e) => {
     setPassword(e.detail.value);
     if (passwordInvalid) setPasswordInvalid(false); // Clear invalid state for password when typing
     if (passwordError) setPasswordError(""); // Clear error when typing
-    if (showErrorMessage) setShowErrorMessage(false); // Hide error message when typing
-    // Check if error message is visible and set both fields to valid
     if (showErrorMessage) {
-      setEmailInvalid(false);
-      setPasswordInvalid(false);
-      setShowErrorMessage(false);
+      setShowErrorMessage(false); // Hide error message when typing
+      setEmailInvalid(false); // Clear email invalid state when typing
     }
   };
 
