@@ -45,11 +45,20 @@ const Orders = () => {
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [isFormSubmittedWithoutSelection, setIsFormSubmittedWithoutSelection] =
     useState(false);
-  const [selectedOption, setSelectedOption] = React.useState();
+  const [selectedOption, setSelectedOption] = React.useState({
+    label: "7 Days Old",
+    value: "7",
+  });
 
   useEffect(() => {
-    dispatch(fetchOrders({ search: filteringText, status: activeButton }));
-  }, [dispatch, filteringText, activeButton]);
+    dispatch(
+      fetchOrders({
+        search: filteringText,
+        status: activeButton,
+        date: activeButton === "delivered" ? selectedOption?.value : "",
+      })
+    );
+  }, [dispatch, filteringText, activeButton, selectedOption]);
 
   useEffect(() => {
     dispatch(fetchOrderStatus());
@@ -68,16 +77,10 @@ const Orders = () => {
         return prevFilteredOrders;
       });
     };
-  
+
     applyFilter();
   }, [activeButton, items]);
-  
-  useEffect(() => {
-    if (activeButton === "delivered" && !selectedOption) {
-      setSelectedOption({ label: "7 Days Old", value: "1" }); 
-    }
-  }, [activeButton, selectedOption]);
-  
+
   const handlePageChange = async (pageIndex) => {
     setCurrentPage(pageIndex);
     await dispatch(
@@ -90,7 +93,13 @@ const Orders = () => {
     setActiveButton(newStatus);
     setSelectedItems([]);
     setCurrentPage(1);
-    await dispatch(fetchOrders({ search: filteringText, status: newStatus }));
+    await dispatch(
+      fetchOrders({
+        search: filteringText,
+        status: newStatus,
+        date: newStatus === "delivered" ? selectedOption?.value : "",
+      })
+    );
   };
 
   const handleSearchChange = (e) => {
@@ -236,7 +245,8 @@ const Orders = () => {
             <Icon name="status-in-progress" variant="subtle" />
             <span
               style={{ marginLeft: "6px", color: "#5F6B7A", fontWeight: "400" }}
-            >Order Confirmed
+            >
+              Order Confirmed
             </span>
           </>
         );
@@ -278,8 +288,6 @@ const Orders = () => {
     }
   };
 
- 
-
   return (
     <ContentLayout
       headerVariant="high-contrast"
@@ -296,7 +304,7 @@ const Orders = () => {
     >
       <SpaceBetween direction="vertical" size="xl">
         <Container className="top-container" style={{ marginBottom: "1rem" }}>
-          <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
+          <ColumnLayout columns={5} variant="default" minColumnWidth={150}>
             <div>
               <Box variant="awsui-key-label">
                 <p style={{ fontSize: 12, fontWeight: "bold" }}>Total Orders</p>
@@ -422,20 +430,22 @@ const Orders = () => {
                   onChange={handleSelectChange}
                 />
 
-{activeButton === "delivered" && (
-  <Select
-    selectedOption={selectedOption}
-    onChange={({ detail }) => setSelectedOption(detail.selectedOption)}
-    options={[
-      { label: "7 Days Old", value: "1" },
-      { label: "14 Days Old", value: "2" },
-      { label: "1 Month Old", value: "3" },
-      { label: "2 Month Old", value: "4" },
-      { label: "Old Orders", value: "5" },
-    ]}
-    placeholder="Completed Order"
-  />
-)}
+                {activeButton === "delivered" && (
+                  <Select
+                    selectedOption={selectedOption}
+                    onChange={({ detail }) =>
+                      setSelectedOption(detail.selectedOption)
+                    }
+                    options={[
+                      { label: "7 Days Old", value: "7" },
+                      { label: "14 Days Old", value: "14" },
+                      { label: "1 Month Old", value: "1m" },
+                      { label: "2 Month Old", value: "2m" },
+                      { label: "Old Orders", value: "3m" },
+                    ]}
+                    placeholder="Completed Order"
+                  />
+                )}
               </div>
               <div
                 style={{
@@ -462,7 +472,6 @@ const Orders = () => {
                   </Button>
                 )}
 
-                {/* Conditionally render the Move to Delivery button */}
                 {activeButton === "on the way" && (
                   <Button
                     disabled={selectedItems.length === 0}
@@ -484,7 +493,6 @@ const Orders = () => {
             </Grid>
           </Box>
 
-          {/* Modal definition */}
           <Modal
             onDismiss={handleMoveToPackedModalCancel}
             visible={isMoveToPackedModalVisible}
@@ -658,8 +666,9 @@ const Orders = () => {
               {
                 id: "orderStatus",
                 header: "Order Status",
-                
-                  cell: (item) => getOrderStatusWithIcon(item.orderStatus) || "N/A",
+
+                cell: (item) =>
+                  getOrderStatusWithIcon(item.orderStatus) || "N/A",
               },
 
               {
@@ -683,8 +692,6 @@ const Orders = () => {
                   ]
                 : []),
             ]}
-          
-            
             loadingText="Loading resources"
             selectionType="multi"
             trackBy="id"

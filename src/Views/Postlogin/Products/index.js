@@ -15,6 +15,7 @@ import {
   Modal,
   Flashbar,
   FormField,
+  Grid,
   Spinner
 } from "@cloudscape-design/components";
 import { useSelector, useDispatch } from "react-redux";
@@ -246,7 +247,6 @@ const Products = () => {
     window.open(`${baseCategoryUrl}`, "_blank");
   };
 
-  
   const [items1, setItems] = 
   
   useState([
@@ -280,8 +280,6 @@ const Products = () => {
     },
   ]);
 
-
-
   // Infinite Scroll Logic
   const previousNextKey = useRef(null); // Store the previous nextKey
 
@@ -312,7 +310,6 @@ const Products = () => {
     if (node) observer.current.observe(node);
   }, [status, nextKey, dispatch, filteringText, selectedCategory]);
   
-  
 
   return (
     <ContentLayout
@@ -325,8 +322,7 @@ const Products = () => {
         {isBulkModifySuccessflash && <Flashbar items={items1} />}
       </>
     }
-    
-
+  
       breadcrumbs={
         <BreadcrumbGroup
           items={[
@@ -359,16 +355,21 @@ const Products = () => {
         <div>
           <Table
             header={
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <div style={{ width: "360px" }}>
+              <Box>
+              <Grid
+                disableGutters
+                gridDefinition={[
+                  { colspan: { default: 12, xxs: 6 } },
+                  { colspan: { default: 12, xxs: 6 } },
+                ]}
+              >
+                              <div style={{ display: "flex", gap: "0.4rem" }}>
+
                     <TextFilter
                       filteringPlaceholder="Search"
                       filteringText={filteringText}
                       onChange={handleSearchChange}
                     />
-                  </div>
-                  <div style={{ width: "110px" }}>
                     <Select
                       options={selectOptions}
                       selectedOption={selectOptions.find(
@@ -376,9 +377,8 @@ const Products = () => {
                       )}
                       onChange={handleSelectChange}
                       placeholder="Select Category"
-                    />
-                  </div>
-                  <div style={{ width: "100px" }}>
+                    />             
+
                     <Select
                       options={selectOptionsStatus}
                       selectedOption={selectOptionsStatus.find(
@@ -387,14 +387,21 @@ const Products = () => {
                       onChange={handleSelectionChangeStatus}
                       placeholder="Select Status"
                     />
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: "5px" }}>
+
+                                   </div>
+                   <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "0.4rem"
+                }}
+              >
                   {isBulkModifySuccess && (
                     <Button variant="normal" onClick={navigateToStore}>
                       View On Store
                     </Button>
                   )}
+
                     <Button
                       disabled={isFieldChanged}
                       variant="normal"
@@ -402,10 +409,11 @@ const Products = () => {
                     >
                       Bulk Modify Price
                     </Button>
-              
-                </div>
-                
-              </div>
+                    </div>
+
+                    </Grid>
+
+              </Box>
             }
             variant="borderless"
             columnDefinitions={[
@@ -422,8 +430,8 @@ const Products = () => {
                 cell: (item) => (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <img
-                      src={item?.images[0]}
-                      alt={item.name}
+                      src={item?.images}
+                      // alt={item.name}
                       height={35}
                       width={35}
                       style={{ borderRadius: "8px", marginRight: "10px" }}

@@ -41,7 +41,7 @@ const Numbers = ({products}) => {
   
   return (
 
-    <ColumnLayout columns={5} variant="default" minColumnWidth={170}>
+    <ColumnLayout columns={5} variant="default" minColumnWidth={150}>
     <div>
       <Box variant="awsui-key-label">
         <p style={{ fontSize: 12 }}> Active Products</p>

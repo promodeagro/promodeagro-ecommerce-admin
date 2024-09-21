@@ -51,7 +51,7 @@ const OrderDetail = () => {
     }, [id, dispatch]);
     
   const events = [
-    { step: "Step 1", title: "Order Confirmed", status: "Order Confirmed" },
+    { step: "Step 1", title: "Order Confirmed", status: "order placed" },
     { step: "Step 2", title: "Packed", status: "packed" },
     { step: "Step 3", title: "On the Way", status: "on the way" },
     { step: "Step 4", title: "Delivered", status: "delivered" },
@@ -165,7 +165,7 @@ const OrderDetail = () => {
   };
 
   const goToPreviousOrder = () => {
-    const currentIndex = orderIds.indexOf(currentOrderId); // use currentOrderId instead of setCurrentOrderId
+    const currentIndex = orderIds.indexOf(currentOrderId); 
     if (currentIndex > 0) {
       const prevId = orderIds[currentIndex - 1];
       setCurrentOrderId(prevId);
@@ -177,7 +177,7 @@ const OrderDetail = () => {
     if (event.detail.id === "refund") {
       navigate("/app/order/orderdetail/refund");
     } else if (event.detail.id === "invoice") {
-      navigate(`/app/order/invoice/${id}`); // Navigate to the invoice page with the Order ID
+      navigate(`/app/order/invoice/${id}`); 
     }
   };
 
@@ -303,7 +303,7 @@ const OrderDetail = () => {
         <Header
           actions={
             <SpaceBetween direction="horizontal" size="xs">
-              {orderDetail?.status === "Order Confirmed" && (
+              {orderDetail?.status === "order placed" && (
                 <Button
                   onClick={() => setIsMoveToPackedModalVisible(true)}
                   iconName="angle-right-double"
@@ -415,6 +415,8 @@ const OrderDetail = () => {
                   }
                   placeholder="Select Assignee"
                   invalid={isFormSubmittedWithoutSelection && !selectedAssignee}
+                  errorText="This is an error message."
+
                 />
               </Modal>
               <ButtonDropdown
@@ -482,7 +484,7 @@ const OrderDetail = () => {
               style={{
                 display: "inline-block",
                 backgroundColor:
-                  orderDetail?.status === "Order Confirmed"
+                  orderDetail?.status === "order placed"
                     ? "#414D5C" // Dark grey color for 'Order Confirmed'
                     : orderDetail?.status === "packed"
                     ? "#0972D3" // Blue color for 'Packed'
@@ -499,7 +501,7 @@ const OrderDetail = () => {
                 color: "white",
               }}
             >
-              {orderDetail?.status === "Order Confirmed"
+              {orderDetail?.status === "order placed"
                 ? "Order Confirmed"
                 : orderDetail?.status === "packed"
                 ? "Packed"
@@ -511,7 +513,12 @@ const OrderDetail = () => {
             </div>
           </SpaceBetween>
         </Header>
-        <Grid gridDefinition={[{ colspan: 3 }, { colspan: 9 }]}>
+<Grid
+  gridDefinition={[
+    { colspan: { default: 12, xs: 12, s: 4, l: 3 } }, // Column 1: Full width on small screens, 4 columns on small tablets, 3 columns on large screens
+    { colspan: { default: 12, xs: 12, s: 8, l: 9 } }, // Column 2: Full width on small screens, 8 columns on small tablets, 9 columns on large screens
+  ]}
+>
           <Container variant="borderless" className="container-box-shadow">
             <Box padding={{ top: 0, bottom: 0 }}>
               <div style={timelineContainerStyle}>
@@ -648,38 +655,41 @@ const OrderDetail = () => {
               items={items}
             />
             <Grid gridDefinition={[{ colspan: 5, offset: { xxs: 8 } }]}>
-              <ColumnLayout columns={2} minColumnWidth={100}>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  <p>Subtotal &nbsp;:</p>
-                </div>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  <p style={{ fontWeight: "bold" }}>₹{orderDetail?.subTotal}</p>
-                </div>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  Shipping Charges&nbsp;:
-                </div>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  {orderDetail?.deliveryCharges || 0}
-                </div>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  Tax&nbsp;:
-                </div>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  {orderDetail?.tax || 0}
-                </div>
-                <div style={{ fontSize: "18px", fontWeight: "bold" }}>
-                  Total Price&nbsp;:
-                </div>
-                <div
-                  style={{
-                    color: "#037F0C",
-                    fontSize: "18px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  ₹{orderDetail?.totalPrice || "N/A"}
-                </div>
-              </ColumnLayout>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+      <p>Subtotal:</p>
+    </div>
+    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+      <p style={{ fontWeight: 'bold' }}>₹{orderDetail?.subTotal}</p>
+    </div>
+
+    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+      Shipping Charges:
+    </div>
+    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+      ₹{orderDetail?.deliveryCharges || 0}
+    </div>
+
+    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+      Tax:
+    </div>
+    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+      ₹{orderDetail?.tax || 0}
+    </div>
+
+    <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+      Total Price:
+    </div>
+    <div
+      style={{
+        color: '#037F0C',
+        fontSize: '18px',
+        fontWeight: 'bold',
+      }}
+    >
+      ₹{orderDetail?.totalPrice || 'N/A'}
+    </div>
+  </div>
             </Grid>
           </SpaceBetween>
         </Container>
