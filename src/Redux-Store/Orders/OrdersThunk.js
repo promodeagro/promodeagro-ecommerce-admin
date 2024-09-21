@@ -22,20 +22,10 @@ export const fetchOrders = createAsyncThunk(
       if (status) {
         if (status === 'delivered') {
           // Special handling for 'delivered' status
+          queryParams.push(`status=${encodeURIComponent(status)}`);
           if (date) {
-            // Construct URL with 'status=delivered' and 'date' using a new '?' for date
-            const url = `${config.FETCH_ORDERS}?status=${encodeURIComponent(status)}?date=${encodeURIComponent(date)}`;
-            console.log('Fetching orders with URL:', url);
-            const response = await postLoginService.get(url);
-            console.log('Orders:', response);
-            return { items: response.data.items };
-          } else {
-            // Handle case where only status is 'delivered' with no date
-            const url = `${config.FETCH_ORDERS}?status=${encodeURIComponent(status)}`;
-            console.log('Fetching orders with URL:', url);
-            const response = await postLoginService.get(url);
-            console.log('Orders:', response);
-            return { items: response.data.items };
+            // Add date if provided
+            queryParams.push(`date=${encodeURIComponent(date)}`);
           }
         } else {
           // For all other statuses, include status and date if provided
@@ -43,23 +33,22 @@ export const fetchOrders = createAsyncThunk(
           if (date) {
             queryParams.push(`date=${encodeURIComponent(date)}`);
           }
-          const url = `${config.FETCH_ORDERS}${queryParams.length > 0 ? `?${queryParams.join('&')}` : ''}`;
-          console.log('Fetching orders with URL:', url);
-          const response = await postLoginService.get(url);
-          console.log('Orders:', response);
-          return { items: response.data.items };
         }
-      } else {
-        // If no status is provided, just handle the date and search term
-        if (date) {
-          queryParams.push(`date=${encodeURIComponent(date)}`);
-        }
-        const url = `${config.FETCH_ORDERS}${queryParams.length > 0 ? `?${queryParams.join('&')}` : ''}`;
-        console.log('Fetching orders with URL:', url);
-        const response = await postLoginService.get(url);
-        console.log('Orders:', response);
-        return { items: response.data.items };
+      } else if (date) {
+        // If no status is provided, just handle the date
+        queryParams.push(`date=${encodeURIComponent(date)}`);
       }
+
+      // Build the final URL
+      const url = `${config.FETCH_ORDERS}${queryParams.length > 0 ? `?${queryParams.join('&')}` : ''}`;
+      console.log('Fetching orders with URL:', url);
+
+      // Fetch the orders using the constructed URL
+      const response = await postLoginService.get(url);
+      console.log('Orders:', response);
+
+      return { items: response.data.items };
+
     } catch (error) {
       console.error('API error:', error);
       return rejectWithValue(error.message);

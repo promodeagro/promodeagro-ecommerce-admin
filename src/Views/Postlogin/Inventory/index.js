@@ -255,8 +255,8 @@ const Inventory = () => {
                   onClick={() => handleProductClick(e)}
                 >
                   <img
-                    src={e.images[0]}
-                    alt={e.name}
+                    src={e.image}
+                    // alt={e.name}
                     style={{
                       width: "30px",
                       height: "30px",
