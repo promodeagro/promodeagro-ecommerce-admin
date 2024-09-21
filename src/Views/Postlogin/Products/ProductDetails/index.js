@@ -194,6 +194,7 @@ const ProductDetail = () => {
   if (!product.data) {
     return <div>Loading...</div>;
   }
+  // console.log(product.data.name,"name");
 
   return (
     <Box margin={{ top: "n" }}>
@@ -448,7 +449,7 @@ const ProductDetail = () => {
             ) : (
               <>
                 <img
-                    src={specificProduct?.images?.[0]}
+                    src={specificProduct?.image}
                   alt={specificProduct.name}
                   style={{
                     height: "200px",

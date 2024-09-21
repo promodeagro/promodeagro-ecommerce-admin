@@ -13,8 +13,8 @@ const ProductsSlice = createSlice({
     products: {
       status: null,
       data: [],
-      nextKey: null, // Store the nextKey for pagination
-      hasMore: true, // Flag to indicate if more products can be loaded
+      nextKey: null,
+      hasMore: true,
     },
     productDetail: {
       status: null,
@@ -24,10 +24,11 @@ const ProductsSlice = createSlice({
   reducers: {
     toggleStatus: (state, action) => {
       const product = state.products.data.find(
-        (p) => p.itemCode === action.payload.itemCode
+        (p) => p.id === action.payload.id // Match with id instead of itemCode
       );
       if (product) {
-        product.status = product.status === "Active" ? "Inactive" : "Active";
+        // Optimistically update the active status
+        product.active = !product.active; // Toggle the active state
       }
     },
     resetProducts: (state) => {
@@ -44,15 +45,17 @@ const ProductsSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, { payload }) => {
         state.products.status = status.SUCCESS;
-        if (state.products.nextKey) {
-          // Append new products to existing list for infinite scroll
-          state.products.data = [...state.products.data, ...payload.items];
-        } else {
-          // Initial load or when filters are changed
-          state.products.data = payload.items;
+
+        // Check if there is an existing nextKey and append data accordingly
+        if (payload.items) {
+          state.products.data = state.products.hasMore
+            ? [...state.products.data, ...payload.items] // Append new items
+            : payload.items; // For the first load or if hasMore is false
         }
-        state.products.nextKey = payload.nextKey || null; // Update the nextKey or nullify if no nextKey
-        state.products.hasMore = !!payload.nextKey; // Set hasMore flag based on nextKey
+
+        // Update nextKey and hasMore
+        state.products.nextKey = payload.nextKey || null;
+        state.products.hasMore = !!state.products.nextKey; // Set hasMore based on nextKey
       })
       .addCase(fetchProducts.rejected, (state) => {
         state.products.status = status.FAILURE;
@@ -74,11 +77,10 @@ const ProductsSlice = createSlice({
       })
       .addCase(putPricingById.fulfilled, (state, { payload }) => {
         state.productDetail.status = status.SUCCESS;
-        // Update the specific product in the `products.data` array
         state.products.data = state.products.data.map((product) =>
           product.id === payload.id ? payload : product
         );
-        state.productDetail.data = payload; // Update product detail
+        state.productDetail.data = payload;
       })
       .addCase(putPricingById.rejected, (state) => {
         state.productDetail.status = status.FAILURE;

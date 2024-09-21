@@ -53,8 +53,9 @@ export const fetchProductById = createAsyncThunk(
     try {
       const url = `${config.FETCH_PRODUCTS_DETAIL}/${id}`;
       const response = await postLoginService.get(url);
-      // console.log(response.data, "async");
+      console.log(response.data, "async specific data");
       return response.data;
+    
     } catch (error) {
       console.error("API error:", error); // Log API error
       return rejectWithValue(
@@ -98,7 +99,7 @@ export const PutToggle = createAsyncThunk(
       const response = await postLoginService.put(url, { id, active });
 
       console.log(response.data, "async put of toggle successful");
-      window.location.reload();
+      // window.location.reload();
 
       return response.data;
     } catch (error) {

@@ -39,11 +39,11 @@ const Overview = ({ selectedProduct }) => {
             <p>Purchasing Price: {selectedProduct.purchasingPrice}</p>
             <p>Minimum Selling Price: {selectedProduct.msp}</p>
           </div>
-          <div style={{ borderRadius: "10px", width: "200px", height: "250px" }}>
+          <div style={{ borderRadius: "10px", width: "400px", height: "250px", display:"flex",gap:"20px" }}>
             <div  >
               <img
                 style={{ borderRadius: "10px", border: "1px solid #D9D9D9", width: "230px", height: "240px"}}
-                src={selectedProduct.images[0]}
+                src={selectedProduct.image}
                 alt="product"
                 height="full"
                 width="full"

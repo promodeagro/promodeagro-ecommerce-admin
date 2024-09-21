@@ -26,14 +26,14 @@ import {
   putPricingById,
 
 } from "Redux-Store/Products/ProductThunk";
-import { resetProducts } from "Redux-Store/Products/ProductsSlice";
+import { resetProducts,toggleStatus } from "Redux-Store/Products/ProductsSlice";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
 import Numbers from "./Numbers";
 
 const Products = () => {
 
   const dispatch = useDispatch();
-  const { data = [], nextKey, status, error } = useSelector((state) => state.products.products);
+  const { data, nextKey, hasMore, status,error} = useSelector((state) => state.products.products);
 
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteringText, setFilteringText] = useState("");
@@ -99,38 +99,35 @@ const Products = () => {
     }));
   };
 
+ 
+  const [selectedItem, setSelectedItem] = useState(null);
   const confirmToggleChange = () => {
-    const newStatus = !toggleItem.active;
-
-    dispatch(PutToggle({ id: toggleItem.id, active: newStatus })).then(response => {
-      if (response.meta.requestStatus === "fulfilled" && response.payload.status === 200) {
-    // Fetch initial products
-    dispatch(fetchProducts({
-      search: filteringText,
-      category: selectedCategory,
-      active:selectedStatus,
-    }));
-      } else {
-           // Fetch initial products
-    dispatch(fetchProducts({
-      search: filteringText,
-      category: selectedCategory,
-      active:selectedStatus,
-    }));
-      }
-    });
-
+    if (selectedItem) {
+      dispatch(PutToggle({ id: selectedItem.id, active: !selectedItem.active })).then((response) => {
+        if (response.meta.requestStatus === "fulfilled") {
+          dispatch(toggleStatus({ id: selectedItem.id }));
+        } else {
+          // Handle rollback or show an error message
+        }
+      });
+    }
     setIsToggle(true);
-    setModalVisible(false);
+    // setModalVisible(false);
 
     setTimeout(() => {
       setIsToggle(false);
     }, 5000);
+    setModalVisible(false); // Close the modal
   };
+
+
   const handleToggleChange = (item) => {
     setToggleItem(item);
     setModalVisible(true);
+    setSelectedItem(item);
+  
   };
+
 
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
@@ -284,21 +281,20 @@ const Products = () => {
   const previousNextKey = useRef(null); // Store the previous nextKey
 
   const lastProductRef = useCallback(node => {
-    if (status === 'loading' || !nextKey) return; // Stop if fetching or no nextKey
-  
+    if (status === 'loading' || !hasMore || isFetching) return; // Stop if loading, no more data, or currently fetching
+
     if (observer.current) observer.current.disconnect();
-  
+
     observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && nextKey) {
-        // Compare previous nextKey with current nextKey
+      if (entries[0].isIntersecting && hasMore && nextKey) {
         if (previousNextKey.current !== nextKey) {
           setIsFetching(true);
           console.log("Fetching next set of products with nextKey:", nextKey);
-  
+
           dispatch(fetchProducts({
             search: filteringText,
             category: selectedCategory,
-            nextKey: nextKey, // Pass the correct nextKey here
+            nextKey: nextKey,
           })).finally(() => {
             setIsFetching(false);
             previousNextKey.current = nextKey; // Update previous nextKey after fetch
@@ -306,9 +302,10 @@ const Products = () => {
         }
       }
     });
-  
+
     if (node) observer.current.observe(node);
-  }, [status, nextKey, dispatch, filteringText, selectedCategory]);
+  }, [status, nextKey, dispatch, filteringText, selectedCategory, hasMore, isFetching]);
+
   
 
   return (
@@ -431,7 +428,7 @@ const Products = () => {
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <img
                       src={item?.images}
-                      // alt={item.name}
+                      alt={item.name}
                       height={35}
                       width={35}
                       style={{ borderRadius: "8px", marginRight: "10px" }}
@@ -548,8 +545,8 @@ const Products = () => {
             selectionType="multi"
           />
           {/* Sentinel element for infinite scrolling */}
-          <div ref={lastProductRef} style={{ height: '20px' }}>
-            {isFetching && <Spinner />}
+          <div ref={lastProductRef} style={{ height: '20px',textAlign:"center" }}>
+            {isFetching && <Spinner size="large" />}
           </div>
         </div>
         {status === 'failed' && <Box color="red">{error}</Box>}
