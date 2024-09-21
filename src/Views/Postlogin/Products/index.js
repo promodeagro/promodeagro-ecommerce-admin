@@ -47,7 +47,7 @@ const Products = () => {
   const [isToggle, setIsToggle] = useState(false);
   const [toggleItem, setToggleItem] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
-
+  const [isFieldChanged, setIsFieldChanged] = useState(true);
   const observer = useRef();
 
   useEffect(() => {
@@ -72,6 +72,7 @@ const Products = () => {
     }));
     
     validateField(id, field, value);
+    setIsFieldChanged(false);
   };
 
   const validateField = (id, field, value) => {
@@ -395,7 +396,7 @@ const Products = () => {
                     </Button>
                   )}
                     <Button
-                      disabled={selectedItems.length === 0}
+                      disabled={isFieldChanged}
                       variant="normal"
                       onClick={handleBulkModifyPrice}
                     >

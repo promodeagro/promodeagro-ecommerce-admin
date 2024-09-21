@@ -26,7 +26,7 @@ export const fetchProducts = createAsyncThunk("products/fetch", async (params, {
       queryParams.push(`active=${encodeURIComponent(params.active)}`);
     }
     if (params?.nextKey) {
-      queryParams.push(`nextKey=${encodeURIComponent(params.nextKey)}`);
+      queryParams.push(`pageKey=${encodeURIComponent(params.nextKey)}`);
     }
 
     // Join the query parameters and append to the URL if there are any
@@ -35,7 +35,7 @@ export const fetchProducts = createAsyncThunk("products/fetch", async (params, {
     }
 
     const response = await postLoginService.get(url);
-    console.log(response,"inventory response");
+    console.log(response,"product response");
     console.log(url,"pro url");
     return response.data;
   } catch (error) {
