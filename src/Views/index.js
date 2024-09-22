@@ -1,128 +1,123 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { PREFIX_APP_PATH, PREFIX_AUTH_PATH } from "./../Config/Config";
-import Inventory from "./Postlogin/Inventory";
-import SalesAndReport from "./Postlogin/salesAndReport";
-import ContentManagement from "./Postlogin/ContentManagement";
-import OrderDetail from "./Postlogin/Orders/OrderDetail";
-import Refund from "./Postlogin/Orders/OrderDetail/Refund";
-import ProductDetail from "./Postlogin/Products/ProductDetails";
-import Invoice from "./Postlogin/Orders/OrderDetail/Invoice";
+import { AuthContext } from "context/Authcontext"; 
+
+const Inventory = lazy(() => import("./Postlogin/Inventory"));
+const SalesAndReport = lazy(() => import("./Postlogin/salesAndReport"));
+const ContentManagement = lazy(() => import("./Postlogin/ContentManagement"));
+const OrderDetail = lazy(() => import("./Postlogin/Orders/OrderDetail"));
+const Refund = lazy(() => import("./Postlogin/Orders/OrderDetail/Refund"));
+const ProductDetail = lazy(() => import("./Postlogin/Products/ProductDetails"));
+const Invoice = lazy(() => import("./Postlogin/Orders/OrderDetail/Invoice"));
 const Dashboards = lazy(() => import("./Postlogin/Dashboard"));
 const Customers = lazy(() => import("./Postlogin/Customers"));
-const AddNewCustomer = lazy(() =>
-  import("./Postlogin/Customers/AddNewCustomer")
-);
+const AddNewCustomer = lazy(() => import("./Postlogin/Customers/AddNewCustomer"));
 const Products = lazy(() => import("./Postlogin/Products"));
 const Orders = lazy(() => import("./Postlogin/Orders"));
-
-const PathNotFOund = lazy(() => import("./PathNotFound"));
+const PathNotFound = lazy(() => import("./PathNotFound"));
 const Signin = lazy(() => import("./PreLogin/Signin"));
-// const Signup = lazy(() => import("./PreLogin/Signup"));
 const ForgotPassword = lazy(() => import("./PreLogin/ForgotPassword"));
 const OtpVerification = lazy(() => import("./PreLogin/otpVerification"));
 const NewPassword = lazy(() => import("./PreLogin/newPassword"));
 
+// Protected Route Wrapper: Ensures user is authenticated
+const ProtectedRoute = ({ element, isAuthenticated }) => {
+  return isAuthenticated ? element : <Navigate to={`${PREFIX_AUTH_PATH}/signin`} />;
+};
+
 const Views = () => {
+  const { isAuthenticated } = useContext(AuthContext); // Access authentication state
+
   return (
-    <>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/dashboard`}
-            element={<Dashboards />}
-          />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/orders`}
-            element={<Orders />}
-          />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/salesandreport`}
-            element={<SalesAndReport />}
-          />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/contentmanagement`}
-            element={<ContentManagement />}
-          />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/inventory`}
-            element={<Inventory />}
-          />
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        {/* Protected Routes */}
+        <Route path="/app/dashboard" element={isAuthenticated ? <Dashboards /> : <Navigate to="/auth/signin" />} />
 
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/customers`}
-            element={<Customers />}
-          />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/add-new-customer`}
-            element={<AddNewCustomer />}
-          />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/products`}
-            element={<Products />}
-          />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/products/:id`}
-            element={<ProductDetail/>}
-          />
-
-<Route
-            exact
-            path={`${PREFIX_AUTH_PATH}/signin`}
-            element={<Signin />}
-          />
-          {/* <Route
-            exact
-            path={`${PREFIX_AUTH_PATH}/signup`}
-            element={<Signup />}
-          /> */}
-
-          <Route
-            exact
-            path={`${PREFIX_AUTH_PATH}/forgot-password`}
-            element={<ForgotPassword />}
-          />
-              <Route
-            exact
-            path={`${PREFIX_AUTH_PATH}/newpassword`}
-            element={<NewPassword />}
-          />
-          <Route
-            exact
-            path="/app/inventory"
-            element={<Navigate to="/app/inventory" />}
-          />
-          <Route exact path="/" element={<Navigate to="/app/dashboard" />} />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/order/orderdetail/:id`}
-            element={<OrderDetail />}
-          />
-          <Route
-            exact
-            path={`${PREFIX_APP_PATH}/order/orderdetail/refund`}
-            element={<Refund />}
-          />
-                    <Route
-            exact
-            path={`${PREFIX_APP_PATH}/order/orderdetail/invoice/:id`}
-            element={<Invoice />}
-          />
-
-
-          <Route path="*" element={<PathNotFOund />} />
-        </Routes>
-      </Suspense>
-    </>
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/orders`}
+          element={<ProtectedRoute element={<Orders />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/salesandreport`}
+          element={<ProtectedRoute element={<SalesAndReport />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/contentmanagement`}
+          element={<ProtectedRoute element={<ContentManagement />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/inventory`}
+          element={<ProtectedRoute element={<Inventory />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/customers`}
+          element={<ProtectedRoute element={<Customers />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/add-new-customer`}
+          element={<ProtectedRoute element={<AddNewCustomer />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/products`}
+          element={<ProtectedRoute element={<Products />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/products/:id`}
+          element={<ProtectedRoute element={<ProductDetail />} isAuthenticated={isAuthenticated} />}
+        />
+        {/* Authentication Routes */}
+        <Route
+          exact
+          path={`${PREFIX_AUTH_PATH}/signin`}
+          element={<Signin />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_AUTH_PATH}/forgot-password`}
+          element={<ForgotPassword />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_AUTH_PATH}/otp-verification`}
+          element={<OtpVerification />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_AUTH_PATH}/newpassword`}
+          element={<NewPassword />}
+        />
+        {/* Default Route */}
+        <Route exact path="/" element={<Navigate to={`${PREFIX_APP_PATH}/dashboard`} isAuthenticated={isAuthenticated} />} />
+        {/* Specific Order Routes */}
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/order/orderdetail/:id`}
+          element={<ProtectedRoute element={<OrderDetail />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/order/orderdetail/refund`}
+          element={<ProtectedRoute element={<Refund />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          exact
+          path={`${PREFIX_APP_PATH}/order/orderdetail/invoice/:id`}
+          element={<ProtectedRoute element={<Invoice />} isAuthenticated={isAuthenticated} />}
+        />
+        {/* Catch-all for 404 */}
+        <Route path="*" element={<PathNotFound />} />
+      </Routes>
+    </Suspense>
   );
 };
 

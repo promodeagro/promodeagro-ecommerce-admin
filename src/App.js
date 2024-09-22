@@ -2,17 +2,22 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Views from "./Views/index";
-import Sidebar from "components/Sidebar";
+import Sidebar from "./components/Sidebar"; // Ensure correct relative import here
 import { AppLayout } from "@cloudscape-design/components";
-import PTRLogo from "../src/assets/img/PTRLogo.png";
+import PTRLogo from "../src/assets/img/PTRLogo.png"; // Ensure the logo is correctly placed in your assets
+import { AuthProvider } from "./context/Authcontext"; // Import the AuthProvider
+
 
 function App() {
   return (
-    <Router>
-      <MainLayout />
-    </Router>
+    <AuthProvider> {/* Wrap the app with AuthProvider */}
+      <Router>
+        <MainLayout />
+      </Router>
+    </AuthProvider>
   );
 }
+
 
 function MainLayout() {
   const location = useLocation();
@@ -20,16 +25,17 @@ function MainLayout() {
 
   return (
     <>
+      {/* Logo and wave for auth routes */}
       {isAuthRoute && (
         <>
           <img 
-            src={PTRLogo} // Replace with your image path or URL
+            src={PTRLogo}
             alt="Auth Route Logo"
             style={{
               position: "absolute",
               top: "10px",
               left: "10px",
-              width: "180px", // Adjust size as needed
+              width: "180px", // Adjust the size of the logo as needed
               height: "auto",
               zIndex: 10
             }}
@@ -78,15 +84,19 @@ function MainLayout() {
           </div>
         </>
       )}
+
+      {/* Header only for non-auth routes */}
       {!isAuthRoute && <Header id="header" />} 
+
+      {/* AppLayout handles sidebar and main content */}
       <AppLayout
         headerSelector="#header"
         headerVariant="high-contrast"
-        navigation={!isAuthRoute && <Sidebar />}
+        navigation={!isAuthRoute && <Sidebar />} // Sidebar is hidden for auth routes
         toolsHide={true}
-        navigationHide={isAuthRoute}
+        navigationHide={isAuthRoute} // Hide navigation if it's an auth route
         navigationWidth={250}
-        content={<MainContent />}
+        content={<MainContent />} // Main content component
       />
     </>
   );
@@ -95,7 +105,9 @@ function MainLayout() {
 function MainContent() {
   return (
     <Routes>
+      {/* Default route redirects to signin */}
       <Route path="/" element={<Navigate to="/auth/signin" />} />
+      {/* Wildcard route handles all Views-related routes */}
       <Route path="*" element={<Views />} />
     </Routes>
   );
