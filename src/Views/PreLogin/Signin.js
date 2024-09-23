@@ -10,31 +10,114 @@ const Signin = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error, isAuthenticated } = useSelector((state) => state.auth); 
-  const [email, setEmail] = useState("");
+  const [items, setItems] = React.useState([]);
+ const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [emailInvalid, setEmailInvalid] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [passwordInvalid, setPasswordInvalid] = useState(false);
 
   const handleLogin = (e) => {
     e.preventDefault();
+
+    setEmailError("");
+    setPasswordError("");
+    setEmailInvalid(false);
+    setPasswordInvalid(false);
+    setShowErrorMessage(false); // Reset error message visibility
+  
+    let hasError = false;
+  
+    if (!email) {
+      setEmailError("Email is required.");
+      setEmailInvalid(true);
+      hasError = true;
+    }
+    if (!password) {
+      setPasswordError("Password is required.");
+      setPasswordInvalid(true);
+      hasError = true;
+    }
+  
+    if (hasError) {
+      return; // Prevent login if there are errors
+    }
+    
     dispatch(authSignIn({ email, password }))
       .unwrap()
       .then((response) => {
         console.log("Signin Response:", response.accessToken);
         localStorage.setItem("user", JSON.stringify(response));
         localStorage.setItem("userEmail", email);
+
+        setItems([{
+          type: "success",
+          content: "Signin Successful!",
+          dismissible: true,
+          dismissLabel: "Dismiss message",
+          onDismiss: () => setItems([]),
+          id: "message_1",
+        }]);
+  
       })
       .catch((error) => {
         console.error("Login failed:", error);
         setShowErrorMessage(true);
+        // Reset both invalid states
+        setEmailInvalid(false);
+        setPasswordInvalid(false);
+        
+        // Check the error message to determine which field to mark invalid
+        if (error.message.includes("email")) {
+          setEmailInvalid(true); // Mark email invalid
+          // setEmailError("Email is invalid."); // Set the appropriate error message
+        } else if (error.message.includes("password")) {
+          setPasswordInvalid(true); // Mark password invalid
+          // setPasswordError("Password is incorrect."); // Set the appropriate error message
+        }
+  
+        setItems([{
+          type: "error",
+          content: `Signin Failed: ${error.message}`,
+          dismissible: true,
+          dismissLabel: "Dismiss message",
+          onDismiss: () => setItems([]),
+          id: "message_2",
+        }]);
       });
   };
-
+  
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/app/dashboard");
     }
   }, [isAuthenticated, navigate]);
+
+  // Handling field change to reset the error state
+  const handleEmailChange = (e) => {
+    setEmail(e.detail.value);
+
+    // Only reset email-specific errors when typing in the email field
+    if (emailInvalid) setEmailInvalid(false); // Clear invalid state for email
+    if (emailError) setEmailError(""); // Clear email error
+    if (showErrorMessage && !passwordInvalid) {
+      setShowErrorMessage(false); // Only hide error message if password is also valid
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.detail.value);
+
+    // Only reset password-specific errors when typing in the password field
+    if (passwordInvalid) setPasswordInvalid(false); // Clear invalid state for password
+    if (passwordError) setPasswordError(""); // Clear password error
+    if (showErrorMessage && !emailInvalid) {
+      setShowErrorMessage(false); // Only hide error message if email is also valid
+    }
+  };
 
   return (
     <div>
@@ -57,21 +140,27 @@ const Signin = () => {
           </div>
 
           <form style={{ display: "flex", flexDirection: "column", gap: "10px" }} onSubmit={handleLogin}>
-            <FormField label="Email">
+            <FormField label="Email"  errorText={emailError}
+            >
               <Input
                 placeholder="Enter Your Email"
                 value={email}
-                onChange={(e) => setEmail(e.detail.value)}
+                onChange={handleEmailChange} // Updated to handle field changes
+                invalid={emailInvalid} // Mark input as invalid if validation fails
+
               />
             </FormField>
-            <FormField label="Password">
+            <FormField label="Password"   errorText={passwordError  }
+            >
               <div style={{ position: "relative", width: "100%" }}>
                 <Input
                   type={passwordVisible ? "text" : "password"}
                   placeholder="Enter your Password"
                   value={password}
-                  onChange={(e) => setPassword(e.detail.value)}
+                  onChange={handlePasswordChange} // Updated to handle field changes
                   style={{ paddingRight: "40px" }}
+                  invalid={passwordInvalid} // Mark input as invalid if validation fails
+
                 />
                 <div
                   onClick={() => setPasswordVisible(!passwordVisible)}

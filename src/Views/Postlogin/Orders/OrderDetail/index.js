@@ -110,11 +110,11 @@ const OrderDetail = () => {
     { header: "Quantity", cell: (item) => item.quantity },
     { header: "Product Category", cell: (item) => item.category },
     {
-      header: "Unit per cost",
+      header: "Cost per Unit",
       cell: (item) =>
-        `₹${(item.price / item.quantityUnits).toFixed(2)}/ ${item.units}`,
+        `₹${(item.price)}/ ${item.unit}`,
     },
-    { header: "Total Cost", cell: (item) => `₹${item.total}` },
+    { header: "Total Cost", cell: (item) => `₹${item.subtotal}` },
   ];
 
   const items = orderDetail?.items || [];
