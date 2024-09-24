@@ -66,19 +66,29 @@ const Signin = () => {
       .catch((error) => {
         console.error("Login failed:", error);
         setShowErrorMessage(true);
-        // Reset both invalid states
         setEmailInvalid(false);
         setPasswordInvalid(false);
-        
-        // Check the error message to determine which field to mark invalid
-        if (error.message.includes("email")) {
-          setEmailInvalid(true); // Mark email invalid
-          // setEmailError("Email is invalid."); // Set the appropriate error message
-        } else if (error.message.includes("password")) {
-          setPasswordInvalid(true); // Mark password invalid
-          // setPasswordError("Password is incorrect."); // Set the appropriate error message
+      
+        // Extract validation messages from error
+        const errorMessage = error.message.toLowerCase();
+      
+        // Check for specific validation errors
+        if (errorMessage.includes("invalid email")) {
+          setEmailInvalid(true);
+          // setEmailError("Invalid email format."); // Set email-specific error message
         }
-  
+        
+        if (errorMessage.includes("password must be at least 8 characters")) {
+          setPasswordInvalid(true);
+          // setPasswordError("Password must be at least 8 characters."); // Set password-specific error message
+        }
+        if (errorMessage.includes("incorrect username or password")) {
+          setPasswordInvalid(true);
+          setEmailInvalid(true);
+
+        }
+
+      
         setItems([{
           type: "error",
           content: `Signin Failed: ${error.message}`,
@@ -88,7 +98,7 @@ const Signin = () => {
           id: "message_2",
         }]);
       });
-  };
+        };
   
   useEffect(() => {
     if (isAuthenticated) {

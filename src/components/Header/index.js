@@ -39,6 +39,13 @@ const Header = () => {
           })
           .catch((error) => {
             console.error("Sign-out failed:", error);
+            if (error.message === "Access Token has expired" || error.name === "NotAuthorizedException") {
+              console.log("Access token expired, signing out user automatically...");
+              localStorage.clear();  // Clear user data
+              logout();  // Call context logout
+              navigate("/auth/signin");  // Redirect to sign-in
+            }
+    
           });
       } else {
         // If there's no token, just logout

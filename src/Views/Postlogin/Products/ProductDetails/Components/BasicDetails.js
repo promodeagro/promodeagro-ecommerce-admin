@@ -1,6 +1,8 @@
 import { Container, Input, Form, FormField, Textarea, Select, SpaceBetween } from '@cloudscape-design/components';
 import React, { useEffect } from 'react';
 import "../../../../../assets/styles/CloudscapeGlobalstyle.css"
+import Grid from "@cloudscape-design/components/grid";
+
 
 const BasicDetails = ({ product, onChange }) => {
   const [description, setDescription] = React.useState(product.data?.description || "");
@@ -48,10 +50,10 @@ const BasicDetails = ({ product, onChange }) => {
   // }, [name, description, selectedCategory, selectedUnit, selectedStatus,onChange]); 
 
   return (
-    <Container variant='borderless' className='container-box-shadow'>
+    <Container variant='borderless' className='container-box-shadow' fitHeight>
       <Form>
         <SpaceBetween direction="vertical" size="l">
-          <div style={{ width: "52vw" }}>
+
             <FormField stretch label="Product Name">
               <Input
                 placeholder="Input Item Name"
@@ -59,10 +61,20 @@ const BasicDetails = ({ product, onChange }) => {
                 onChange={({ detail }) => setName(detail.value)}
               />
             </FormField>
-          </div>
-          <div style={{ display: "flex", gap: "15px" }}>
-            <div style={{ width: "210px" }}>
-              <FormField label="Category">
+            <Grid
+      disableGutters
+      gridDefinition={[
+        { colspan: 4 },
+        { colspan: 4 },
+        { colspan: 4 },
+        { colspan: 4 },
+        { colspan: 4 },
+        { colspan: 4 }
+      ]}
+    >
+
+              <div style={{marginRight: "1rem"}}>
+                <FormField label="Category">
                 <Select
                   disabled
                   selectedOption={selectedCategory}
@@ -76,9 +88,8 @@ const BasicDetails = ({ product, onChange }) => {
                   ]}
                   placeholder="Select Category"
                 />
-              </FormField>
-            </div>
-            <div style={{ width: "210px" }}>
+              </FormField></div>
+              <div style={{marginRight: "1rem"}}>
               <FormField label="Units">
                 <Select
                   disabled
@@ -92,9 +103,8 @@ const BasicDetails = ({ product, onChange }) => {
                     { label: "Option 5", value: "5" },
                   ]}
                 />
-              </FormField>
-            </div>
-            <div style={{ width: "210px" }}>
+              </FormField></div>
+              <div>
               <FormField label="Status">
                 <Select
                   disabled
@@ -108,19 +118,16 @@ const BasicDetails = ({ product, onChange }) => {
                     { label: "Option 5", value: "5" },
                   ]}
                 />
-              </FormField>
-            </div>
-          </div>
+              </FormField> </div>   </Grid>
+
 
           <FormField label="Product Description">
-            <div style={{ width: "52vw" }}>
               <Textarea
                 disabled
                 placeholder="Input Item Description"
                 value={description}
                 onChange={({ detail }) => setDescription(detail.value)}
               />
-            </div>
           </FormField>
         </SpaceBetween>
       </Form>

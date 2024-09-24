@@ -14,6 +14,7 @@ import {
   Spinner,
   Flashbar,
   Modal,
+  Grid,
 } from "@cloudscape-design/components";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,13 +35,12 @@ const ProductDetail = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
-  
+
     const product = useSelector((state) => state.products.productDetail);
     const [specificProduct, setSpecificProduct] = useState({});
     const [active, setActive] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showFlashbar, setShowFlashbar] = useState(false);
-      // State for modal and flashbar
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [flashMessages, setFlashMessages] = useState([]);
     const [isPublishing, setIsPublishing] = useState(false);
@@ -130,7 +130,6 @@ const ProductDetail = () => {
         })
       
       );
-
         // Show success flashbar
         setFlashMessages([
           {
@@ -195,7 +194,6 @@ const ProductDetail = () => {
     return <div>Loading...</div>;
   }
   // console.log(product.data.name,"name");
-
   return (
     <Box margin={{ top: "n" }}>
        {/* Flashbar for success or error messages */}
@@ -221,7 +219,6 @@ const ProductDetail = () => {
       >
         Are you sure you want to change the product status?
       </Modal>
-
       {/* Flashbar for Success Message */}
       {showFlashbar && (
         <Flashbar
@@ -311,10 +308,91 @@ const ProductDetail = () => {
         </Header>
       </div>
       <SpaceBetween direction="vertical" size="l">
-        <div style={{ display: "flex", gap: "20px" }}>
-          <SpaceBetween direction="vertical" size="l">
+      <Grid
+  gridDefinition={[
+    { colspan: { default: 12, xs: 12, s: 8, l: 9 } }, // Column 1: Full width on small screens, 4 columns on small tablets, 3 columns on large screens
+    { colspan: { default: 12, xs: 12, s: 4, l: 3 } }, // Column 2: Full width on small screens, 8 columns on small tablets, 9 columns on large screens
+  ]}
+>
+
             <BasicDetails product={product} />
             <Container
+            fitHeight={600}
+            
+            variant="borderless"
+            className="container-box-shadow"
+          >
+            {loading ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "320px",
+                  width:"200px"
+                }}
+              >
+               <Box textAlign="center" float="left"><Spinner size="large" /></Box> 
+              </div>
+            ) : (
+              <>
+                <img
+                    src={specificProduct?.image}
+                  alt={specificProduct.name}
+                  style={{
+                    height: "200px",
+                    borderRadius: "8px",
+                    width: "100%",
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Additional Images
+                </span>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "6px",
+                  }}
+                >
+                  <img
+                     src={specificProduct?.images?.[1]}
+                    style={{
+                      borderRadius: "8px",
+                      height: "110px",
+                      width: "50%",
+                    }}
+                    alt={product?.data?.name}
+                  />
+                  <img
+                     src={specificProduct?.images?.[2]}
+                    style={{
+                      borderRadius: "8px",
+                      height: "110px",
+                      width: "50%",
+                    }}
+                    alt={product?.data?.name}
+                  />
+                </div>
+              </>
+            )}
+          </Container>
+          </Grid>
+
+
+          <Grid
+  gridDefinition={[
+    { colspan: { default: 12, xs: 12, s: 8, l: 9 } }, // Column 1: Full width on small screens, 4 columns on small tablets, 3 columns on large screens
+    { colspan: { default: 12, xs: 12, s: 4, l: 3 } }, // Column 2: Full width on small screens, 8 columns on small tablets, 9 columns on large screens
+  ]}
+>
+
+          <Container
               variant="borderless"
               className="container-box-shadow"
               header={<Header variant="h3">Pricing</Header>}
@@ -423,81 +501,33 @@ const ProductDetail = () => {
                   </FormField>
                 </div>
               </SpaceBetween>
-            </Container>
+            </Container><div></div></Grid>
+
+            <Grid
+
+gridDefinition={[
+{ colspan: { default: 12, xs: 12, s: 8, l: 9 } }, // Column 1: Full width on small screens, 4 columns on small tablets, 3 columns on large screens
+{ colspan: { default: 12, xs: 12, s: 4, l: 3 } }, // Column 2: Full width on small screens, 8 columns on small tablets, 9 columns on large screens
+]}
+>
+
             <InventoryTracking product={product} />
-            <Attributes product={product} />
-          </SpaceBetween>
-        
-          <Container
-            fitHeight={600}
-            
-            variant="borderless"
-            className="container-box-shadow"
-          >
-            {loading ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "320px",
-                  width:"200px"
-                }}
-              >
-               <Box textAlign="center" float="left"><Spinner size="large" /></Box> 
-              </div>
-            ) : (
-              <>
-                <img
-                    src={specificProduct?.image}
-                  alt={specificProduct.name}
-                  style={{
-                    height: "200px",
-                    borderRadius: "8px",
-                    width: "100%",
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                    marginBottom: "10px",
-                  }}
-                >
-                  Additional Images
-                </span>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "6px",
-                  }}
-                >
-                  <img
-                     src={specificProduct?.images?.[1]}
-                    style={{
-                      borderRadius: "8px",
-                      height: "110px",
-                      width: "50%",
-                    }}
-                    alt={product?.data?.name}
-                  />
+            <div></div>
+</Grid>
 
-                  <img
-                     src={specificProduct?.images?.[2]}
-                    style={{
-                      borderRadius: "8px",
-                      height: "110px",
-                      width: "50%",
-                    }}
-                    alt={product?.data?.name}
-                  />
-                </div>
-              </>
-            )}
-          </Container>
-        </div>
+            <Grid
+
+            gridDefinition={[
+    { colspan: { default: 12, xs: 12, s: 8, l: 9 } }, // Column 1: Full width on small screens, 4 columns on small tablets, 3 columns on large screens
+    { colspan: { default: 12, xs: 12, s: 4, l: 3 } }, // Column 2: Full width on small screens, 8 columns on small tablets, 9 columns on large screens
+  ]}
+>
+<Attributes product={product} />
+<div></div>
+</Grid>
+
+
       </SpaceBetween>
-
       {/* Confirmation Modal */}
       <Modal
         onDismiss={() => setIsModalVisible(false)}
@@ -522,9 +552,7 @@ const ProductDetail = () => {
         }
       >
         Are you sure you want to save these changes?
-      </Modal>
-
-     
+      </Modal>     
     </Box>
   );
 };
