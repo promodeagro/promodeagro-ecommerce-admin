@@ -112,8 +112,14 @@ const OrderDetail = () => {
     {
       header: "Cost per Unit",
       cell: (item) =>
-        `₹${(item.price)}/ ${item.unit}`,
+        `₹${(item.price)}`,
+    },    {
+      header: "Quantity Unit",
+      cell: (item) =>
+        `${(item.quantityUnits)} ${item.unit}`,
     },
+
+    
     { header: "Total Cost", cell: (item) => `₹${item.subtotal}` },
   ];
 
@@ -519,7 +525,9 @@ const OrderDetail = () => {
     { colspan: { default: 12, xs: 12, s: 8, l: 9 } }, // Column 2: Full width on small screens, 8 columns on small tablets, 9 columns on large screens
   ]}
 >
-          <Container variant="borderless" className="container-box-shadow">
+          <Container 
+              className="container-box-shadow"
+          >
             <Box padding={{ top: 0, bottom: 0 }}>
               <div style={timelineContainerStyle}>
                 {events.map((event, index) => (
@@ -550,7 +558,9 @@ const OrderDetail = () => {
             </Box>
           </Container>
 
-          <Container variant="borderless" className="container-box-shadow">
+          <Container 
+              className="container-box-shadow"
+          >
             <SpaceBetween size="m">
               <SpaceBetween size="m" direction="horizontal">
                 <Header variant="h2">Order Overview</Header>
@@ -645,9 +655,9 @@ const OrderDetail = () => {
         </Grid>
         <Container
           header={<Header variant="h2">Items</Header>}
-          variant="borderless"
           className="container-box-shadow"
-        >
+          
+>
           <SpaceBetween size="s">
             <Table
               columnDefinitions={columnDefinitions}
