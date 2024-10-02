@@ -55,6 +55,7 @@ const Products = () => {
   const [issetModalVisible, setIsModalVisible] = React.useState(false);
   const [selectedSubCategory, setSelectedSubCategory] = React.useState(null);
 
+
   useEffect(() => {
     // Reset products when filters change
     dispatch(resetProducts());
@@ -132,10 +133,10 @@ const Products = () => {
             id: "message_1",
           },
         ]);
-        setIsModalVisible(false);
-        setTimeout(() => {
-          setItems([]);  // Clear the message after 3 seconds
-        }, 5000);
+        setModalVisible(false);
+        // setTimeout(() => {
+        //   setItems([]);  // Clear the message after 3 seconds
+        // }, 5000);
         dispatch(fetchProducts()); // Fetch updated products
         window.location.reload(); // This will force a full page reload
       })
@@ -320,8 +321,8 @@ const Products = () => {
       onDismiss: () => setFlashbarItems([]),
       content: (
         <>
-          <b>Status Updated successfully </b>
-          <p>Toggle status have been updated successfully</p>
+          <b>Status Updated</b>
+          <p>Status have been updated successfully</p>
         </>
       ),
       id: "message_1",
