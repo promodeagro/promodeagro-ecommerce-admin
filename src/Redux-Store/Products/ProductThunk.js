@@ -88,26 +88,31 @@ export const putPricingById = createAsyncThunk(
 // Put Active/Inactive Status
 export const PutToggle = createAsyncThunk(
   "products/putActiveInactive",
-  async ({ id, active }, { rejectWithValue }) => {
+  async ({ ids, active }, { rejectWithValue }) => {
     try {
       const url = `${config.PUT_ACTIVE_INACTIVE}`;
-      // Log the payload to verify its structure
-      console.log("Sending request to:", url);
-      console.log("Payload:", { id, active });
 
-      // Ensure `isActive` is a boolean value
-      const response = await postLoginService.put(url, { id, active });
+      let isActive;
+      if (typeof active === 'string') {
+        isActive = active === 'inactive'; 
+      } else {
+        isActive = !active;  
+      }
+
+      const items = ids.map(id => ({ id, active: isActive }));
+
+      console.log("Sending request to:", url);
+      console.log("Payload:", items);  // This should now be in the correct format
+
+      const response = await postLoginService.put(url, items);  // Send the array directly
 
       console.log(response.data, "async put of toggle successful");
-      // window.location.reload();
-
       return response.data;
     } catch (error) {
-      console.error("API error:", error); // Log API error
+      console.error("API error:", error);  // Log API error
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error?.response?.data || error.message
       );
     }
   }
 );
-

@@ -46,10 +46,11 @@ const Products = () => {
   const [isBulkModifySuccessflash, setBulkModifySuccessflash] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const [isToggle, setIsToggle] = useState(false);
-  const [toggleItem, setToggleItem] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
   const [isFieldChanged, setIsFieldChanged] = useState(true);
   const observer = useRef();
+  const [issetModalVisible, setIsModalVisible] = React.useState(false);
+
 
   useEffect(() => {
     // Reset products when filters change
@@ -102,33 +103,52 @@ const Products = () => {
  
   const [selectedItem, setSelectedItem] = useState(null);
   const confirmToggleChange = () => {
-    if (selectedItem) {
-      dispatch(PutToggle({ id: selectedItem.id, active: !selectedItem.active })).then((response) => {
-        if (response.meta.requestStatus === "fulfilled") {
-          dispatch(toggleStatus({ id: selectedItem.id }));
-        } else {
-          // Handle rollback or show an error message
-        }
+    const newStatus = selectedStatus === "true"; // Determine the status based on selectedStatus
+    const ids = selectedItems.map((item) => item.id); // Get the IDs of the selected items
+    dispatch(PutToggle({ ids, active: newStatus }))
+      .unwrap()
+      .then((response) => {
+        console.log("Update Response:", response); // Log response for debugging
+        setItems([
+          {
+            type: "success",
+            content: "Status changed successfully!",
+            dismissible: true,
+            dismissLabel: "Dismiss message",
+            onDismiss: () => setItems([]),
+            id: "message_1",
+          },
+        ]);
+        setIsModalVisible(false);
+        // setTimeout(() => {
+        //   setItems([]);  // Clear the message after 3 seconds
+        // }, 5000);
+        dispatch(fetchProducts()); // Fetch updated products
+        window.location.reload(); // This will force a full page reload
+      })
+      .catch((error) => {
+        console.error("Error during status change:", error); // Log the full error for debugging
+        dispatch(fetchProducts());
+        setItems([
+          {
+            type: "error",
+            content: `Failed to change status: ${
+              error.message || "Unknown error"
+            }`,
+            dismissible: true,
+            dismissLabel: "Dismiss message",
+            onDismiss: () => setItems([]),
+            id: "message_2",
+          },
+        ]);
       });
-    }
-    setIsToggle(true);
-    // setModalVisible(false);
-
-    setTimeout(() => {
-      setIsToggle(false);
-    }, 5000);
-    setModalVisible(false); // Close the modal
   };
-
 
   const handleToggleChange = (item) => {
-    setToggleItem(item);
     setModalVisible(true);
     setSelectedItem(item);
-  
-  };
 
-
+    };
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
   };
@@ -143,15 +163,27 @@ const Products = () => {
 
   const selectOptions = [
     { label: "All", value: "" },
-    { label: "Fruits And Vegetables", value: "Fruits And Vegetables" },
-    { label: "Dairies And Groceries", value: "Diaries And Groceries" },
-    { label: "Meat/Fish/Eggs", value: "Meat/Fish/Eggs" },
-    { label: "Fruit", value: "Fruit" },
-    { label: "vegetable", value: "Vegetable" },
+    {
+      label: "Fresh Vegetables",
+      value: "Fresh Vegetables",
+    },
+    {
+      label: "Fresh Fruits",
+      value: "Fresh Fruits",
+    },
+    {
+      label: "Dairy",
+      value: "Dairy",
+    },
+    {
+      label: "Groceries",
+      value: "Groceries",
+    },
     { label: "Bengali Special", value: "Bengali Special" },
-  ];
+    { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
+];
   const selectOptionsStatus = [
-    { label: "All", value: "" },
+    { label: "All", value: "All" },
     { label: "Active", value: "true" },
     { label: "Inactive", value: "false" },
 
@@ -277,7 +309,6 @@ const Products = () => {
     },
   ]);
 
-  // Infinite Scroll Logic
   const previousNextKey = useRef(null); // Store the previous nextKey
 
   const lastProductRef = useCallback(node => {
@@ -306,7 +337,33 @@ const Products = () => {
     if (node) observer.current.observe(node);
   }, [status, nextKey, dispatch, filteringText, selectedCategory, hasMore, isFetching]);
 
-  
+  const renderModalButton = () => {
+    const isAnyProductSelected = selectedItems.length > 0; 
+
+    if (selectedStatus === "true") {
+      return (
+        <Button
+          variant="primary"
+          onClick={() => setModalVisible(true)}
+          disabled={!isAnyProductSelected} 
+        >
+          Move to Inactive
+        </Button>
+      );
+    } else if (selectedStatus === "false") {
+      return (
+        <Button
+          variant="primary"
+          onClick={() => setModalVisible(true)}
+          disabled={!isAnyProductSelected} // Disable button if no product is selected
+        >
+          Move to Active
+        </Button>
+      );
+    }
+    return null;
+  };
+
 
   return (
     <ContentLayout
@@ -369,11 +426,12 @@ const Products = () => {
                     />
                     <Select
                       options={selectOptions}
+                      placeholder="Select Category"
+
                       selectedOption={selectOptions.find(
                         (option) => option.value === selectedCategory
                       )}
                       onChange={handleSelectChange}
-                      placeholder="Select Category"
                     />             
 
                     <Select
@@ -393,6 +451,31 @@ const Products = () => {
                   gap: "0.4rem"
                 }}
               >
+                                    {renderModalButton()}
+            <Modal
+              onDismiss={() => setModalVisible(false)}
+              visible={isModalVisible}
+              footer={
+                <Box float="right">
+                  <SpaceBetween direction="horizontal" size="xs">
+                    <Button
+                      variant="link"
+                      onClick={() => setModalVisible(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button variant="primary" onClick={confirmToggleChange}>
+                      Ok
+                    </Button>
+                  </SpaceBetween>
+                </Box>
+              }
+              header="Modal title"
+            >
+              Are you sure you want to change the status of this products?
+            </Modal>{" "}
+
+
                   {isBulkModifySuccess && (
                     <Button variant="normal" onClick={navigateToStore}>
                       View On Store
@@ -588,8 +671,8 @@ const Products = () => {
        </Box>
      }
    >
-     Are you sure you want to {toggleItem?.active ? "deactivate" : "activate"} this product?
-   </Modal>
+              Are you sure you want to change the status?
+              </Modal>
     </ContentLayout>
   );
 };

@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkrasilabs=self.webpackChunkrasilabs||[]).push([[853],{9853:(s,a,e)=>{e.r(a),e.d(a,{default:()=>r});e(5043);var l=e(579);const r=()=>(0,l.jsx)("div",{children:"SalesAndReport"})}}]);
+//# sourceMappingURL=853.8f7927b5.chunk.js.map
