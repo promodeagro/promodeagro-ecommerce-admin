@@ -1,4 +1,4 @@
-import React, { useEffect,useState,useRef,useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
   Button,
@@ -16,7 +16,7 @@ import {
   Flashbar,
   FormField,
   Grid,
-  Spinner
+  Spinner,
 } from "@cloudscape-design/components";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -24,16 +24,19 @@ import {
   fetchProducts,
   PutToggle,
   putPricingById,
-
 } from "Redux-Store/Products/ProductThunk";
-import { resetProducts,toggleStatus } from "Redux-Store/Products/ProductsSlice";
+import {
+  resetProducts,
+  toggleStatus,
+} from "Redux-Store/Products/ProductsSlice";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
 import Numbers from "./Numbers";
 
 const Products = () => {
-
   const dispatch = useDispatch();
-  const { data, nextKey, hasMore, status,error} = useSelector((state) => state.products.products);
+  const { data, nextKey, hasMore, status, error } = useSelector(
+    (state) => state.products.products
+  );
 
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteringText, setFilteringText] = useState("");
@@ -50,36 +53,46 @@ const Products = () => {
   const [isFieldChanged, setIsFieldChanged] = useState(true);
   const observer = useRef();
   const [issetModalVisible, setIsModalVisible] = React.useState(false);
-
+  const [selectedSubCategory, setSelectedSubCategory] = React.useState(null);
 
   useEffect(() => {
     // Reset products when filters change
     dispatch(resetProducts());
 
     // Fetch initial products
-    dispatch(fetchProducts({
-      search: filteringText,
-      category: selectedCategory,
-      active:selectedStatus,
-    }));
-  }, [dispatch,selectedStatus, filteringText, selectedCategory]);
+    dispatch(
+      fetchProducts({
+        search: filteringText,
+        category: selectedCategory || "",
+        subCategory: selectedSubCategory?.value || "",
+        active: selectedStatus,
+      })
+    );
+  }, [
+    dispatch,
+    selectedStatus,
+    filteringText,
+    selectedCategory,
+    selectedSubCategory,
+  ]);
 
   const handleInputChange = (id, field, value) => {
-    setEditedProducts(prev => ({
+    setEditedProducts((prev) => ({
       ...prev,
       [id]: {
         ...prev[id],
         [field]: value,
       },
     }));
-    
+
     validateField(id, field, value);
     setIsFieldChanged(false);
   };
 
   const validateField = (id, field, value) => {
     const osp = value;
-    const cp = field === "compareAt" ? value : editedProducts[id]?.compareAt || "";
+    const cp =
+      field === "compareAt" ? value : editedProducts[id]?.compareAt || "";
     let errors = {};
 
     if (field === "onlineStorePrice" && !osp) {
@@ -94,14 +107,14 @@ const Products = () => {
       }
     }
 
-    setValidationErrors(prevErrors => ({
+    setValidationErrors((prevErrors) => ({
       ...prevErrors,
       [id]: errors,
     }));
   };
 
- 
   const [selectedItem, setSelectedItem] = useState(null);
+  
   const confirmToggleChange = () => {
     const newStatus = selectedStatus === "true"; // Determine the status based on selectedStatus
     const ids = selectedItems.map((item) => item.id); // Get the IDs of the selected items
@@ -120,9 +133,9 @@ const Products = () => {
           },
         ]);
         setIsModalVisible(false);
-        // setTimeout(() => {
-        //   setItems([]);  // Clear the message after 3 seconds
-        // }, 5000);
+        setTimeout(() => {
+          setItems([]);  // Clear the message after 3 seconds
+        }, 5000);
         dispatch(fetchProducts()); // Fetch updated products
         window.location.reload(); // This will force a full page reload
       })
@@ -147,8 +160,7 @@ const Products = () => {
   const handleToggleChange = (item) => {
     setModalVisible(true);
     setSelectedItem(item);
-
-    };
+  };
   const handleSelectChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption.value);
   };
@@ -156,37 +168,39 @@ const Products = () => {
     setSelectedStatus(detail.selectedOption.value);
   };
 
+  const handleSubCategoryChange = ({ detail }) => {
+    setSelectedSubCategory(detail.selectedOption);
+  };
 
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
   };
 
-  const selectOptions = [
-    { label: "All", value: "" },
-    {
-      label: "Fresh Vegetables",
-      value: "Fresh Vegetables",
-    },
-    {
-      label: "Fresh Fruits",
-      value: "Fresh Fruits",
-    },
-    {
-      label: "Dairy",
-      value: "Dairy",
-    },
-    {
-      label: "Groceries",
-      value: "Groceries",
-    },
-    { label: "Bengali Special", value: "Bengali Special" },
-    { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
-];
+  //   const selectOptions = [
+  //     { label: "All", value: "" },
+  //     {
+  //       label: "Fresh Vegetables",
+  //       value: "Fresh Vegetables",
+  //     },
+  //     {
+  //       label: "Fresh Fruits",
+  //       value: "Fresh Fruits",
+  //     },
+  //     {
+  //       label: "Dairy",
+  //       value: "Dairy",
+  //     },
+  //     {
+  //       label: "Groceries",
+  //       value: "Groceries",
+  //     },
+  //     { label: "Bengali Special", value: "Bengali Special" },
+  //     { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
+  // ];
   const selectOptionsStatus = [
     { label: "All", value: "All" },
     { label: "Active", value: "true" },
     { label: "Inactive", value: "false" },
-
   ];
 
   const handleSelectionChange = ({ detail }) => {
@@ -203,7 +217,7 @@ const Products = () => {
     let valid = true;
     const errors = {};
 
-    selectedItems.forEach(item => {
+    selectedItems.forEach((item) => {
       const editedProduct = editedProducts[item.id] || {};
       const osp = editedProduct.onlineStorePrice || item.onlineStorePrice;
       const cp = editedProduct.compareAt || item.compareAt;
@@ -232,18 +246,25 @@ const Products = () => {
   };
 
   const handleModalConfirm = async () => {
-    const pricingDataArray = selectedItems.map(item => ({
+    const pricingDataArray = selectedItems.map((item) => ({
       id: item.id,
-      compareAt: parseFloat(editedProducts[item.id]?.compareAt || item.compareAt),
-      onlineStorePrice: parseFloat(editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice),
+      compareAt: parseFloat(
+        editedProducts[item.id]?.compareAt || item.compareAt
+      ),
+      onlineStorePrice: parseFloat(
+        editedProducts[item.id]?.onlineStorePrice || item.onlineStorePrice
+      ),
     }));
 
     try {
       const response = await dispatch(putPricingById(pricingDataArray));
-      console.log(response,"bulk resp");
+      console.log(response, "bulk resp");
 
-      if (response.meta.requestStatus === "fulfilled" && response.payload.status === 200) {
-        console.log("bulk modify",response);
+      if (
+        response.meta.requestStatus === "fulfilled" &&
+        response.payload.status === 200
+      ) {
+        console.log("bulk modify", response);
         setBulkModifySuccessflash(true);
         setBulkModifySuccess(true);
         setSelectedItems([]);
@@ -276,9 +297,7 @@ const Products = () => {
     window.open(`${baseCategoryUrl}`, "_blank");
   };
 
-  const [items1, setItems] = 
-  
-  useState([
+  const [items1, setItems] = useState([
     {
       type: "info",
       dismissible: true,
@@ -311,41 +330,54 @@ const Products = () => {
 
   const previousNextKey = useRef(null); // Store the previous nextKey
 
-  const lastProductRef = useCallback(node => {
-    if (status === 'loading' || !hasMore || isFetching) return; // Stop if loading, no more data, or currently fetching
+  const lastProductRef = useCallback(
+    (node) => {
+      if (status === "loading" || !hasMore || isFetching) return; // Stop if loading, no more data, or currently fetching
 
-    if (observer.current) observer.current.disconnect();
+      if (observer.current) observer.current.disconnect();
 
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore && nextKey) {
-        if (previousNextKey.current !== nextKey) {
-          setIsFetching(true);
-          console.log("Fetching next set of products with nextKey:", nextKey);
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore && nextKey) {
+          if (previousNextKey.current !== nextKey) {
+            setIsFetching(true);
+            console.log("Fetching next set of products with nextKey:", nextKey);
 
-          dispatch(fetchProducts({
-            search: filteringText,
-            category: selectedCategory,
-            nextKey: nextKey,
-          })).finally(() => {
-            setIsFetching(false);
-            previousNextKey.current = nextKey; // Update previous nextKey after fetch
-          });
+            dispatch(
+              fetchProducts({
+                search: filteringText,
+                category: selectedCategory,
+                nextKey: nextKey,
+              })
+            ).finally(() => {
+              setIsFetching(false);
+              previousNextKey.current = nextKey; // Update previous nextKey after fetch
+            });
+          }
         }
-      }
-    });
+      });
 
-    if (node) observer.current.observe(node);
-  }, [status, nextKey, dispatch, filteringText, selectedCategory, hasMore, isFetching]);
+      if (node) observer.current.observe(node);
+    },
+    [
+      status,
+      nextKey,
+      dispatch,
+      filteringText,
+      selectedCategory,
+      hasMore,
+      isFetching,
+    ]
+  );
 
   const renderModalButton = () => {
-    const isAnyProductSelected = selectedItems.length > 0; 
+    const isAnyProductSelected = selectedItems.length > 0;
 
     if (selectedStatus === "true") {
       return (
         <Button
           variant="primary"
           onClick={() => setModalVisible(true)}
-          disabled={!isAnyProductSelected} 
+          disabled={!isAnyProductSelected}
         >
           Move to Inactive
         </Button>
@@ -364,19 +396,53 @@ const Products = () => {
     return null;
   };
 
+  const subcategoryOptions = {
+    "Fresh Vegetables": [
+      { label: "Daily Vegetables", value: "Daily Vegetables" },
+      { label: "Leafy Vegetables", value: "Leafy Vegetables" },
+      { label: "Exotic Vegetables", value: "Exotic Vegetables" },
+    ],
+    "Fresh Fruits": [
+      { label: "Daily Fruits", value: "Daily Fruits" },
+      { label: "Exotic Fruits", value: "Exotic Fruits" },
+      { label: "Dry Fruits", value: "Dry Fruits" },
+    ],
+    Dairy: [
+      { label: "Milk", value: "Milk" },
+      { label: "Butter & Ghee", value: "Butter & Ghee" },
+      { label: "Paneer & Khowa", value: "Paneer & Khowa" },
+    ],
+    Groceries: [
+      { label: "Cooking Oil", value: "Cooking Oil" },
+      { label: "Rice", value: "Rice" },
+      { label: "Daal", value: "Daal" },
+      { label: "Spices", value: "Spices" },
+      { label: "Snacks", value: "Snacks" },
+    ],
+    "Bengali Special": [
+      { label: "Bengali Vegetables", value: "Bengali Vegetables" },
+      { label: "Bengali Groceries", value: "Bengali Groceries" },
+      { label: "Bengali Home Needs", value: "Bengali Home Needs" },
+    ],
+    "Eggs Meat & Fish": [
+      { label: "Eggs", value: "Eggs" },
+      { label: "Fish", value: "Fish" },
+      { label: "Chicken", value: "Chicken" },
+      { label: "Mutton", value: "Mutton" },
+    ],
+  };
 
   return (
     <ContentLayout
-    notifications={
-      <>
-        {/* Always render Flashbar with flashbarItems */}
-        {isToggle && <Flashbar items={flashbarItems} />}
-    
-        {/* Conditionally render Flashbar based on isBulkModifySuccess */}
-        {isBulkModifySuccessflash && <Flashbar items={items1} />}
-      </>
-    }
-  
+      notifications={
+        <>
+          {/* Always render Flashbar with flashbarItems */}
+          {isToggle && <Flashbar items={flashbarItems} />}
+
+          {/* Conditionally render Flashbar based on isBulkModifySuccess */}
+          {isBulkModifySuccessflash && <Flashbar items={items1} />}
+        </>
+      }
       breadcrumbs={
         <BreadcrumbGroup
           items={[
@@ -389,19 +455,13 @@ const Products = () => {
       headerVariant="high-contrast"
       header={
         <Header
-          actions={
-            <SpaceBetween alignItems="center" direction="horizontal" size="xs">
-              {/* <Button variant="normal">Export</Button> */}
-            </SpaceBetween>
-          }
           variant="h1"
         >
           Products
         </Header>
       }
     >
-
-      <SpaceBetween direction="vertical" size="s">
+      <SpaceBetween direction="vertical" size="m">
         <Container>
           <Numbers products={{ data, nextKey, status, error }} />
         </Container>
@@ -409,72 +469,99 @@ const Products = () => {
         <div>
           <Table
             header={
-              <Box>
-              <Grid
-                disableGutters
-                gridDefinition={[
-                  { colspan: { default: 12, xxs: 6 } },
-                  { colspan: { default: 12, xxs: 6 } },
-                ]}
-              >
-                              <div style={{ display: "flex", gap: "0.4rem" }}>
+                <SpaceBetween size="xs">
+                <SpaceBetween size="xs" direction="horizontal"
+                  // disableGutters
+                  // gridDefinition={[
+                  //   { colspan: { default: 12, xs: 4 } }, // First item takes full width on small screens, 4 columns on larger screens
+                  //   { colspan: { default: 12, xs: 2 } }, // Second item same as first
+                  //   { colspan: { default: 12, xs: 2 } }, // Third item same as first
+                  //   { colspan: { default: 12, xs: 2 } }, // Fourth item takes full width on small screens, 2 columns on larger screens
+                  // ]}
+                >
+                  <TextFilter
+                    filteringPlaceholder="Search"
+                    filteringText={filteringText}
+                    onChange={handleSearchChange}
+                  />
+                  <Select
+                    options={[
+                      { label: "All", value: "" },
+                      {
+                        label: "Fresh Vegetables",
+                        value: "Fresh Vegetables",
+                      },
+                      {
+                        label: "Fresh Fruits",
+                        value: "Fresh Fruits",
+                      },
+                      {
+                        label: "Dairy",
+                        value: "Dairy",
+                      },
+                      {
+                        label: "Groceries",
+                        value: "Groceries",
+                      },
+                      { label: "Bengali Special", value: "Bengali Special" },
+                      { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
+                    ]}
+                    placeholder="Select Category"
+                    // selectedOption={selectOptions.find(
+                    //   (option) => option.value === selectedCategory
+                    // )}
+                    onChange={handleSelectChange}
+                  />
+                  <Select
+                    required
+                    selectedOption={selectedSubCategory}
+                    onChange={handleSubCategoryChange}
+                    placeholder="Select Sub Category"
+                    options={
+                      selectedCategory
+                        ? subcategoryOptions[selectedCategory] || []
+                        : []
+                    }
+                  />
+                  <Select
+                    options={selectOptionsStatus}
+                    selectedOption={selectOptionsStatus.find(
+                      (option) => option.value === selectedStatus
+                    )}
+                    onChange={handleSelectionChangeStatus}
+                    placeholder="Select Status"
+                  />
+                </SpaceBetween>
+                
 
-                    <TextFilter
-                      filteringPlaceholder="Search"
-                      filteringText={filteringText}
-                      onChange={handleSearchChange}
-                    />
-                    <Select
-                      options={selectOptions}
-                      placeholder="Select Category"
-
-                      selectedOption={selectOptions.find(
-                        (option) => option.value === selectedCategory
-                      )}
-                      onChange={handleSelectChange}
-                    />             
-
-                    <Select
-                      options={selectOptionsStatus}
-                      selectedOption={selectOptionsStatus.find(
-                        (option) => option.value === selectedStatus
-                      )}
-                      onChange={handleSelectionChangeStatus}
-                      placeholder="Select Status"
-                    />
-
-                                   </div>
-                   <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "0.4rem"
-                }}
-              >
-                                    {renderModalButton()}
-            <Modal
-              onDismiss={() => setModalVisible(false)}
-              visible={isModalVisible}
-              footer={
                 <Box float="right">
-                  <SpaceBetween direction="horizontal" size="xs">
-                    <Button
-                      variant="link"
-                      onClick={() => setModalVisible(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button variant="primary" onClick={confirmToggleChange}>
-                      Ok
-                    </Button>
-                  </SpaceBetween>
-                </Box>
-              }
-              header="Modal title"
-            >
-              Are you sure you want to change the status of this products?
-            </Modal>{" "}
-
+                  <SpaceBetween size="xs" direction="horizontal">
+                  {renderModalButton()}
+                  <Modal
+                    onDismiss={() => setModalVisible(false)}
+                    visible={isModalVisible}
+                    footer={
+                      <Box float="right">
+                        <SpaceBetween direction="horizontal" size="xs">
+                          <Button
+                            variant="link"
+                            onClick={() => setModalVisible(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="primary"
+                            onClick={confirmToggleChange}
+                          >
+                            Ok
+                          </Button>
+                        </SpaceBetween>
+                      </Box>
+                    }
+                    header="Modal title"
+                  >
+                    Are you sure you want to change the status of this products?
+                  </Modal>
 
                   {isBulkModifySuccess && (
                     <Button variant="normal" onClick={navigateToStore}>
@@ -482,18 +569,17 @@ const Products = () => {
                     </Button>
                   )}
 
-                    <Button
-                      disabled={isFieldChanged}
-                      variant="normal"
-                      onClick={handleBulkModifyPrice}
-                    >
-                      Bulk Modify Price
-                    </Button>
-                    </div>
-
-                    </Grid>
-
-              </Box>
+                  <Button
+                    disabled={isFieldChanged}
+                    variant="normal"
+                    onClick={handleBulkModifyPrice}
+                  >
+                    Bulk Modify Price
+                  </Button>
+                  </SpaceBetween>
+                </Box>
+                </SpaceBetween>
+              
             }
             variant="borderless"
             columnDefinitions={[
@@ -525,6 +611,14 @@ const Products = () => {
                 header: "Category",
                 cell: (item) => <Box textAlign="center">{item?.category}</Box>,
               },
+              {
+                id: "subCategory",
+                header: "Sub Category",
+                cell: (item) => (
+                  <Box textAlign="center">{item?.subCategory}</Box>
+                ),
+              },
+
               {
                 id: "stock",
                 header: "On Hand Quantity",
@@ -620,7 +714,6 @@ const Products = () => {
                   </div>
                 ),
               },
-
             ]}
             selectedItems={selectedItems}
             onSelectionChange={handleSelectionChange}
@@ -628,51 +721,53 @@ const Products = () => {
             selectionType="multi"
           />
           {/* Sentinel element for infinite scrolling */}
-          <div ref={lastProductRef} style={{ height: '20px',textAlign:"center" }}>
+          <div
+            ref={lastProductRef}
+            style={{ height: "20px", textAlign: "center" }}
+          >
             {isFetching && <Spinner size="large" />}
           </div>
         </div>
-        {status === 'failed' && <Box color="red">{error}</Box>}
+        {status === "failed" && <Box color="red">{error}</Box>}
       </SpaceBetween>
       <Modal
-     
-     visible={isModalVisible1}
-     onDismiss={() => setModalVisible1(false)}
-     header="Confirm Bulk Modify"
-     footer={
-       <SpaceBetween direction="horizontal" size="xs">
-         <Button variant="link" onClick={() => setModalVisible1(false)}>
-           Cancel
-         </Button>
-         <Button variant="primary" onClick={handleModalConfirm}>
-           Confirm
-         </Button>
-       </SpaceBetween>
-     }
-   >
-     Are you sure you want to bulk modify the prices for the selected items?
-   </Modal>
-   {/* Modal for confirmation */}
-   <Modal
+        visible={isModalVisible1}
+        onDismiss={() => setModalVisible1(false)}
+        header="Confirm Bulk Modify"
+        footer={
+          <SpaceBetween direction="horizontal" size="xs">
+            <Button variant="link" onClick={() => setModalVisible1(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleModalConfirm}>
+              Confirm
+            </Button>
+          </SpaceBetween>
+        }
+      >
+        Are you sure you want to bulk modify the prices for the selected items?
+      </Modal>
+      {/* Modal for confirmation */}
+      <Modal
         onDismiss={() => setModalVisible(false)}
-     visible={isModalVisible}
-     closeAriaLabel="Close modal"
-     header="Confirm Status Change"
-     footer={
-       <Box float="right">
-         <SpaceBetween direction="horizontal" size="xs">
-         <Button variant="link" onClick={() => setModalVisible(false)}>
-           Cancel
-         </Button>
-           <Button onClick={confirmToggleChange} variant="primary">
-             Confirm
-           </Button>
-         </SpaceBetween>
-       </Box>
-     }
-   >
-              Are you sure you want to change the status?
-              </Modal>
+        visible={isModalVisible}
+        closeAriaLabel="Close modal"
+        header="Confirm Status Change"
+        footer={
+          <Box float="right">
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button variant="link" onClick={() => setModalVisible(false)}>
+                Cancel
+              </Button>
+              <Button onClick={confirmToggleChange} variant="primary">
+                Confirm
+              </Button>
+            </SpaceBetween>
+          </Box>
+        }
+      >
+        Are you sure you want to change the status?
+      </Modal>
     </ContentLayout>
   );
 };
