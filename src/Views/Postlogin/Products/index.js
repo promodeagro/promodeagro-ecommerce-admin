@@ -718,6 +718,13 @@ const Products = () => {
                 cell: (item) => (
                   <div style={{ width: "90px" }}>
                     <Toggle
+                    disabled={
+                      !(
+                        (editedProducts[item.id]?.onlineStorePrice ??
+                          item.onlineStorePrice) &&
+                        (editedProducts[item.id]?.compareAt ?? item.compareAt)
+                      )
+                    }
                       onChange={() => handleToggleChange(item)}
                       checked={item.active}
                     >
