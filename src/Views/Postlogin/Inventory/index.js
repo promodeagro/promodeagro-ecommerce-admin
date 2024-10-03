@@ -300,7 +300,7 @@ const Inventory = () => {
             {
               id: "itemCode",
               header: "Item Code",
-              cell: (e) => e.itemCode,
+              cell: (e) => `#${e.itemCode}`,
               isRowHeader: true,
             },
             {
@@ -345,9 +345,13 @@ const Inventory = () => {
               sortingField: "quantityOnHand",
               id: "quantityOnHand",
               header: "Quantity on Hand",
-              cell: (e) => e.stockQuantity,
+              cell: (e) => (
+                <Box textAlign="center">
+                  {e.stockQuantity} {e.units}
+                </Box>
+              ),
             },
-            {
+          {
               sortingField: "stockAlert",
               id: "stockAlert",
               header: "Stock Alert",
@@ -361,13 +365,13 @@ const Inventory = () => {
               sortingField: "purchasingPrice",
               id: "purchasingPrice",
               header: "Purchasing Price",
-              cell: (e) => e.purchasingPrice,
+              cell: (e) => `Rs. ${e.purchasingPrice}`,
             },
             {
               sortingField: "msp",
               id: "msp",
               header: "MSP",
-              cell: (e) => e.msp,
+              cell: (e) => `Rs. ${e.msp}`,
             },
           ]}
           // columnDisplay={[

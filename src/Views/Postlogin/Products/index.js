@@ -25,10 +25,7 @@ import {
   PutToggle,
   putPricingById,
 } from "Redux-Store/Products/ProductThunk";
-import {
-  resetProducts,
-  toggleStatus,
-} from "Redux-Store/Products/ProductsSlice";
+import { resetProducts } from "Redux-Store/Products/ProductsSlice";
 import "../../../assets/styles/CloudscapeGlobalstyle.css";
 import Numbers from "./Numbers";
 
@@ -48,19 +45,17 @@ const Products = () => {
   const [isBulkModifySuccess, setBulkModifySuccess] = useState(false);
   const [isBulkModifySuccessflash, setBulkModifySuccessflash] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+  const [isToggleSuccessFlash, setIsToggleSuccessFlash] = useState(false);
   const [isToggle, setIsToggle] = useState(false);
+
   const [isFetching, setIsFetching] = useState(false);
   const [isFieldChanged, setIsFieldChanged] = useState(true);
   const observer = useRef();
-  const [issetModalVisible, setIsModalVisible] = React.useState(false);
   const [selectedSubCategory, setSelectedSubCategory] = React.useState(null);
 
-
   useEffect(() => {
-    // Reset products when filters change
     dispatch(resetProducts());
 
-    // Fetch initial products
     dispatch(
       fetchProducts({
         search: filteringText,
@@ -115,7 +110,7 @@ const Products = () => {
   };
 
   const [selectedItem, setSelectedItem] = useState(null);
-  
+
   const confirmToggleChange = () => {
     const newStatus = selectedStatus === "true"; // Determine the status based on selectedStatus
     const ids = selectedItems.map((item) => item.id); // Get the IDs of the selected items
@@ -123,40 +118,21 @@ const Products = () => {
       .unwrap()
       .then((response) => {
         console.log("Update Response:", response); // Log response for debugging
-        setItems([
-          {
-            type: "success",
-            content: "Status changed successfully!",
-            dismissible: true,
-            dismissLabel: "Dismiss message",
-            onDismiss: () => setItems([]),
-            id: "message_1",
-          },
-        ]);
         setModalVisible(false);
-        // setTimeout(() => {
-        //   setItems([]);  // Clear the message after 3 seconds
-        // }, 5000);
-        dispatch(fetchProducts()); // Fetch updated products
-        window.location.reload(); // This will force a full page reload
+        setIsToggle(true);
+        setTimeout(() => {
+        setIsToggle(false); // Hide the flashbar after 5 seconds
+      }, 5000);
+      dispatch(fetchProducts()); // Fetch updated products
+      window.location.reload(); // Refresh the window
       })
       .catch((error) => {
         console.error("Error during status change:", error); // Log the full error for debugging
         dispatch(fetchProducts());
-        setItems([
-          {
-            type: "error",
-            content: `Failed to change status: ${
-              error.message || "Unknown error"
-            }`,
-            dismissible: true,
-            dismissLabel: "Dismiss message",
-            onDismiss: () => setItems([]),
-            id: "message_2",
-          },
-        ]);
       });
   };
+
+  
 
   const handleToggleChange = (item) => {
     setModalVisible(true);
@@ -171,45 +147,15 @@ const Products = () => {
 
   const handleCategoryChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption);
-
-
   };
-
 
   const handleSubCategoryChange = ({ detail }) => {
     setSelectedSubCategory(detail.selectedOption);
   };
 
-
-  // const handleSubCategoryChange = ({ detail }) => {
-  //   setSelectedSubCategory(detail.selectedOption);
-  // };
-
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
   };
-
-  //   const selectOptions = [
-  //     { label: "All", value: "" },
-  //     {
-  //       label: "Fresh Vegetables",
-  //       value: "Fresh Vegetables",
-  //     },
-  //     {
-  //       label: "Fresh Fruits",
-  //       value: "Fresh Fruits",
-  //     },
-  //     {
-  //       label: "Dairy",
-  //       value: "Dairy",
-  //     },
-  //     {
-  //       label: "Groceries",
-  //       value: "Groceries",
-  //     },
-  //     { label: "Bengali Special", value: "Bengali Special" },
-  //     { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
-  // ];
   const selectOptionsStatus = [
     { label: "All", value: "" },
     { label: "Active", value: "true" },
@@ -300,13 +246,6 @@ const Products = () => {
 
   const navigateToStore = () => {
     const baseCategoryUrl = "https://promodeagro.com";
-    // const categoryUrlPart = {
-    //   "Leafy Vegetables": "/category/VEGETABLES/Leafy%20Vegetables",
-    //   "Fruit": "/category/Fruits/Fresh%20Fruits",
-    //   "Vegetable": "/category/VEGETABLES/Fresh%20Vegetables",
-    //   "Bengali Vegetable": "/category/VEGETABLES/Bengali%20Vegetables",
-    // }[selectedCategory] || "";
-
     window.open(`${baseCategoryUrl}`, "_blank");
   };
 
@@ -327,7 +266,7 @@ const Products = () => {
   ]);
   const [flashbarItems, setFlashbarItems] = useState([
     {
-      type: "info",
+      type: "success",
       dismissible: true,
       dismissLabel: "Dismiss message",
       onDismiss: () => setFlashbarItems([]),
@@ -445,15 +384,11 @@ const Products = () => {
     ],
   };
 
-
   return (
     <ContentLayout
       notifications={
         <>
-          {/* Always render Flashbar with flashbarItems */}
           {isToggle && <Flashbar items={flashbarItems} />}
-
-          {/* Conditionally render Flashbar based on isBulkModifySuccess */}
           {isBulkModifySuccessflash && <Flashbar items={items1} />}
         </>
       }
@@ -467,13 +402,7 @@ const Products = () => {
         />
       }
       headerVariant="high-contrast"
-      header={
-        <Header
-          variant="h1"
-        >
-          Products
-        </Header>
-      }
+      header={<Header variant="h1">Products</Header>}
     >
       <SpaceBetween direction="vertical" size="m">
         <Container>
@@ -483,115 +412,114 @@ const Products = () => {
         <div>
           <Table
             header={
-                <SpaceBetween size="xs">
-                <SpaceBetween size="xs" direction="horizontal"
-                  // disableGutters
-                  // gridDefinition={[
-                  //   { colspan: { default: 12, xs: 4 } }, // First item takes full width on small screens, 4 columns on larger screens
-                  //   { colspan: { default: 12, xs: 2 } }, // Second item same as first
-                  //   { colspan: { default: 12, xs: 2 } }, // Third item same as first
-                  //   { colspan: { default: 12, xs: 2 } }, // Fourth item takes full width on small screens, 2 columns on larger screens
-                  // ]}
+              <SpaceBetween size="xs">
+                <SpaceBetween
+                  size="xs"
+                  direction="horizontal"
                 >
                   <TextFilter
                     filteringPlaceholder="Search"
                     filteringText={filteringText}
                     onChange={handleSearchChange}
                   />
-                    <Select
-                      required
-                      selectedOption={selectedCategory}
-                      onChange={handleCategoryChange}
-                      options={[
-                        { label: "All", value: "" },
-                        {
-                          label: "Fresh Vegetables",
-                          value: "Fresh Vegetables",
-                        },
-                        {
-                          label: "Fresh Fruits",
-                          value: "Fresh Fruits",
-                        },
-                        {
-                          label: "Dairy",
-                          value: "Dairy",
-                        },
-                        {
-                          label: "Groceries",
-                          value: "Groceries",
-                        },
-                        { label: "Bengali Special", value: "Bengali Special" },
-                        { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
-                      ]}
-              placeholder="Select Category"
-                    />
-                                      <Select
-                              required
-                              selectedOption={selectedSubCategory}
-                              onChange={handleSubCategoryChange}
-                              placeholder="Select Sub Category"
-                              options={
-                                selectedCategory
-                                  ? subcategoryOptions[selectedCategory?.value] || []
-                                  : []
-                              }
-                            />
-<Select
-  options={selectOptionsStatus}
-  selectedOption={
-    selectedStatus ? selectOptionsStatus.find((option) => option.value === selectedStatus) : null
-  }
-  onChange={handleSelectionChangeStatus}
-  placeholder="Select Status"
-/>
-              </SpaceBetween>
-              
+                  <Select
+                    required
+                    selectedOption={selectedCategory}
+                    onChange={handleCategoryChange}
+                    options={[
+                      { label: "All", value: "" },
+                      {
+                        label: "Fresh Vegetables",
+                        value: "Fresh Vegetables",
+                      },
+                      {
+                        label: "Fresh Fruits",
+                        value: "Fresh Fruits",
+                      },
+                      {
+                        label: "Dairy",
+                        value: "Dairy",
+                      },
+                      {
+                        label: "Groceries",
+                        value: "Groceries",
+                      },
+                      { label: "Bengali Special", value: "Bengali Special" },
+                      { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
+                    ]}
+                    placeholder="Select Category"
+                  />
+                  <Select
+                    required
+                    selectedOption={selectedSubCategory}
+                    onChange={handleSubCategoryChange}
+                    placeholder="Select Sub Category"
+                    options={
+                      selectedCategory
+                        ? subcategoryOptions[selectedCategory?.value] || []
+                        : []
+                    }
+                  />
+                  <Select
+                    options={selectOptionsStatus}
+                    selectedOption={
+                      selectedStatus
+                        ? selectOptionsStatus.find(
+                            (option) => option.value === selectedStatus
+                          )
+                        : null
+                    }
+                    onChange={handleSelectionChangeStatus}
+                    placeholder="Select Status"
+                  />
+                </SpaceBetween>
+
                 <Box float="right">
                   <SpaceBetween size="xs" direction="horizontal">
-                  {renderModalButton()}
-                  <Modal
-                    onDismiss={() => setModalVisible(false)}
-                    visible={isModalVisible}
-                    footer={
-                      <Box float="right">
-                        <SpaceBetween direction="horizontal" size="xs">
-                          <Button
-                            variant="link"
-                            onClick={() => setModalVisible(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            variant="primary"
-                            onClick={confirmToggleChange}
-                          >
-                            Ok
-                          </Button>
-                        </SpaceBetween>
-                      </Box>
-                    }
-                    header="Modal title"
-                  >
-                    Are you sure you want to change the status of this products?
-                  </Modal>
+                    {renderModalButton()}
+                    <Modal
+                      onDismiss={() => setModalVisible(false)}
+                      visible={isModalVisible}
+                      footer={
+                        <Box float="right">
+                          <SpaceBetween direction="horizontal" size="xs">
+                            <Button
+                              variant="link"
+                              onClick={() => setModalVisible(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="primary"
+                              onClick={confirmToggleChange}
+                            >
+                              Ok
+                            </Button>
+                          </SpaceBetween>
+                        </Box>
+                      }
+                      header="Modal title"
+                    >
+                      Are you sure you want to change the status of this
+                      products?
+                    </Modal>
 
-                  {isBulkModifySuccess && (
-                    <Button variant="normal" onClick={navigateToStore}>
-                      View On Store
+                    {isBulkModifySuccess && (
+                      <Button variant="normal" onClick={navigateToStore}>
+                        View On Store
+                      </Button>
+                    )}
+
+                    <Button
+                      disabled={isFieldChanged}
+                      variant="normal"
+                      onClick={handleBulkModifyPrice}
+                    >
+                      Bulk Modify Price
                     </Button>
-                  )}
-
-                  <Button
-                    disabled={isFieldChanged}
-                    variant="normal"
-                    onClick={handleBulkModifyPrice}
-                  >
-                    Bulk Modify Price
-                  </Button>
                   </SpaceBetween>
                 </Box>
-                </SpaceBetween>
-              
+              </SpaceBetween>
             }
             variant="borderless"
             columnDefinitions={[
@@ -599,7 +527,7 @@ const Products = () => {
                 id: "code",
                 header: "Item Code",
                 cell: (item) => (
-                  <Link to={`/app/products/${item.id}`}>{item.itemCode}</Link>
+                  <Link to={`/app/products/${item.id}`}>#{item.itemCode}</Link>
                 ),
               },
               {
@@ -636,7 +564,7 @@ const Products = () => {
                 header: "On Hand Quantity",
                 cell: (item) => (
                   <Box textAlign="center">
-                    {item?.stockQuantity}/{item?.units}
+                    {item?.stockQuantity} {item?.units}
                   </Box>
                 ),
               },
@@ -718,13 +646,13 @@ const Products = () => {
                 cell: (item) => (
                   <div style={{ width: "90px" }}>
                     <Toggle
-                    disabled={
-                      !(
-                        (editedProducts[item.id]?.onlineStorePrice ??
-                          item.onlineStorePrice) &&
-                        (editedProducts[item.id]?.compareAt ?? item.compareAt)
-                      )
-                    }
+                      disabled={
+                        !(
+                          (editedProducts[item.id]?.onlineStorePrice ??
+                            item.onlineStorePrice) &&
+                          (editedProducts[item.id]?.compareAt ?? item.compareAt)
+                        )
+                      }
                       onChange={() => handleToggleChange(item)}
                       checked={item.active}
                     >
@@ -739,15 +667,17 @@ const Products = () => {
             items={data}
             selectionType="multi"
             empty={
-              <Box margin={{ vertical: "xs" }} textAlign="center" color="inherit">
+              <Box
+                margin={{ vertical: "xs" }}
+                textAlign="center"
+                color="inherit"
+              >
                 <SpaceBetween size="m">
                   <b>No Products</b>
                 </SpaceBetween>
               </Box>
             }
-  
           />
-          {/* Sentinel element for infinite scrolling */}
           <div
             ref={lastProductRef}
             style={{ height: "20px", textAlign: "center" }}
@@ -774,7 +704,6 @@ const Products = () => {
       >
         Are you sure you want to bulk modify the prices for the selected items?
       </Modal>
-      {/* Modal for confirmation */}
       <Modal
         onDismiss={() => setModalVisible(false)}
         visible={isModalVisible}
