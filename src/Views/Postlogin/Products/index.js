@@ -119,12 +119,13 @@ const Products = () => {
       .then((response) => {
         console.log("Update Response:", response); // Log response for debugging
         setModalVisible(false);
+        dispatch(fetchProducts()); // Fetch updated products
         setIsToggle(true);
         setTimeout(() => {
         setIsToggle(false); // Hide the flashbar after 5 seconds
       }, 5000);
-      dispatch(fetchProducts()); // Fetch updated products
       window.location.reload(); // Refresh the window
+
       })
       .catch((error) => {
         console.error("Error during status change:", error); // Log the full error for debugging
