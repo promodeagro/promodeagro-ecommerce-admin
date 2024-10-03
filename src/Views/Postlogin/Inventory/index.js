@@ -25,6 +25,8 @@ const Inventory = () => {
   const [currentPageIndex, setCurrentPageIndex] = React.useState(1);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [selectedCategory, setSelectedCategory] = React.useState(null);
+  const [selectedSubCategory, setSelectedSubCategory] = React.useState(null);
+
 
   const products = useSelector((state) => state.items.products);
 
@@ -38,17 +40,22 @@ const Inventory = () => {
       fetchProducts({
         category: selectedCategory?.value || "",
         search: filteringText,
+        subCategory: selectedSubCategory?.value || "",
       })
     );
-  }, [dispatch, selectedCategory, filteringText]);
+  }, [dispatch, selectedCategory, filteringText, selectedSubCategory]);
 
   const handleCategoryChange = ({ detail }) => {
     setSelectedCategory(detail.selectedOption);
+
+
   };
   const handleSearchChange = ({ detail }) => {
     setFilteringText(detail.filteringText);
   };
-  // Check if products is an array and has elements
+  const handleSubCategoryChange = ({ detail }) => {
+    setSelectedSubCategory(detail.selectedOption);
+  };
 
   // Filter products based on the filteringText
   const filteredProducts = Array.isArray(data?.items)
@@ -81,6 +88,44 @@ const Inventory = () => {
     setIsDrawerOpen(false);
     setSelectedProduct(null);
   };
+
+  const subcategoryOptions = {
+    "Fresh Vegetables": [
+      { label: "Daily Vegetables", value: "Daily Vegetables" },
+      { label: "Leafy Vegetables", value: "Leafy Vegetables" },
+      { label: "Exotic Vegetables", value: "Exotic Vegetables" },
+    ],
+    "Fresh Fruits": [
+      { label: "Daily Fruits", value: "Daily Fruits" },
+      { label: "Exotic Fruits", value: "Exotic Fruits" },
+      { label: "Dry Fruits", value: "Dry Fruits" },
+    ],
+    Dairy: [
+      { label: "Milk", value: "Milk" },
+      { label: "Butter & Ghee", value: "Butter & Ghee" },
+      { label: "Paneer & Khowa", value: "Paneer & Khowa" },
+    ],
+    Groceries: [
+      { label: "Cooking Oil", value: "Cooking Oil" },
+      { label: "Rice", value: "Rice" },
+      { label: "Daal", value: "Daal" },
+      { label: "Spices", value: "Spices" },
+      { label: "Snacks", value: "Snacks" },
+    ],
+    "Bengali Special": [
+      { label: "Bengali Vegetables", value: "Bengali Vegetables" },
+      { label: "Bengali Groceries", value: "Bengali Groceries" },
+      { label: "Bengali Home Needs", value: "Bengali Home Needs" },
+    ],
+    "Eggs Meat & Fish": [
+      { label: "Eggs", value: "Eggs" },
+      { label: "Fish", value: "Fish" },
+      { label: "Chicken", value: "Chicken" },
+      { label: "Mutton", value: "Mutton" },
+    ],
+  };
+
+
 
   return (
     <div className="flex-col gap-3">
@@ -182,58 +227,74 @@ const Inventory = () => {
           </Container>
         </ContentLayout>
 
-        <div style={{marginTop: '1rem'}}>
-            <Grid
-              disableGutters
-              gridDefinition={[
-                { colspan: { default: 12, xxs: 6 } },
-                { colspan: { default: 12, xxs: 6 } },
-              ]}
-            >
-              <div style={{ display: "flex", gap: "0.4rem" }}>
-       
-          <TextFilter
-            size="3xs"
-            filteringPlaceholder="Search"
-            filteringText={filteringText}
-            onChange={handleSearchChange}
-          /> 
-          <Select
-            required
-            selectedOption={selectedCategory}
-            onChange={handleCategoryChange}
-            options={[
-              { label: "All", value: "" },
-              { label: "FRUITS AND VEGETABLES", value: "Fruits And Vegetables" },
-              { label: "DAIRIES AND GROCERIES", value: "Dairies And Groceries" },
-              { label: "BENGALI SPECIAL", value: "Bengali Special" },
-              { label: "MEAT/FISH/EGGS", value: "Meat/Fish/Eggs" },
-            ]}
-            placeholder="Select Category"
-          />
-           </div>
-           <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                }}
-              >
-          <Pagination
-            currentPageIndex={currentPageIndex}
-            onChange={({ detail }) =>
-              setCurrentPageIndex(detail.currentPageIndex)
-            }
-            pagesCount={5}
-          />
-          </div>
-        <div/>  
-        </Grid>
-          </div>
 
           </div>
       
       <div style={{ marginTop: "15px"}}>
         <Table
+                  header={
+<>
+                    <SpaceBetween size="xs" direction="horizontal">
+                    <TextFilter
+                      size="3xs"
+                      filteringPlaceholder="Search"
+                      filteringText={filteringText}
+                      onChange={handleSearchChange}
+                    /> 
+                    <Select
+                      required
+                      selectedOption={selectedCategory}
+                      onChange={handleCategoryChange}
+                      options={[
+                        { label: "All", value: "" },
+                        {
+                          label: "Fresh Vegetables",
+                          value: "Fresh Vegetables",
+                        },
+                        {
+                          label: "Fresh Fruits",
+                          value: "Fresh Fruits",
+                        },
+                        {
+                          label: "Dairy",
+                          value: "Dairy",
+                        },
+                        {
+                          label: "Groceries",
+                          value: "Groceries",
+                        },
+                        { label: "Bengali Special", value: "Bengali Special" },
+                        { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
+                      ]}
+              placeholder="Select Category"
+                    />
+                                      <Select
+                              required
+                              selectedOption={selectedSubCategory}
+                              onChange={handleSubCategoryChange}
+                              placeholder="Select Sub Category"
+                              options={
+                                selectedCategory
+                                  ? subcategoryOptions[selectedCategory?.value] || []
+                                  : []
+                              }
+                            />
+                            </SpaceBetween>
+          <Box float="right">
+                    <Pagination
+                      currentPageIndex={currentPageIndex}
+                      onChange={({ detail }) =>
+                        setCurrentPageIndex(detail.currentPageIndex)
+                      }
+                      pagesCount={5}
+                    />
+                    </Box>
+                  
+                  
+                    </>
+            
+                  }
+        
           variant="borderless"
           columnDefinitions={[
             {
@@ -274,6 +335,13 @@ const Inventory = () => {
               cell: (e) => e.category,
             },
             {
+              id: "subCategory",
+              sortingField: "subCategory",
+              header: "Sub Category",
+              cell: (e) => e.subCategory,
+            },
+
+            {
               sortingField: "quantityOnHand",
               id: "quantityOnHand",
               header: "Quantity on Hand",
@@ -302,16 +370,16 @@ const Inventory = () => {
               cell: (e) => e.msp,
             },
           ]}
-          columnDisplay={[
-            { id: "itemCode", visible: true },
-            { id: "name", visible: true },
-            { id: "category", visible: true },
-            { id: "quantityOnHand", visible: true },
-            { id: "stockAlert", visible: true },
-            { id: "purchasingPrice", visible: true },
-            { id: "msp", visible: true },
-            { id: "status", visible: true },
-          ]}
+          // columnDisplay={[
+          //   { id: "itemCode", visible: true },
+          //   { id: "name", visible: true },
+          //   { id: "category", visible: true },
+          //   { id: "quantityOnHand", visible: true },
+          //   { id: "stockAlert", visible: true },
+          //   { id: "purchasingPrice", visible: true },
+          //   { id: "msp", visible: true },
+          //   { id: "status", visible: true },
+          // ]}
           enableKeyboardNavigation
           items={paginatedProducts}
           loadingText="Loading resources"
@@ -319,8 +387,7 @@ const Inventory = () => {
           empty={
             <Box margin={{ vertical: "xs" }} textAlign="center" color="inherit">
               <SpaceBetween size="m">
-                <b>No resources</b>
-                <Button>Create resource</Button>
+                <b>No Products</b>
               </SpaceBetween>
             </Box>
           }

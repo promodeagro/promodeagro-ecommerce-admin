@@ -40,7 +40,7 @@ const Products = () => {
 
   const [selectedItems, setSelectedItems] = useState([]);
   const [filteringText, setFilteringText] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = React.useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [editedProducts, setEditedProducts] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
@@ -64,7 +64,7 @@ const Products = () => {
     dispatch(
       fetchProducts({
         search: filteringText,
-        category: selectedCategory || "",
+        category: selectedCategory?.value || "",
         subCategory: selectedSubCategory?.value || "",
         active: selectedStatus,
       })
@@ -169,9 +169,21 @@ const Products = () => {
     setSelectedStatus(detail.selectedOption.value);
   };
 
+  const handleCategoryChange = ({ detail }) => {
+    setSelectedCategory(detail.selectedOption);
+
+
+  };
+
+
   const handleSubCategoryChange = ({ detail }) => {
     setSelectedSubCategory(detail.selectedOption);
   };
+
+
+  // const handleSubCategoryChange = ({ detail }) => {
+  //   setSelectedSubCategory(detail.selectedOption);
+  // };
 
   const handleSearchChange = (e) => {
     setFilteringText(e.detail.filteringText);
@@ -199,7 +211,7 @@ const Products = () => {
   //     { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
   // ];
   const selectOptionsStatus = [
-    { label: "All", value: "All" },
+    { label: "All", value: "" },
     { label: "Active", value: "true" },
     { label: "Inactive", value: "false" },
   ];
@@ -433,6 +445,7 @@ const Products = () => {
     ],
   };
 
+
   return (
     <ContentLayout
       notifications={
@@ -485,56 +498,54 @@ const Products = () => {
                     filteringText={filteringText}
                     onChange={handleSearchChange}
                   />
-                  <Select
-                    options={[
-                      { label: "All", value: "" },
-                      {
-                        label: "Fresh Vegetables",
-                        value: "Fresh Vegetables",
-                      },
-                      {
-                        label: "Fresh Fruits",
-                        value: "Fresh Fruits",
-                      },
-                      {
-                        label: "Dairy",
-                        value: "Dairy",
-                      },
-                      {
-                        label: "Groceries",
-                        value: "Groceries",
-                      },
-                      { label: "Bengali Special", value: "Bengali Special" },
-                      { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
-                    ]}
-                    placeholder="Select Category"
-                    // selectedOption={selectOptions.find(
-                    //   (option) => option.value === selectedCategory
-                    // )}
-                    onChange={handleSelectChange}
-                  />
-                  <Select
-                    required
-                    selectedOption={selectedSubCategory}
-                    onChange={handleSubCategoryChange}
-                    placeholder="Select Sub Category"
-                    options={
-                      selectedCategory
-                        ? subcategoryOptions[selectedCategory] || []
-                        : []
-                    }
-                  />
-                  <Select
-                    options={selectOptionsStatus}
-                    selectedOption={selectOptionsStatus.find(
-                      (option) => option.value === selectedStatus
-                    )}
-                    onChange={handleSelectionChangeStatus}
-                    placeholder="Select Status"
-                  />
-                </SpaceBetween>
-                
-
+                    <Select
+                      required
+                      selectedOption={selectedCategory}
+                      onChange={handleCategoryChange}
+                      options={[
+                        { label: "All", value: "" },
+                        {
+                          label: "Fresh Vegetables",
+                          value: "Fresh Vegetables",
+                        },
+                        {
+                          label: "Fresh Fruits",
+                          value: "Fresh Fruits",
+                        },
+                        {
+                          label: "Dairy",
+                          value: "Dairy",
+                        },
+                        {
+                          label: "Groceries",
+                          value: "Groceries",
+                        },
+                        { label: "Bengali Special", value: "Bengali Special" },
+                        { label: "Eggs Meat & Fish", value: "Eggs Meat & Fish" },
+                      ]}
+              placeholder="Select Category"
+                    />
+                                      <Select
+                              required
+                              selectedOption={selectedSubCategory}
+                              onChange={handleSubCategoryChange}
+                              placeholder="Select Sub Category"
+                              options={
+                                selectedCategory
+                                  ? subcategoryOptions[selectedCategory?.value] || []
+                                  : []
+                              }
+                            />
+<Select
+  options={selectOptionsStatus}
+  selectedOption={
+    selectedStatus ? selectOptionsStatus.find((option) => option.value === selectedStatus) : null
+  }
+  onChange={handleSelectionChangeStatus}
+  placeholder="Select Status"
+/>
+              </SpaceBetween>
+              
                 <Box float="right">
                   <SpaceBetween size="xs" direction="horizontal">
                   {renderModalButton()}
@@ -707,13 +718,6 @@ const Products = () => {
                 cell: (item) => (
                   <div style={{ width: "90px" }}>
                     <Toggle
-                      disabled={
-                        !(
-                          (editedProducts[item.id]?.onlineStorePrice ??
-                            item.onlineStorePrice) &&
-                          (editedProducts[item.id]?.compareAt ?? item.compareAt)
-                        )
-                      }
                       onChange={() => handleToggleChange(item)}
                       checked={item.active}
                     >
@@ -721,13 +725,20 @@ const Products = () => {
                     </Toggle>
                   </div>
                 ),
-              }
-              
+              },
             ]}
             selectedItems={selectedItems}
             onSelectionChange={handleSelectionChange}
             items={data}
             selectionType="multi"
+            empty={
+              <Box margin={{ vertical: "xs" }} textAlign="center" color="inherit">
+                <SpaceBetween size="m">
+                  <b>No Products</b>
+                </SpaceBetween>
+              </Box>
+            }
+  
           />
           {/* Sentinel element for infinite scrolling */}
           <div

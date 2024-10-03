@@ -22,6 +22,10 @@ export const fetchProducts = createAsyncThunk("products/fetch", async (params, {
     if (params?.category) {
       queryParams.push(`category=${encodeURIComponent(params.category)}`);
     }
+    if (params?.subCategory) {
+      queryParams.push(`subCategory=${encodeURIComponent(params.subCategory)}`);
+    }
+
     if (params?.active) {
       queryParams.push(`active=${encodeURIComponent(params.active)}`);
     }
