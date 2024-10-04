@@ -15,7 +15,6 @@ import {
   Modal,
   Flashbar,
   FormField,
-  Grid,
   Spinner,
 } from "@cloudscape-design/components";
 import { useSelector, useDispatch } from "react-redux";
@@ -45,9 +44,7 @@ const Products = () => {
   const [isBulkModifySuccess, setBulkModifySuccess] = useState(false);
   const [isBulkModifySuccessflash, setBulkModifySuccessflash] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-  const [isToggleSuccessFlash, setIsToggleSuccessFlash] = useState(false);
   const [isToggle, setIsToggle] = useState(false);
-
   const [isFetching, setIsFetching] = useState(false);
   const [isFieldChanged, setIsFieldChanged] = useState(true);
   const observer = useRef();
@@ -55,7 +52,6 @@ const Products = () => {
 
   useEffect(() => {
     dispatch(resetProducts());
-
     dispatch(
       fetchProducts({
         search: filteringText,
@@ -112,35 +108,37 @@ const Products = () => {
   const [selectedItem, setSelectedItem] = useState(null);
 
   const confirmToggleChange = () => {
-    const newStatus = selectedStatus === "true"; // Determine the status based on selectedStatus
-    const ids = selectedItems.map((item) => item.id); // Get the IDs of the selected items
+    // Determine the status conditionally
+    const newStatus = selectedStatus
+      ? selectedStatus === "true" // If selectedStatus is provided, convert it to boolean
+      : selectedItems.every((item) => item.active); // If not, use the active status of the selected items
+
+    // Get the IDs of the selected items
+    const ids = selectedItems.map((item) => item.id);
+
     dispatch(PutToggle({ ids, active: newStatus }))
       .unwrap()
       .then((response) => {
         console.log("Update Response:", response); // Log response for debugging
         setModalVisible(false);
-        dispatch(fetchProducts()); // Fetch updated products
         setIsToggle(true);
         setTimeout(() => {
-        setIsToggle(false); // Hide the flashbar after 5 seconds
-      }, 5000);
-      window.location.reload(); // Refresh the window
-
+          setIsToggle(false); // Hide the flashbar after 5 seconds
+        }, 3000);
+        setTimeout(() => {
+          window.location.reload(); // Refresh the window after 5 seconds
+        }, 3000);
       })
+
       .catch((error) => {
         console.error("Error during status change:", error); // Log the full error for debugging
         dispatch(fetchProducts());
       });
   };
 
-  
-
   const handleToggleChange = (item) => {
     setModalVisible(true);
     setSelectedItem(item);
-  };
-  const handleSelectChange = ({ detail }) => {
-    setSelectedCategory(detail.selectedOption.value);
   };
   const handleSelectionChangeStatus = ({ detail }) => {
     setSelectedStatus(detail.selectedOption.value);
@@ -176,7 +174,6 @@ const Products = () => {
   const validateInputs = () => {
     let valid = true;
     const errors = {};
-
     selectedItems.forEach((item) => {
       const editedProduct = editedProducts[item.id] || {};
       const osp = editedProduct.onlineStorePrice || item.onlineStorePrice;
@@ -187,7 +184,6 @@ const Products = () => {
         valid = false;
         itemErrors.onlineStorePrice = "Required!";
       }
-
       if (!cp) {
         valid = false;
         itemErrors.compareAt = "Required!";
@@ -195,7 +191,6 @@ const Products = () => {
         valid = false;
         itemErrors.compareAt = "CP must be greater than OSP";
       }
-
       if (Object.keys(itemErrors).length > 0) {
         errors[item.id] = itemErrors;
       }
@@ -219,7 +214,6 @@ const Products = () => {
     try {
       const response = await dispatch(putPricingById(pricingDataArray));
       console.log(response, "bulk resp");
-
       if (
         response.meta.requestStatus === "fulfilled" &&
         response.payload.status === 200
@@ -235,7 +229,6 @@ const Products = () => {
         setSelectedItems([]);
         setModalVisible1(false);
       }
-
       setTimeout(() => {
         setBulkModifySuccessflash(false);
       }, 5000);
@@ -281,20 +274,16 @@ const Products = () => {
     },
   ]);
 
-  const previousNextKey = useRef(null); // Store the previous nextKey
-
+  const previousNextKey = useRef(null);
   const lastProductRef = useCallback(
     (node) => {
       if (status === "loading" || !hasMore || isFetching) return; // Stop if loading, no more data, or currently fetching
-
       if (observer.current) observer.current.disconnect();
-
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore && nextKey) {
           if (previousNextKey.current !== nextKey) {
             setIsFetching(true);
             console.log("Fetching next set of products with nextKey:", nextKey);
-
             dispatch(
               fetchProducts({
                 search: filteringText,
@@ -414,10 +403,7 @@ const Products = () => {
           <Table
             header={
               <SpaceBetween size="xs">
-                <SpaceBetween
-                  size="xs"
-                  direction="horizontal"
-                >
+                <SpaceBetween size="xs" direction="horizontal">
                   <TextFilter
                     filteringPlaceholder="Search"
                     filteringText={filteringText}
