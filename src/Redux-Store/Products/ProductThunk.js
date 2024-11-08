@@ -4,6 +4,11 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import config from "Views/Config";
 import { postLoginService } from "Services";
 
+// Helper function to get the access token from localStorage
+const getAuthToken = () => {
+  const user = JSON.parse(localStorage.getItem('user'));  // Parse the user object from localStorage
+  return user?.accessToken;  // Return the access token
+}
 
 // Fetch products
 export const fetchProducts = createAsyncThunk("products/fetch", async (params, { rejectWithValue }) => {
@@ -22,6 +27,7 @@ export const fetchProducts = createAsyncThunk("products/fetch", async (params, {
     if (params?.category) {
       queryParams.push(`category=${encodeURIComponent(params.category)}`);
     }
+
     if (params?.subCategory) {
       queryParams.push(`subCategory=${encodeURIComponent(params.subCategory)}`);
     }
@@ -29,6 +35,7 @@ export const fetchProducts = createAsyncThunk("products/fetch", async (params, {
     if (params?.active) {
       queryParams.push(`active=${encodeURIComponent(params.active)}`);
     }
+
     if (params?.nextKey) {
       queryParams.push(`pageKey=${encodeURIComponent(params.nextKey)}`);
     }
@@ -38,17 +45,22 @@ export const fetchProducts = createAsyncThunk("products/fetch", async (params, {
       url += `?${queryParams.join('&')}`;
     }
 
-    const response = await postLoginService.get(url);
-    console.log(response,"product response");
-    console.log(url,"pro url");
+    const token = getAuthToken();  // Retrieve the access token
+    const configHeaders = {
+      headers: {
+        'Authorization': `Bearer ${token}`,  // Add the Bearer token here
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const response = await postLoginService.get(url, configHeaders);  // Pass configHeaders for Authorization
+    console.log(response, "product response");
+    console.log(url, "pro url");
     return response.data;
   } catch (error) {
-    return rejectWithValue(error.response.data);
+    return rejectWithValue(error.response?.data || error.message);
   }
 });
-
-
-
 
 // Fetch product details by ID
 export const fetchProductById = createAsyncThunk(
@@ -56,38 +68,48 @@ export const fetchProductById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const url = `${config.FETCH_PRODUCTS_DETAIL}/${id}`;
-      const response = await postLoginService.get(url);
+      const token = getAuthToken();  // Retrieve the access token
+      const configHeaders = {
+        headers: {
+          'Authorization': `Bearer ${token}`,  // Add the Bearer token here
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const response = await postLoginService.get(url, configHeaders);  // Pass configHeaders for Authorization
       console.log(response.data, "async specific data");
       return response.data;
     
     } catch (error) {
       console.error("API error:", error); // Log API error
-      return rejectWithValue(
-        error.response ? error.response.data : error.message
-      );
+      return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }
 );
 
-
-
+// Put pricing by ID
 export const putPricingById = createAsyncThunk(
   "products/putPricingById",
   async (pricingDataArray, { rejectWithValue }) => {
     try {
-    
       const url = `${config.PUT_PRICING}/price`;
-      const response = await postLoginService.put(url, pricingDataArray);
-      console.log(response,"pricing array ");
+      const token = getAuthToken();  // Retrieve the access token
+      const configHeaders = {
+        headers: {
+          'Authorization': `Bearer ${token}`,  // Add the Bearer token here
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const response = await postLoginService.put(url, pricingDataArray, configHeaders);  // Pass configHeaders for Authorization
+      console.log(response, "pricing array");
       return response.data;
      
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
-
-
 
 // Put Active/Inactive Status
 export const PutToggle = createAsyncThunk(
@@ -95,6 +117,13 @@ export const PutToggle = createAsyncThunk(
   async ({ ids, active }, { rejectWithValue }) => {
     try {
       const url = `${config.PUT_ACTIVE_INACTIVE}`;
+      const token = getAuthToken();  // Retrieve the access token
+      const configHeaders = {
+        headers: {
+          'Authorization': `Bearer ${token}`,  // Add the Bearer token here
+          'Content-Type': 'application/json',
+        },
+      };
 
       let isActive;
       if (typeof active === 'string') {
@@ -106,17 +135,15 @@ export const PutToggle = createAsyncThunk(
       const items = ids.map(id => ({ id, active: isActive }));
 
       console.log("Sending request to:", url);
-      console.log("Payload:", items);  // This should now be in the correct format
+      console.log("Payload:", items);
 
-      const response = await postLoginService.put(url, items);  // Send the array directly
+      const response = await postLoginService.put(url, items, configHeaders);  // Pass configHeaders for Authorization
 
       console.log(response.data, "async put of toggle successful");
       return response.data;
     } catch (error) {
       console.error("API error:", error);  // Log API error
-      return rejectWithValue(
-        error?.response?.data || error.message
-      );
+      return rejectWithValue(error?.response?.data || error.message);
     }
   }
 );
