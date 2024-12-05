@@ -68,6 +68,7 @@ const Products = () => {
     selectedSubCategory,
   ]);
 
+  //validations of input fields
   const handleInputChange = (id, field, value) => {
     setEditedProducts((prev) => ({
       ...prev,
@@ -76,10 +77,18 @@ const Products = () => {
         [field]: value,
       },
     }));
-
+  
+    // Validate the field
     validateField(id, field, value);
-    setIsFieldChanged(false);
+  
+ // Update isFieldChanged based on the input value
+ if (value.trim() === "") {
+  setIsFieldChanged(true); // Reset to true if the field is empty
+} else {
+  setIsFieldChanged(false);
+}
   };
+  
 
   const validateField = (id, field, value) => {
     const osp = value;
@@ -104,73 +113,12 @@ const Products = () => {
       [id]: errors,
     }));
   };
-
-  const [selectedItem, setSelectedItem] = useState(null);
-
-  const confirmToggleChange = () => {
-    // Determine the status conditionally
-    const newStatus = selectedStatus
-      ? selectedStatus === "true" // If selectedStatus is provided, convert it to boolean
-      : selectedItems.every((item) => item.active); // If not, use the active status of the selected items
-
-    // Get the IDs of the selected items
-    const ids = selectedItems.map((item) => item.id);
-
-    dispatch(PutToggle({ ids, active: newStatus }))
-      .unwrap()
-      .then((response) => {
-        console.log("Update Response:", response); // Log response for debugging
-        setModalVisible(false);
-        setIsToggle(true);
-        setTimeout(() => {
-          setIsToggle(false); // Hide the flashbar after 5 seconds
-        }, 3000);
-        setTimeout(() => {
-          window.location.reload(); // Refresh the window after 5 seconds
-        }, 3000);
-      })
-
-      .catch((error) => {
-        console.error("Error during status change:", error); // Log the full error for debugging
-        dispatch(fetchProducts());
-      });
-  };
-
-  const handleToggleChange = (item) => {
-    setModalVisible(true);
-    setSelectedItem(item);
-  };
-  const handleSelectionChangeStatus = ({ detail }) => {
-    setSelectedStatus(detail.selectedOption.value);
-  };
-
-  const handleCategoryChange = ({ detail }) => {
-    setSelectedCategory(detail.selectedOption);
-  };
-
-  const handleSubCategoryChange = ({ detail }) => {
-    setSelectedSubCategory(detail.selectedOption);
-  };
-
-  const handleSearchChange = (e) => {
-    setFilteringText(e.detail.filteringText);
-  };
-  const selectOptionsStatus = [
-    { label: "All", value: "" },
-    { label: "Active", value: "true" },
-    { label: "Inactive", value: "false" },
-  ];
-
-  const handleSelectionChange = ({ detail }) => {
-    setSelectedItems(detail.selectedItems);
-  };
-
   const handleBulkModifyPrice = () => {
     if (validateInputs()) {
       setModalVisible1(true);
     }
   };
-
+ // validations before opening modal for api hitting
   const validateInputs = () => {
     let valid = true;
     const errors = {};
@@ -231,12 +179,76 @@ const Products = () => {
       }
       setTimeout(() => {
         setBulkModifySuccessflash(false);
-      }, 5000);
+      }, 2000);
+      setTimeout(() => {
+        window.location.reload(); // Refresh the window after 5 seconds
+      }, 2000);
     } catch (err) {
       console.error("Failed to update product pricing:", err);
       setBulkModifySuccess(false);
     }
   };
+
+
+  const confirmToggleChange = () => {
+    // Determine the status conditionally
+    const newStatus = selectedStatus
+      ? selectedStatus === "true" // If selectedStatus is provided, convert it to boolean
+      : selectedItems.every((item) => item.active); // If not, use the active status of the selected items
+
+    // Get the IDs of the selected items
+    const ids = selectedItems.map((item) => item.id);
+
+    dispatch(PutToggle({ ids, active: newStatus }))
+      .unwrap()
+      .then((response) => {
+        console.log("Update Response:", response); // Log response for debugging
+        setModalVisible(false);
+        setIsToggle(true);
+        setTimeout(() => {
+          setIsToggle(false); // Hide the flashbar after 5 seconds
+        }, 3000);
+        setTimeout(() => {
+          window.location.reload(); // Refresh the window after 5 seconds
+        }, 3000);
+      })
+
+      .catch((error) => {
+        console.error("Error during status change:", error); // Log the full error for debugging
+        dispatch(fetchProducts());
+      });
+  };
+
+  const handleToggleChange = (item) => {
+    setModalVisible(true);
+    setSelectedItems([item]);
+  };
+  const handleSelectionChangeStatus = ({ detail }) => {
+    setSelectedStatus(detail.selectedOption.value);
+  };
+
+  const handleCategoryChange = ({ detail }) => {
+    setSelectedCategory(detail.selectedOption);
+  };
+
+  const handleSubCategoryChange = ({ detail }) => {
+    setSelectedSubCategory(detail.selectedOption);
+  };
+
+  const handleSearchChange = (e) => {
+    setFilteringText(e.detail.filteringText);
+  };
+  const selectOptionsStatus = [
+    { label: "All", value: "" },
+    { label: "Active", value: "true" },
+    { label: "Inactive", value: "false" },
+  ];
+
+  const handleSelectionChange = ({ detail }) => {
+    setSelectedItems(detail.selectedItems);
+  };
+
+
 
   const navigateToStore = () => {
     const baseCategoryUrl = "https://promodeagro.com";
@@ -491,11 +503,11 @@ const Products = () => {
                       products?
                     </Modal>
 
-                    {isBulkModifySuccess && (
+                    {/* {isBulkModifySuccess && ( */}
                       <Button variant="normal" onClick={navigateToStore}>
-                        View On Store
+                        View Store
                       </Button>
-                    )}
+                    {/* )} */}
 
                     <Button
                       disabled={isFieldChanged}
