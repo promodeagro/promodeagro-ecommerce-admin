@@ -108,10 +108,13 @@ const Orders = () => {
   };
 
   const selectOptions = [
-    // { label: "Order Confirmed", value: "order placed" },
-    // { label: "Packed", value: "packed" },
-    // { label: "On The Way", value: "on the way" },
+    { label: "Order Confirmed", value: "order placed" },
+    { label: "Order Processing", value: "order processing" },
+    { label: "Packed", value: "packed" },
+    { label: "On The Way", value: "on the way" },
     { label: "Delivered", value: "delivered" },
+    { label: "Undelivered", value: "undelivered" },
+    { label: "Cancelled", value: "cancelled" },
   ];
 
   // const handleMoveToPackedClick = () => {
@@ -438,9 +441,9 @@ const Orders = () => {
                     }
                     options={[
                       { label: "7 Days Old", value: "7" },
-                      { label: "14 Days Old", value: "14" },
-                      { label: "1 Month Old", value: "1m" },
-                      { label: "2 Month Old", value: "2m" },
+                      { label: "last 14 Days Old", value: "14" },
+                      { label: "last 1 Month Old", value: "1m" },
+                      { label: " last 2 Month Old", value: "2m" },
                       { label: "Old Orders", value: "older" },
                     ]}
                     placeholder="Completed Order"
@@ -684,11 +687,11 @@ const Orders = () => {
               },
               ...(activeButton === "on the way" || activeButton === "delivered"
                 ? [
-                    {
-                      id: "assignee",
-                      header: "Assignee",
-                      cell: (item) => item.assignee || "N/A",
-                    },
+                    // {
+                    //   id: "assignee",
+                    //   header: "Assignee",
+                    //   cell: (item) => item.assignee || "N/A",
+                    // },
                   ]
                 : []),
             ]}

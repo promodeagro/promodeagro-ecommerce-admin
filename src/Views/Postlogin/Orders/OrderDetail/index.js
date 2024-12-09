@@ -309,7 +309,7 @@ const OrderDetail = () => {
         <Header
           actions={
             <SpaceBetween direction="horizontal" size="xs">
-              {orderDetail?.status === "order placed" && (
+              {/* {orderDetail?.status === "order placed" && (
                 <Button
                   onClick={() => setIsMoveToPackedModalVisible(true)}
                   iconName="angle-right-double"
@@ -317,8 +317,8 @@ const OrderDetail = () => {
                 >
                   Move to Packed
                 </Button>
-              )}
-              {orderDetail?.status === "packed" && (
+              )} */}
+              {/* {orderDetail?.status === "packed" && (
                 <Button
                   onClick={() => setIsAssignModalVisible(true)}
                   iconName="add-plus"
@@ -326,8 +326,8 @@ const OrderDetail = () => {
                 >
                   Assign Order
                 </Button>
-              )}
-              {orderDetail?.status === "on the way" && (
+              )} */}
+              {/* {orderDetail?.status === "on the way" && (
                 <Button
                   onClick={() => setIsDeliveredModalVisible(true)}
                   iconName="angle-right-double"
@@ -335,8 +335,8 @@ const OrderDetail = () => {
                 >
                   Mark as Delivered
                 </Button>
-              )}
-              <Modal
+              )} */}
+              {/* <Modal
                 onDismiss={() => setIsMoveToPackedModalVisible(false)}
                 visible={isMoveToPackedModalVisible}
                 footer={
@@ -424,11 +424,11 @@ const OrderDetail = () => {
                   errorText="This is an error message."
 
                 />
-              </Modal>
+              </Modal> */}
               <ButtonDropdown
                 items={[
-                  { text: "Cancel Order", id: "cancel", href: "/cancel-order" },
-                  { text: "Refund Order", id: "refund" },
+                  // { text: "Cancel Order", id: "cancel", href: "/cancel-order" },
+                  // { text: "Refund Order", id: "refund" },
                   {
                     text: "View Invoice",
                     id: "invoice",
