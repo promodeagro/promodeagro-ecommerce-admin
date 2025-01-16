@@ -293,7 +293,7 @@ const Invoice = () => {
                 fontWeight: "600",
               }}
             >
-              Rs.{orderDetails?.paymentDetails?.amount || "N/A"}
+              Rs.{orderDetails?.totalPrice || "N/A"}
             </div>
           </div>
 
@@ -434,7 +434,7 @@ const Invoice = () => {
             }}
           >
             <p>Total</p>
-            <p> Rs. {orderDetails?.paymentDetails?.amount}</p>
+            <p> Rs. {orderDetails?.totalPrice}</p>
           </div>
 
           <div
