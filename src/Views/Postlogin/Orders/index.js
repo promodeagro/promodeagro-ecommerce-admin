@@ -33,7 +33,7 @@ const Orders = () => {
   const items = React.useMemo(() => data.items || [], [data.items]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeButton, setActiveButton] = useState("delivered");
+  const [activeButton, setActiveButton] = useState("order placed");
   const [filteringText, setFilteringText] = useState("");
   // const [selectedAssignee, setSelectedAssignee] = useState(null);
   // const [isAssignOrdersModalVisible, setIsAssignOrdersModalVisible] =
